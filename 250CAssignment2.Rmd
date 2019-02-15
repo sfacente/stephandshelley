@@ -13,7 +13,7 @@ knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 library(survival)
 
 
-load("/cloud/project/frmgham_recoded.wide.Rdata")
+load("/cloud/project/frmgham_recoded.Rdata")
 ```
 
 
@@ -39,6 +39,22 @@ scale=1)[c("event","pyears")]
 simplify2array(py.smoke) # Make it pretty
 ```
 
+```{r}
+#Referring to the code from the lecture notes, use the logrank test to determine if there are any differences in survival between the smoking groups.
+```
+
+```{r}
+#Using a Cox proportional hazards regression model, estimate the association between current smoking status (at baseline) and time to death. Estimate 2 model. First, An unadjusted model (only including smoking status):
+
+```
+
+```{r}
+#Now do the same for an adjusted model that also includes age (continuous), sex (binary) and education (4-category) in this model. (For nominal categorical variables, you may need to use the factor() operator in the formula as demonstrated in class.)
+```
+
+```{r}
+#Estimate a model with an interaction between linear follow-up time and each of the covariates in the model.
+```
 
 # Question 1: 
 Using the notation for generalized linear models presented in class, write out the equations for each of the 3 models, in terms of the variables in the dataset. Clearly define all parameters in each of the models. (15 points)
