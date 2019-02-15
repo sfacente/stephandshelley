@@ -1,0 +1,202 @@
+---
+title: "HW 2"
+author: "Steph Holm and Shelley Facente"
+date: "February 15, 2019"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = FALSE, cache = TRUE)
+
+library(survival)
+
+
+load("/cloud/project/frmgham_recoded.wide.Rdata")
+```
+
+
+```{r}
+# First, (using provided code) load the data:
+load("frmgham_recoded.Rdata")
+
+#CREATE A SINGLE-RECORD DATASET (retain 1st observation)
+frmgham_recoded <- frmgham_recoded[which(frmgham_recoded$period == 1),]
+
+```
+
+```{r}
+#Referring to the code from the lecture notes, plot the Kaplan-Meier estimate of the survival function for each smoking category (using the variable cursmoke) for these data
+```
+
+```{r}
+#Using the code below, calculate the number of events and number of person-years in each exposure group:
+# The "scale" option set to 1 tells pyears() that the time is already in yrs
+# (default is to divide time by 365.25)
+py.smoke <- pyears(Surv(timedth_yrs,death)~cursmoke, frmgham_recoded,
+scale=1)[c("event","pyears")]
+simplify2array(py.smoke) # Make it pretty
+```
+
+
+# Question 1: 
+Using the notation for generalized linear models presented in class, write out the equations for each of the 3 models, in terms of the variables in the dataset. Clearly define all parameters in each of the models. (15 points)
+
+## a. Logistic Regression Model:
+
+Model:
+\[
+\begin{aligned}
+logit(Pr(Y=1|X=x) = \beta_1 + (\beta_2*BMI_{underweight}) + (\beta_3*BMI_{overweight}) + (\beta_4*BMI_{obese}) + (\beta_5*curr smoke) + \\
+(\beta_6*age) + (\beta_7*female) + (\beta_8*education_2) + (\beta_9*education_3) + (\beta_{10}*education_4)
+\end{aligned}
+\]
+
+Equation: 
+
+$logit(Pr(Y=1|X=x)$ = \texttt{`r coef.logistic[1]`} + 
+(\texttt{`r coef.logistic[2]`} * $BMI_{underweight}$) +
+(\texttt{`r coef.logistic[3]`} * $BMI_{overweight}$) +
+(\texttt{`r coef.logistic[4]`} * $BMI_{obese}$) +
+(\texttt{`r coef.logistic[5]`} * $currsmoke$) +
+(\texttt{`r coef.logistic[6]`} * $age$) +
+(\texttt{`r coef.logistic[7]`} * $female$) +
+(\texttt{`r coef.logistic[8]`} * $education_2$) +
+(\texttt{`r coef.logistic[9]`} * $education_3$) +
+(\texttt{`r coef.logistic[10]`} * $education_4$) 
+
+## b. Log-Binomial Model:
+
+Model (Model would not converge despite providing starting values):
+\[
+\begin{aligned}
+log(Pr(Y=1|X=x) = \beta_1 + (\beta_2*BMI_{underweight}) + (\beta_3*BMI_{overweight}) + (\beta_4*BMI_{obese}) + (\beta_5*curr smoke) + \\
+(\beta_6*age) + (\beta_7*female) + (\beta_8*education_2) + (\beta_9*education_3) + (\beta_{10}*education_4)
+\end{aligned}
+\]
+
+## c. "Modified Poisson" Model:
+
+Equation: 
+
+$log(Pr(Y=1|X=x)$ = \texttt{`r poissoncoef[1]`} + 
+(\texttt{`r poissoncoef[2]`} * $BMI_{underweight}$) +
+(\texttt{`r poissoncoef[3]`} * $BMI_{overweight}$) +
+(\texttt{`r poissoncoef[4]`} * $BMI_{obese}$) +
+(\texttt{`r poissoncoef[5]`} * $currsmoke$) +
+(\texttt{`r poissoncoef[6]`} * $age$) +
+(\texttt{`r poissoncoef[7]`} * $female$) +
+(\texttt{`r poissoncoef[8]`} * $education_2$) +
+(\texttt{`r poissoncoef[9]`} * $education_3$) +
+(\texttt{`r poissoncoef[10]`} * $education_4$) 
+
+\vspace{12pt}
+\vspace{12pt}
+
+# Question 2: 
+For the logistic regression model write the log-likelihood function in general terms–variable names and parameters– no data values. (you may reference your answer to question 1(a) to make the notation concise). (10 points) 
+\[
+\mathcal{L}(\beta|y,x) = \sum_{i}log\left[\frac{exp(logit(Pr(Y=1|X=x_i))}{1+exp(logit(Pr(Y=1|X=x_i))})\right]^{y_i} \mathrm{x} \ \ \ log\left[1 - \frac{exp(logit(Pr(Y=1|X=x_i))}{1+exp(logit(Pr(Y=1|X=x_i))})\right]^{1-y_i}
+\]
+
+\vspace{12pt}
+\vspace{12pt}
+
+# Question 3:
+Using the results from the models you estimated above, complete the following table. (15 points)
+
+Table 2: Estimates of adjusted relative risk estimates of
+the association between baseline BMI status and incident
+hypertension. The Framingham Cohort Study. 1948-1972,
+Framingham, MA.
+
+BMI          | LogisticOR (95% CI) | Log-binomial RR (95% CI) | Poisson RR (95% CI)
+------------ | ------------------- | ------------------------ | -------------------
+< 18.5       | \texttt{`r LogisticORs[1,1]`} (\texttt{`r LogisticORs[1,2]`}, \texttt{`r LogisticORs[1,3]`}) | \ \ \ \ \ \ \ \ \ \ \ \ \ *Model*    | \texttt{`r PoissonRR[1,1]`} (\texttt{`r PoissonRR[1,2]`}, \texttt{`r PoissonRR[1,3]`})
+18.5 - 29.4  | *ref*            | \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *did*       | *ref*
+25.0 - 29.9  | \texttt{`r LogisticORs[2,1]`} (\texttt{`r LogisticORs[2,2]`}, \texttt{`r LogisticORs[2,3]`})  | \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *not*     | \texttt{`r PoissonRR[2,1]`} (\texttt{`r PoissonRR[2,2]`}, \texttt{`r PoissonRR[2,3]`})
+$\ge$ 30     | \texttt{`r LogisticORs[3,1]`} (\texttt{`r LogisticORs[3,2]`}, \texttt{`r LogisticORs[3,3]`}) | \ \ \ \ \ \ \ \ \ \ \ *converge*  | \texttt{`r PoissonRR[3,1]`} (\texttt{`r PoissonRR[3,2]`}, \texttt{`r PoissonRR[3,3]`})
+
+\vspace{12pt}
+\vspace{12pt}
+
+# Question 4:
+Without considering any of the results, how well would you think the OR from the logistic model would approximate the RR from these data? When considering results from all of the models, which one do you think best characterizes the risk ratio? Why? (10 points)
+
+*We would expect the OR will be further from the null than the RR, and since this outcome is not rare (incidence =* \texttt{`r round(hypertenprev[2],3)`}), *we would expect this overestimate to potentially be substantial.*
+
+*We think the best model for characterizing the risk ratio is the "Modified Poisson" Model, since it allows for direct estimation of the RR using  log as the canonical link, and while statistical efficiency is compromised when using this model compared to log-binomial regression, it is more likely to successfully converge.*
+
+\vspace{12pt}
+\vspace{12pt}
+
+# Question 5: 
+Answer the following regarding the standardized measures of association: (15 points)
+
+## a. 
+Using results from the logistic model, what is the standardized risk ratio comparing the population where everyone is obese to the one where everyone is ideal weight? Explain how this is conceptually different than the corresponding measures of association in question 3.
+
+*From the logistic model, the standardized risk ratio when comparing a counterfactual population where everyone is obese to one where everyone is ideal weight is* \texttt{`r round(Counterfactual.RR.logistic,3)`}. *This is conceptually different from the corresponding measures of association in question 3 because in this model we are standardizing conditional on the  distribution of covariates that exist in our underlying population. In question 3, the model was conditional on holding other covariates constant*
+
+## b. 
+Using results from the logistic model, what is the standardized risk difference comparing the population where everyone is obese to the one where everyone is ideal weight?
+
+*From the logistic model, the standardized risk ratio when comparing a counterfactual population where everyone is obese to one where everyone is ideal weight is* \texttt{`r round(Counterfactual.RD.logistic,3)`}. 
+
+## c. 
+What are the risk ratio and risk difference from the modified Poisson model? Between the logistic and Poisson model, which one would you choose to report and why?
+
+*From the "Modified Poisson" Model, the standardized risk ratio when comparing a counterfactual population where everyone is obese to one where everyone is ideal weight is* \texttt{`r round(Counterfactual.RR.poisson,3)`}. *The standardized risk difference is* \texttt{`r round(Counterfactual.RD.poisson,3)`}. *We would choose to report Poisson because Poisson is calculating relative risks directly, whereas in a logistic model we are approximating relative risks using an odds ratio, and particularly in the case of a common outcome such as hypertension, this is inadvisable.*
+
+\vspace{12pt}
+\vspace{12pt}
+
+# Question 6: 
+Answer the following questions about penalized likelihood estimation for a logistic regression model as above: (20 points)
+
+## a. 
+Write out a penalized log-likelihood function using a general expression for a quadratic penalty for the logistic regression model you defined in question 2. Clearly define all parameters, including those on the penalty function. (You may use either vector or summation notation.)
+\[
+\mathcal{L}_p(\beta|y,x) = \mathcal{L}(\beta|y,x) - (\beta - m)'R(\beta - m)/2
+\]
+*The penalized log-likelihood is equal to the usual log-likelihood (as defined in question 2), minus a quadratic penalty. The penalty is the inverse of the difference between the set of all beta coefficients and the vector m (means of the prior betas) multiplied by the tuning parameter (the prior precisions), again multiplied by the difference between beta and m, divided by two.*
+
+## b. 
+In one sentence, explain in words what the penalty function does in penalized maximum likelihood estimation.
+
+*The penalty function adjusts your model to incorporate prior information, such that the likelihood values are increasingly decreased the further away they are from your prior betas.*
+
+## c. 
+Which parameters are being penalized in the above? Why?
+
+*The likelihood of possible beta values, because you are calculating revised maximum likelihood that has been influenced by the prior information you have fed the model.*
+
+## d. 
+If the prior precision corresponding to each beta in this model is equal to 0 (an infinitely wide prior confidence interval), show how this implies that the penalized likelihood in 6 (a) is equivalent to the one in question 2, regardless of the value of m.
+\[
+\mathcal{L}_p(\beta|y,x) = \mathcal{L}(\beta|y,x) - (\beta - m)'0^*(\beta - m)/2 = \mathcal{L}(\beta|y,x)
+\]
+
+*As can be seen in the equation above, when the prior precision corresponding to each beta ($R$) is equal to zero, the penalty function drops to zero, leaving you with the usual log-likelihood.*
+
+\vspace{12pt}
+\vspace{12pt}
+
+# Question 7. 
+Using the results from the models you estimated above, complete the following table. What happens to the OR and confidence intervals as the prior precision increases? (15 points)
+
+Table 3: Penalized maximum likelihood estimates of the
+association between baseline BMI status and incident
+hypertension under different parameterizations of a quadratic
+penalty function. The Framingham Cohort Study. 1948-1972,
+Framingham, MA.
+
+BMI          | Unpenalized (Q2) | Scenario I: OR (95% CI) | Scenario II: OR (95% CI) | Scenario III: OR (95% CI)
+------------ | ------------------- | ------------------ | ------------------- | ------------------
+< 18.5       | \texttt{`r unORCI[2,1]`} (\texttt{`r unORCI[2,2]`}, \texttt{`r unORCI[2,3]`}) |  \texttt{`r prior1ORCI[2,1]`} (\texttt{`r prior1ORCI[2,2]`}, \texttt{`r prior1ORCI[2,3]`}) | \texttt{`r prior2ORCI[2,1]`} (\texttt{`r prior2ORCI[2,2]`}, \texttt{`r prior2ORCI[2,3]`}) |  \texttt{`r prior3ORCI[2,1]`} (\texttt{`r prior3ORCI[2,2]`}, \texttt{`r prior3ORCI[2,3]`}) 
+18.5 - 29.4  | *ref*            | *ref*      | *ref*  | *ref*
+25.0 - 29.9  | \texttt{`r unORCI[3,1]`} (\texttt{`r unORCI[3,2]`}, \texttt{`r unORCI[3,3]`})  |  \texttt{`r prior1ORCI[3,1]`} (\texttt{`r prior1ORCI[3,2]`}, \texttt{`r prior1ORCI[3,3]`}) |    \texttt{`r prior2ORCI[3,1]`} (\texttt{`r prior2ORCI[3,2]`}, \texttt{`r prior2ORCI[3,3]`}) |  \texttt{`r prior3ORCI[3,1]`} (\texttt{`r prior3ORCI[3,2]`}, \texttt{`r prior3ORCI[3,3]`}) 
+$\ge$ 30     | \texttt{`r unORCI[4,1]`} (\texttt{`r unORCI[4,2]`}, \texttt{`r unORCI[4,3]`}) |   \texttt{`r prior1ORCI[4,1]`} (\texttt{`r prior1ORCI[4,2]`}, \texttt{`r prior1ORCI[4,3]`}) |  \texttt{`r prior2ORCI[4,1]`} (\texttt{`r prior2ORCI[4,2]`}, \texttt{`r prior2ORCI[4,3]`}) |  \texttt{`r prior3ORCI[4,1]`} (\texttt{`r prior3ORCI[4,2]`}, \texttt{`r prior3ORCI[4,3]`}) 
+
+*As the prior precision increases, we expect the confidence intervals to decrease and the OR to be a better estimation of the true odds ratio.*
