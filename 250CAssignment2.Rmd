@@ -28,6 +28,36 @@ frmgham_recoded <- frmgham_recoded[which(frmgham_recoded$period == 1),]
 
 ```{r}
 #Referring to the code from the lecture notes, plot the Kaplan-Meier estimate of the survival function for each smoking category (using the variable cursmoke) for these data
+
+#copied code from slide 23 of lecture 4, not edited yet
+#### FOR THE KM SURVIVAL FUNCTION 
+survmod1 <-survfit(Surv(time, status)~1, data=lung2,  
+                   conf.type="log-log") 
+survmod1.summary <-summary(survmod1) 
+
+# Kaplan-Meier table 7 
+keep.cols <-c("time","n.risk","n.event","n.censor","surv","std.err", 
+               "upper","lower") 
+# Picks off the columns we want
+ KMtable <-sapply(survmod1.summary[keep.cols],cbind)
+ # Shows 1st 30 rows (and all columns) of KM table
+ round(KMtable[1:30,],digits = 3)
+ 
+ #plot
+ KMPlot <- plot(survmod1, main="Kaplan-Meier survival estimates",
+    xlab="Time", ylab="Survival Probability", xlim=c(0,25))
+ 
+ 
+ #Plot with curves split by a factor from slide 30, unedited
+ survmod2 <-survfit(Surv(time, status) ~ sex, data=lung2)  
+ 
+ plot(survmod2, main="Kaplan-Meier Survival Estimates by sex", 
+      xlab="Time (days)", ylab="Survival Probability", 
+      bty="l", col=c("darkblue","darkorange")) 
+ 
+legend("topright",legend=c("Male","Female"),lty=1, lwd=2, 
+       col=c("darkblue","darkorange"),cex=0.8,bty="o")
+
 ```
 
 ```{r}
@@ -41,10 +71,18 @@ simplify2array(py.smoke) # Make it pretty
 
 ```{r}
 #Referring to the code from the lecture notes, use the logrank test to determine if there are any differences in survival between the smoking groups.
+#From slide 45, lecture 4, unedited
+survdiff(Surv(time, status) ~ sex, data=lung2)
+
 ```
 
 ```{r}
 #Using a Cox proportional hazards regression model, estimate the association between current smoking status (at baseline) and time to death. Estimate 2 model. First, An unadjusted model (only including smoking status):
+
+#from lecture 5, slide 12, unedited
+coxph.lung.unadj <-coxph(Surv(time, status)~karno.cat, data=lung2,
+ties="efron")
+ summary(coxph.lung.unadj)
 
 ```
 
@@ -54,6 +92,16 @@ simplify2array(py.smoke) # Make it pretty
 
 ```{r}
 #Estimate a model with an interaction between linear follow-up time and each of the covariates in the model.
+
+#Time transform the variables for modeling, from lecture 5, slide 22. Note that this doesn't work for factors- need to make indicators. unedited
+lung2$karno.cat2 <-as.integer(lung2$karno.cat) 
+cox.timeixn.lung <-coxph(Surv(time, status) ~ karno.cat + age + 
+                           tt(as.integer(karno.cat2==2)) + 
+                           tt(as.integer(karno.cat2==3)) + 
+                           tt(age) + tt(as.integer(sex)), 
+                           data=lung2, method="efron", 
+                           tt=function(x,t,...) x*t) 
+summary(cox.timeixn.lung)
 ```
 
 # Question 1: 
