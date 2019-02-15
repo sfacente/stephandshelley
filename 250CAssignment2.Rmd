@@ -56,7 +56,7 @@ legend("topright",legend=c("Male","Female"),lty=1, lwd=2,
 # (default is to divide time by 365.25)
 py.smoke <- pyears(Surv(timedth_yrs,death)~cursmoke, frmgham_recoded,
 scale=1)[c("event","pyears")]
-simplify2array(py.smoke) # Make it pretty
+py.smoke.pretty <-simplify2array(py.smoke) # Make it pretty
 ```
 
 ```{r}
