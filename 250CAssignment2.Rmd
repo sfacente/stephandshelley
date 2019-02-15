@@ -153,7 +153,7 @@ Answer the following questions about the Cox models estimated above: (20 points 
 
 ##iv) Compare the test of the smoking-mortality association between the log-rank test and the likelihood ratio test from the <u>unadjusted</u> Cox proportional hazards model. What do you observe? Between these two analytic approaches, which one would you prefer, and why?
 
-*By running the log-rank test, we get a $\chi^2$ of 2.9 with a p-value of \texttt{'r rounded.p.vlaue.log.rank'}, which tells us there is not a statistically significant difference between smokers and non-smokers with respect to mortality in this sample. However, the log-rank test does not provide any sort of effect measure. For this, we can use the unadjusted Cox proportional hazards model, which gives us a hazard ratio of 1.091, with a 95% CI (.9872, 1.205). This confidence interval still demonstrates that there is no statistically significant difference between the two groups; however, it is preferred because we have more useful information about the hazard ratio itself, as well as direct calculation of the \betas from the model.*
+*By running the log-rank test, we get a $\chi^2$ of 2.9 with a p-value of* \texttt{'r rounded.p.vlaue.log.rank'}, *which tells us there is not a statistically significant difference between smokers and non-smokers with respect to mortality in this sample. However, the log-rank test does not provide any sort of effect measure. For this, we can use the unadjusted Cox proportional hazards model, which gives us a hazard ratio of 1.091, with a 95% CI (.9872, 1.205). This confidence interval still demonstrates that there is no statistically significant difference between the two groups; however, it is preferred because we have more useful information about the hazard ratio itself, as well as direct calculation of the* $\beta$*s from the model.*
 
 \vspace{12pt}
 \vspace{12pt}
@@ -167,7 +167,7 @@ Write the equation for the log-hazard function for the adjusted model you estima
 \vspace{12pt}
 
 # Question 6: 
-Using the model you specified in the previous question, show that the hazard ratio comparing current smokers to non-smokers, holding all other covariates constant, is exp($/beta$1) where $/beta$1 is the coefficient on the smoking indicator. (Hint: Start by showing the log-hazard for smokers and the log-hazard for non-smokers and use the fact that the log of the hazard ratio is the difference between two log-hazards.) (10 points)
+Using the model you specified in the previous question, show that the hazard ratio comparing current smokers to non-smokers, holding all other covariates constant, is exp($\beta_1$) where $\beta_1$ is the coefficient on the smoking indicator. (Hint: Start by showing the log-hazard for smokers and the log-hazard for non-smokers and use the fact that the log of the hazard ratio is the difference between two log-hazards.) (10 points)
 
 *ANSWER HERE*
 
