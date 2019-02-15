@@ -61,8 +61,10 @@ simplify2array(py.smoke) # Make it pretty
 
 ```{r}
 #Referring to the code from the lecture notes, use the logrank test to determine if there are any differences in survival between the smoking groups.
-#From slide 45, lecture 4, unedited
-survdiff(Surv(time, status) ~ sex, data=lung2)
+#From slide 45, lecture 4
+Logrank <- survdiff(Surv(timedth_yrs, death) ~ cursmoke, data=frmgham_recoded)
+
+p.value.log.rank <-pchisq(Logrank$chisq,1, lower.tail = FALSE)
 
 ```
 
@@ -121,11 +123,15 @@ Answer the following questions about the log-rank test: (10 points total)
 
 ##i) Describe the specific hypothesis that the logrank test is considering here.
 
-*ANSWER HERE*
+The null hypothesis, $h_0$, is that the number at risk at any time, $j$, multiplied by the probability of death at that time is the same for both groups (those who were current smokers at study enrollment versus not.)
+
+If we use the indicator $k=1$ for the smoking group and $k=0$ for the nonsmoking group, this could be stated mathmatically as:
+
+$\frac{n_{1j}*d_j}{n_j} = \frac{n_{0j}*d_j}{n_j}$
 
 ##ii) What do you conclude from this test (use 5% significance criteria)? What is the limitation of the inference that you obtain from the log-rank test?
 
-*ANSWER HERE*
+Using 5% as our cut-off for statistical significance, we would conclude that these curves are *not* statistically significant as the p-value is \texttt{`r round(p.value.log.rank,3)`}, meaning that if the null hypothesis is true (there is truly no difference in survival between groups) we have a \texttt{`r 100*round(p.value.log.rank,3)`} percent chance of generating data such as these by chance.
 
 \vspace{12pt}
 \vspace{12pt}
