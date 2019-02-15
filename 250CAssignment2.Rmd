@@ -65,16 +65,16 @@ simplify2array(py.smoke) # Make it pretty
 Logrank <- survdiff(Surv(timedth_yrs, death) ~ cursmoke, data=frmgham_recoded)
 
 p.value.log.rank <-pchisq(Logrank$chisq,1, lower.tail = FALSE)
-
+rounded.p.vlaue.log.rank <- round(p.value.log.rank,2)
 ```
 
 ```{r}
 #Using a Cox proportional hazards regression model, estimate the association between current smoking status (at baseline) and time to death. Estimate 2 model. First, An unadjusted model (only including smoking status):
 
-#from lecture 5, slide 12, unedited
-coxph.lung.unadj <-coxph(Surv(time, status)~karno.cat, data=lung2,
+#from lecture 5, slide 12
+coxph.frmgham.unadj <-coxph(Surv(timedth_yrs, death)~cursmoke, data=frmgham_recoded,
 ties="efron")
- summary(coxph.lung.unadj)
+ summary(coxph.frmgham.unadj)
 
 ```
 
@@ -141,19 +141,19 @@ Answer the following questions about the Cox models estimated above: (20 points 
 
 ##i) Why do we use specialized methods for survival analysis (instead of linear or logistic regression, for example)?
 
-*ANSWER HERE*
+*We used specialized models for survival analysis because time-to-event must be defined as the probability of an event happening at any particular time* **t** *given that the event has not already happened prior to that time* **t**.
 
 ##ii) What are the advantages of the Cox model over other survival analysis methods? What is a potential disadvantage of the Cox model?
 
-*ANSWER HERE*
+*The advantage of the Cox model is that it does not specify the form of the baseline hazard (and thus the distribution of T) and estimates it non-parametrically. However, a potential disadvantage is that you lose some statistial efficiency by using only the part of the likelihood that doesn't contain* $h_0(t)$.
 
 ##iii) What assumptions, if any, does the standard Cox proportional hazards model make?
 
-*ANSWER HERE*
+*Like other proportional hazards models, the Cox proportional hazards model assues that the effects of the exposure and co-variates of interest are constant over the entire follow-up (i.e. the hazards are proportional over the entire time interval). It also assumes no delayed entry, truncation, or other types of censoring, unless explicitly handled in design/analysis.*
 
 ##iv) Compare the test of the smoking-mortality association between the log-rank test and the likelihood ratio test from the <u>unadjusted</u> Cox proportional hazards model. What do you observe? Between these two analytic approaches, which one would you prefer, and why?
 
-*ANSWER HERE*
+*By running the log-rank test, we get a $\chi^2$ of 2.9 with a p-value of \texttt{'r rounded.p.vlaue.log.rank'}, which tells us there is not a statistically significant difference between smokers and non-smokers with respect to mortality in this sample. However, the log-rank test does not provide any sort of effect measure. For this, we can use the unadjusted Cox proportional hazards model, which gives us a hazard ratio of 1.091, with a 95% CI (.9872, 1.205). This confidence interval still demonstrates that there is no statistically significant difference between the two groups; however, it is preferred because we have more useful information about the hazard ratio itself, as well as direct calculation of the \betas from the model.*
 
 \vspace{12pt}
 \vspace{12pt}
