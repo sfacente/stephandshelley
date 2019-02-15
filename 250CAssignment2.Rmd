@@ -13,7 +13,7 @@ knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 library(survival)
 
 
-load("/cloud/project/frmgham_recoded.Rdata")
+load("frmgham_recoded.Rdata")
 ```
 
 
