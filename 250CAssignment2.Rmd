@@ -12,14 +12,12 @@ knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
 library(survival)
 
-
-load("frmgham_recoded.Rdata")
 ```
 
 
 ```{r}
 # First, (using provided code) load the data:
-load("frmgham_recoded.Rdata")
+load("~/GitHub/stephandshelley/frmgham_recoded.Rdata")
 
 #CREATE A SINGLE-RECORD DATASET (retain 1st observation)
 frmgham_recoded <- frmgham_recoded[which(frmgham_recoded$period == 1),]
@@ -29,23 +27,15 @@ frmgham_recoded <- frmgham_recoded[which(frmgham_recoded$period == 1),]
 ```{r}
 #Referring to the code from the lecture notes, plot the Kaplan-Meier estimate of the survival function for each smoking category (using the variable cursmoke) for these data
 
-#copied code from slide 23 of lecture 4, not edited yet
+#copied code from slide 23 of lecture 4
 #### FOR THE KM SURVIVAL FUNCTION 
-survmod1 <-survfit(Surv(time, status)~1, data=lung2,  
+survmod1 <-survfit(Surv(timedth_yrs, death)~cursmoke, data=frmgham_recoded,  
                    conf.type="log-log") 
 survmod1.summary <-summary(survmod1) 
 
-# Kaplan-Meier table 7 
-keep.cols <-c("time","n.risk","n.event","n.censor","surv","std.err", 
-               "upper","lower") 
-# Picks off the columns we want
- KMtable <-sapply(survmod1.summary[keep.cols],cbind)
- # Shows 1st 30 rows (and all columns) of KM table
- round(KMtable[1:30,],digits = 3)
- 
- #plot
- KMPlot <- plot(survmod1, main="Kaplan-Meier survival estimates",
-    xlab="Time", ylab="Survival Probability", xlim=c(0,25))
+#plot
+KMPlot <- plot(survmod1, main="Figure 1.",
+    xlab="Time", ylab="Survival Probability", xlim=c(0,24), col = c("blue", "red"), legend("bottomleft",legend=c("Non-smokers","Smokers"),lty=1, lwd=2, col=c("blue","red"),cex=0.8,bty="o"))
  
  
  #Plot with curves split by a factor from slide 30, unedited
@@ -109,7 +99,11 @@ Using the Kaplan-Meier plots, graphically assess the relationship between baseli
 and time to death. Briefly interpret what you see. In 1-2 sentences describe the limitations of this
 approach. [include the graph, labeled Figure 1] (10 points)
 
-*ANSWER HERE*
+```{r, include=TRUE}
+KMPlot
+```
+
+*Upon visual inspection, it appears that people who smoked at baseline have slightly lower probability of survival during the 24 years of follow up, compared with people who were non-smokers at baseline. However, the difference between the two appears small, so we would want to more carefully investigate whether there are meaningful differences between the two groups.*
 
 \vspace{12pt}
 \vspace{12pt}
