@@ -65,7 +65,6 @@ py.smoke.pretty <-simplify2array(py.smoke) # Make it pretty
 Logrank <- survdiff(Surv(timedth_yrs, death) ~ cursmoke, data=frmgham_recoded)
 
 p.value.log.rank <-pchisq(Logrank$chisq,1, lower.tail = FALSE)
-rounded.p.vlaue.log.rank <- round(p.value.log.rank,2)
 ```
 
 ```{r}
@@ -80,6 +79,9 @@ ties="efron")
 
 ```{r}
 #Now do the same for an adjusted model that also includes age (continuous), sex (binary) and education (4-category) in this model. (For nominal categorical variables, you may need to use the factor() operator in the formula as demonstrated in class.)
+coxph.frmgham.adj <-coxph(Surv(timedth_yrs, death)~cursmoke + sex + as.factor(educ), data=frmgham_recoded,
+ties="efron")
+ summary(coxph.frmgham.adj)
 ```
 
 ```{r}
@@ -123,15 +125,15 @@ Answer the following questions about the log-rank test: (10 points total)
 
 ##i) Describe the specific hypothesis that the logrank test is considering here.
 
-The null hypothesis, $h_0$, is that the number at risk at any time, $j$, multiplied by the probability of death at that time is the same for both groups (those who were current smokers at study enrollment versus not.)
+*The null hypothesis,* $h_0$, *is that the number at risk at any time,* $j$, *multiplied by the probability of death at that time is the same for both groups (those who were current smokers at study enrollment versus not.)*
 
-If we use the indicator $k=1$ for the smoking group and $k=0$ for the nonsmoking group, this could be stated mathmatically as:
+*If we use the indicator* $k=1$ *for the smoking group and* $k=0$ *for the nonsmoking group, this could be stated mathmatically as:*
 
 $\frac{n_{1j}*d_j}{n_j} = \frac{n_{0j}*d_j}{n_j}$
 
 ##ii) What do you conclude from this test (use 5% significance criteria)? What is the limitation of the inference that you obtain from the log-rank test?
 
-Using 5% as our cut-off for statistical significance, we would conclude that these curves are *not* statistically significant as the p-value is \texttt{`r round(p.value.log.rank,3)`}, meaning that if the null hypothesis is true (there is truly no difference in survival between groups) we have a \texttt{`r 100*round(p.value.log.rank,3)`} percent chance of generating data such as these by chance.
+*Using 5% as our cut-off for statistical significance, we would conclude that these curves are* <u>not</u> *statistically significant as the p-value is* \texttt{`r round(p.value.log.rank,3)`}, *meaning that if the null hypothesis is true (there is truly no difference in survival between groups) we have a* \texttt{`r 100*round(p.value.log.rank,3)`} *percent chance of generating data such as these by chance. The log-rank test provides no measure of effect, so you can only infer the level of heterogeneity between groups, and nothing more.*
 
 \vspace{12pt}
 \vspace{12pt}
@@ -141,7 +143,7 @@ Answer the following questions about the Cox models estimated above: (20 points 
 
 ##i) Why do we use specialized methods for survival analysis (instead of linear or logistic regression, for example)?
 
-*We used specialized models for survival analysis because time-to-event must be defined as the probability of an event happening at any particular time* **t** *given that the event has not already happened prior to that time* **t**.
+*We use specialized models for survival analysese because they deal with time; time-to-event must be defined as the probability of an event happening at any particular time* **t** *given that the event has not already happened <u>prior</u> to that time* **t**.
 
 ##ii) What are the advantages of the Cox model over other survival analysis methods? What is a potential disadvantage of the Cox model?
 
@@ -153,7 +155,7 @@ Answer the following questions about the Cox models estimated above: (20 points 
 
 ##iv) Compare the test of the smoking-mortality association between the log-rank test and the likelihood ratio test from the <u>unadjusted</u> Cox proportional hazards model. What do you observe? Between these two analytic approaches, which one would you prefer, and why?
 
-*By running the log-rank test, we get a $\chi^2$ of 2.9 with a p-value of* \texttt{'r rounded.p.vlaue.log.rank'}, *which tells us there is not a statistically significant difference between smokers and non-smokers with respect to mortality in this sample. However, the log-rank test does not provide any sort of effect measure. For this, we can use the unadjusted Cox proportional hazards model, which gives us a hazard ratio of 1.091, with a 95% CI (.9872, 1.205). This confidence interval still demonstrates that there is no statistically significant difference between the two groups; however, it is preferred because we have more useful information about the hazard ratio itself, as well as direct calculation of the* $\beta$*s from the model.*
+*By running the log-rank test, we get a* $\chi^2$ *of 2.9 with a p-value of* \texttt{`r round(p.value.log.rank,3)`}, *which tells us there is not a statistically significant difference between smokers and non-smokers with respect to mortality in this sample. However, the log-rank test does not provide any sort of effect measure. For this, we can use the unadjusted Cox proportional hazards model, which gives us a hazard ratio of 1.091, with a 95% CI (.9872, 1.205). This confidence interval still demonstrates that there is no statistically significant difference between the two groups; however, it is preferred because we have more useful information about the hazard ratio itself, as well as direct calculation of the* $\beta$*s from the model.*
 
 \vspace{12pt}
 \vspace{12pt}
@@ -169,7 +171,10 @@ Write the equation for the log-hazard function for the adjusted model you estima
 # Question 6: 
 Using the model you specified in the previous question, show that the hazard ratio comparing current smokers to non-smokers, holding all other covariates constant, is exp($\beta_1$) where $\beta_1$ is the coefficient on the smoking indicator. (Hint: Start by showing the log-hazard for smokers and the log-hazard for non-smokers and use the fact that the log of the hazard ratio is the difference between two log-hazards.) (10 points)
 
-*ANSWER HERE*
+*Using XXXX, we see that the log-hazard for smokers (holding other covariates constant) is* \texttt {'r a'} *and the comparable log-hazard for non-smokers is* \texttt {'r b'}. *The hazard ratio generated via the model specified in the previous question is* \texttt {'r c'}, *which is the anti-log of the* $\beta_1$ *coefficient on the smoking indicator (with the* $\beta_1$ *coefficient* = \texttt {'r d'}*). This hazard ratio is exactly equal to the log-hazard of smokers divided by the log-hazard of non-smokers:* 
+\[
+\frac{\texttt {'r a'}}{\texttt {'r b'}} = \texttt {'r c'}
+\]
 
 \vspace{12pt}
 \vspace{12pt}
