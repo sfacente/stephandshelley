@@ -19,7 +19,7 @@ knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 # First, (using provided code) load the data:
 #####BE SURE TO UN-COMMENT OUT WHICHEVER LINE YOU NEED HERE####
 
-# load("~/GitHub/stephandshelley/frmgham_recoded.Rdata") #windows version
+ load("~/GitHub/stephandshelley/frmgham_recoded.Rdata") #windows version
  load("frmgham_recoded.Rdata") #mac version
 
 #CREATE A SINGLE-RECORD DATASET (retain 1st observation)
@@ -57,7 +57,7 @@ py.smoke <- pyears(Surv(timedth_yrs,death)~cursmoke, frmgham_recoded,
 scale=1)[c("event","pyears")]
 py.smoke.pretty <-simplify2array(py.smoke) # Make it pretty
 
-#use the numberof events/person time in each group to estimate lambda, the rate parameter
+#use the number of events/person time in each group to estimate lambda, the rate parameter
 #uses lecture 4, slides 12-14
 py.smoke.pretty <- as.data.frame(py.smoke.pretty) %>% 
                             mutate(lambda = event/pyears) %>%
@@ -135,7 +135,7 @@ legend("bottomleft",
 *Upon visual inspection, it appears that people who smoked at baseline have slightly lower probability of survival during the 24 years of follow up, compared with people who were non-smokers at baseline. However, the difference between the two appears small, so we would want to more carefully investigate whether there are meaningful differences between the two groups.*
 
 \vspace{12pt}
-\vspace{12pt}
+\vspace{6pt}
 
 # Question 2: 
 Referring to the code from lecture, are you able to calculate the overall median survival time in this case? If so, provide an estimate of this quantity, if not, describe why and provide an estimate of a percentile of survival time. Interpret the quantity that you estimated. (15 points)
@@ -155,7 +155,7 @@ No   | \ \ \texttt{`r round(KMSurv$quantile.25[1],2)`} | \ \ \ \texttt{`r round(
 Yes   | \ \ \texttt{`r round(KMSurv$quantile.25[2],2)`} | \ \ \ \texttt{`r round(py.smoke.pretty$t75[2],2)`}|  \ \ \texttt{`r round(KMSurv$quantile.50[2],2)`} | \ \ \ \texttt{`r round(py.smoke.pretty$t50[2],2)`}
 
 \vspace{12pt}
-\vspace{12pt}
+\vspace{6pt}
 
 # Question 3:
 Answer the following questions about the log-rank test: (10 points total)
@@ -166,8 +166,11 @@ Describe the specific hypothesis that the logrank test is considering here.
 *The null hypothesis,* $h_0$, *is that the number at risk at any time,* $j$, *multiplied by the probability of death at that time is the same for both groups (those who were current smokers at study enrollment versus not.)*
 
 *If we use the indicator* $k=1$ *for the smoking group and* $k=0$ *for the nonsmoking group, this could be stated mathmatically as:*
-
-$\frac{n_{1j}*d_j}{n_j} = \frac{n_{0j}*d_j}{n_j}$
+\[
+\begin{aligned}
+\LARGE \frac{n_{1j}*d_j}{n_j} = \frac{n_{0j}*d_j}{n_j}
+\end{aligned}
+\]
 
 ##ii) 
 What do you conclude from this test (use 5% significance criteria)? What is the limitation of the inference that you obtain from the log-rank test?
@@ -175,7 +178,7 @@ What do you conclude from this test (use 5% significance criteria)? What is the 
 *Using 5% as our cut-off for statistical significance, we would conclude that these curves are* <u>not</u> *statistically significant as the p-value is* \texttt{`r round(p.value.log.rank,3)`}, *meaning that if the null hypothesis is true (there is truly no difference in survival between groups) we have a* \texttt{`r 100*round(p.value.log.rank,3)`} *percent chance of generating data such as these by chance. The log-rank test provides no measure of effect, so you can only infer the level of heterogeneity between groups, and nothing more.*
 
 \vspace{12pt}
-\vspace{12pt}
+\vspace{6pt}
 
 # Question 4:
 Answer the following questions about the Cox models estimated above: (20 points total)
@@ -201,25 +204,29 @@ Compare the test of the smoking-mortality association between the log-rank test 
 *By running the log-rank test, we get a* $\chi^2$ *of 2.9 with a p-value of* \texttt{`r round(p.value.log.rank,3)`}, *which tells us there is not a statistically significant difference between smokers and non-smokers with respect to mortality in this sample. However, the log-rank test does not provide any sort of effect measure. For this, we can use the unadjusted Cox proportional hazards model, which gives us a hazard ratio of 1.091, with a 95% CI (.9872, 1.205). This confidence interval still demonstrates that there is no statistically significant difference between the two groups; however, it is preferred because we have more useful information about the hazard ratio itself, as well as direct calculation of the* $\beta$*s from the model.*
 
 \vspace{12pt}
-\vspace{12pt}
+\vspace{6pt}
 
 # Question 5: 
 Write the equation for the log-hazard function for the adjusted model you estimated. **Clearly define all parameters in the model.** (15 points)
 
 *The equation for the model is:*
-
-$ln[h(t|x)] = ln[h_0(t)] + x_1\beta_1 + x_2\beta_2 + x_3\beta_3 + x_4\beta_4 + x_5\beta_5$
+$$
+\begin{aligned}
+\Large ln[h(t|x)] = ln[h_0(t)] + x_1\beta_1 + x_2\beta_2 + x_3\beta_3 + x_4\beta_4 + x_5\beta_5
+\end{aligned}
+$$
 
 *where*
 
-* $x_1$ is an indicator of whether or not someone was smoking at enrollment
-* $x_2$ is an indicator of sex, dichotomized into male and female
-* $x_3$ is an indicator corresponding to educational status category 2
-* $x_4$ is an indicator corresponding to educational status category 3
-* $x_4$ is an indicator corresponding to educational status category 4
+-- $x_1$ *is an indicator of whether or not someone was smoking at enrollment*  
+-- $x_2$ *is an indicator of sex, dichotomized into male and female*  
+-- $x_3$ *is an indicator corresponding to educational status category 2*  
+-- $x_4$ *is an indicator corresponding to educational status category 3*  
+-- $x_4$ *is an indicator corresponding to educational status category 4*  
 
 *using the results from our model, the equation then becomes:*
-$$
+$$ 
+\Large 
 ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)` x_1 +
 `r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 +
 `r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 +
@@ -227,14 +234,15 @@ ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1])
 `r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5
 $$
 \vspace{12pt}
-\vspace{12pt}
+\vspace{6pt}
 
 # Question 6: 
 Using the model you specified in the previous question, show that the hazard ratio comparing current smokers to non-smokers, holding all other covariates constant, is $e^{\beta_1}$ where $\beta_1$ is the coefficient on the smoking indicator. (Hint: Start by showing the log-hazard for smokers and the log-hazard for non-smokers and use the fact that the log of the hazard ratio is the difference between two log-hazards.) (10 points)
 
 
 *Using the equation from the previous question, we can calculate that the log-hazard for smokers (holding other covariates constant) is:*
-$$
+$$ 
+\Large 
 ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*1 + 
 `r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 +
 `r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 +
@@ -243,8 +251,8 @@ ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1])
 $$
 
 *and the comparable log-hazard for non-smokers is:*
-
 $$
+\Large
 ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*0 + 
 `r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 +
 `r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 +
@@ -253,8 +261,8 @@ ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1])
 $$
 
 *Thus, the hazard ratio generated via the model specified in the previous question is:*  
-
 $$
+\Huge 
 \frac{e^{ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*1 +
 `r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 + 
 `r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 + 
@@ -275,7 +283,7 @@ $$
 
 
 \vspace{12pt}
-\vspace{12pt}
+\vspace{6pt}
 
 # Question 7. 
 Complete the following table. How would you interpret the parameter estimate that compares smokers to non-smokers in the adjusted model? What measure of association common in epidemiologic research does this correspond to? (10 points)
@@ -286,13 +294,13 @@ Framingham Cohort Study. 1948-1972, Framingham, MA.
 
 Smoker | Events| Follow-up Time (yrs) | crude HR (95% CI) | adj. HR (95% CI)
 ------------ | ------------- | ------------------ | ------------------- | ------------------ | ------------------
-No   | \ \ \tt{`r py.smoke.pretty[1,1]`} | \ \ \ \tt{`r py.smoke.pretty[1,2]`}| *ref* | *ref*
-Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \tt{`r py.smoke.pretty[2,2]`} | \tt{`r round(exp(as.numeric(coxph.frmgham.unadj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[2]),3)`}) | \tt{`r round(exp(as.numeric(coxph.frmgham.adj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.adj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.adj))[2]),3)`}) |
+No   | \ \ \tt{`r py.smoke.pretty[1,1]`} | \ \ \ \ 46675.20 | *ref* | *ref*
+Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \ 44440.38 | \tt{`r round(exp(as.numeric(coxph.frmgham.unadj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[2]),3)`}) | \tt{`r round(exp(as.numeric(coxph.frmgham.adj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.adj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.adj))[2]),3)`}) |
 
 *In the adjusted model, smokers have approximately the same risk of mortality during the 24 years of follow-up as nonsmokers, when adjusting for sex and educational level. While this parameter estimate is a hazard ratio, it corresponds to an incidence density ratio, a common measure of association in epidemiologic research.*
 
 \vspace{12pt}
-\vspace{12pt}
+\vspace{6pt}
 
 # Question 8: 
 Is there evidence for a violation of the proportional hazards assumption in any of the variables? Indicate how you arrived at your conclusion. Describe how you would account for any noted
@@ -303,4 +311,4 @@ $$
 ln[h(t|x)] = ln[h_0(t)] + x_1\beta_1 + x_2\beta_2 + x_3\beta_3 + x_4\beta_4 + x_5\beta_5 + x_1t\beta_6 + x_2t\beta_7 + x_3t\beta_8 + x_4t\beta_9 + x_5t\beta_10
 $$
 
-*where $\beta_6$ through $\beta_10$ are the coefficients on the interaction terms interacting each independant variable with time. For all these variables, the hazard ratios generated in our model are very close to one, with confidence intervals that span one, suggesting that no time-dependant confounding exits. Thus, we can assume that the proportionality of our hazards holds.*
+*where* $\beta_6$ *through* $\beta_{10}$ *are the coefficients on the interaction terms interacting each independant variable with time. For all these variables, the hazard ratios generated in our model are very close to one, with confidence intervals that span one, suggesting that no time-dependant confounding exits. Thus, we can assume that the proportionality of our hazards holds.*
