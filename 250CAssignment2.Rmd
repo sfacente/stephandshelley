@@ -8,16 +8,19 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(include = FALSE, cache = TRUE)
-
 library(survival)
+library(dplyr)
+knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
 ```
 
 
 ```{r}
 # First, (using provided code) load the data:
-load("~/GitHub/stephandshelley/frmgham_recoded.Rdata")
+#####BE SURE TO UN-COMMENT OUT WHICHEVER LINE YOU NEED HERE####
+
+# load("~/GitHub/stephandshelley/frmgham_recoded.Rdata") #windows version
+ load("frmgham_recoded.Rdata") #mac version
 
 #CREATE A SINGLE-RECORD DATASET (retain 1st observation)
 frmgham_recoded <- frmgham_recoded[which(frmgham_recoded$period == 1),]
@@ -53,6 +56,17 @@ legend("bottomleft",
 py.smoke <- pyears(Surv(timedth_yrs,death)~cursmoke, frmgham_recoded,
 scale=1)[c("event","pyears")]
 py.smoke.pretty <-simplify2array(py.smoke) # Make it pretty
+
+#use the numberof events/person time in each group to estimate lambda, the rate parameter
+#uses lecture 4, slides 12-14
+py.smoke.pretty <- as.data.frame(py.smoke.pretty) %>% 
+                            mutate(lambda = event/pyears) %>%
+                            mutate(t50 = -log(0.5)/lambda) %>%
+                            mutate(t75 = -log(0.75)/lambda)
+
+
+#From lecture 4, slide 28, obtain quantiles from the Kaplan meier curves
+KMSurv <- as.data.frame(quantile(survmod1, probs=c(0.25,0.5,0.75)))
 ```
 
 ```{r}
@@ -77,20 +91,26 @@ ties="efron")
 coxph.frmgham.adj <-coxph(Surv(timedth_yrs, death)~cursmoke + sex + as.factor(educ), data=frmgham_recoded,
 ties="efron")
  summary(coxph.frmgham.adj)
+ 
+ #FYI for Shelley, check these out:
+coxph.frmgham.adj$coefficients
+coxph.frmgham.adj$coefficients[1]
+ as.numeric(coxph.frmgham.adj$coefficients[1])
+ exp(as.vector(confint(coxph.frmgham.unadj)))
 ```
 
 ```{r}
 #Estimate a model with an interaction between linear follow-up time and each of the covariates in the model.
 
 #Time transform the variables for modeling, from lecture 5, slide 22. Note that this doesn't work for factors- need to make indicators. unedited
-lung2$karno.cat2 <-as.integer(lung2$karno.cat) 
-cox.timeixn.lung <-coxph(Surv(time, status) ~ karno.cat + age + 
-                           tt(as.integer(karno.cat2==2)) + 
-                           tt(as.integer(karno.cat2==3)) + 
-                           tt(age) + tt(as.integer(sex)), 
-                           data=lung2, method="efron", 
-                           tt=function(x,t,...) x*t) 
-summary(cox.timeixn.lung)
+frmgham_recoded$cursmoke2 <-as.integer(frmgham_recoded$cursmoke) 
+ cox.timeixn.frmgham <-coxph(Surv(timedth_yrs, death)~ cursmoke + sex 
+                          + as.factor(educ) + tt(cursmoke2) + 
+                            tt(as.integer(sex)) + tt(as.integer(educ==2)) +
+                            tt(as.integer(educ==3))  + tt(as.integer(educ==4)), 
+                            data=frmgham_recoded, method="efron", 
+                            tt=function(x,t,...) x*t) 
+ summary(cox.timeixn.frmgham)
 ```
 
 # Question 1: 
@@ -111,6 +131,7 @@ legend("bottomleft",
   text.col = "black")
 ```
 
+
 *Upon visual inspection, it appears that people who smoked at baseline have slightly lower probability of survival during the 24 years of follow up, compared with people who were non-smokers at baseline. However, the difference between the two appears small, so we would want to more carefully investigate whether there are meaningful differences between the two groups.*
 
 \vspace{12pt}
@@ -119,7 +140,19 @@ legend("bottomleft",
 # Question 2: 
 Referring to the code from lecture, are you able to calculate the overall median survival time in this case? If so, provide an estimate of this quantity, if not, describe why and provide an estimate of a percentile of survival time. Interpret the quantity that you estimated. (15 points)
 
-*ANSWER HERE*
+*The exact median survival can not be calculated, as more than 50% of the population was stil alive (aka without the event) at the end of the follow up time. This can be seen in our graph above. The time when 0.75 of the population is surviving can however be calculated (see Table 1).*
+
+*However, we could potentially model the data out further if we make an assumption of parametricity. We note that without further information this is a big assumption, as we are extrapolating past the collected data. To do this, we used the number of events in each smoking group, and the person-time of follow up in each of those groups to calculate $\lambda$ the rate parameter for each of these groups. If we then assume the classic exponential survival function,* $S(t) = e^{-\lambda*t}$ , *we can solve for the median survival,* $S(t^*) = 0.50$ *as well as the time when 75% are still surviving, *$S(t^*) = 0.75$. *Those results are in the Table below.*
+
+Table 1: Estimates of Median Survival for the Framingham cohort 
+from both Kaplan-Meier survival fit 
+as well as from classic exponential survival function.
+Framingham Cohort Study. 1948-1972, Framingham, MA.
+
+Smoker | $t^*_{75}$ from KM | $t^*_{75}$ from parametric $S(t^*)$ | $t^*_{50}$ from KM | $t^*_{50}$ from parametric $S(t^*)$ 
+------------ | ------------- | ------------------ | ------------------- | ------------------ 
+No   | \ \ \texttt{`r round(KMSurv$quantile.25[1],2)`} | \ \ \ \texttt{`r round(py.smoke.pretty$t75[1],2)`}|  \ \ \texttt{`r round(KMSurv$quantile.50[1],2)`} | \ \ \ \texttt{`r round(py.smoke.pretty$t50[1],2)`}
+Yes   | \ \ \texttt{`r round(KMSurv$quantile.25[2],2)`} | \ \ \ \texttt{`r round(py.smoke.pretty$t75[2],2)`}|  \ \ \texttt{`r round(KMSurv$quantile.50[2],2)`} | \ \ \ \texttt{`r round(py.smoke.pretty$t50[2],2)`}
 
 \vspace{12pt}
 \vspace{12pt}
@@ -173,7 +206,21 @@ Compare the test of the smoking-mortality association between the log-rank test 
 # Question 5: 
 Write the equation for the log-hazard function for the adjusted model you estimated. **Clearly define all parameters in the model.** (15 points)
 
-*ANSWER HERE*
+*The equation for the model is:*
+
+$ln[h(t|x)] = ln[h_0(t)] + x_1\beta_1 + x_2\beta_2 + x_3\beta_3 + x_4\beta_4 + x_5\beta_5$
+
+*where*
+
+* $x_1$ is an indicator of whether or not someone was smoking at enrollment
+* $x_2$ is an indicator of sex, dichotomized into male and female
+* $x_3$ is an indicator corresponding to educational status category 2
+* $x_4$ is an indicator corresponding to educational status category 3
+* $x_4$ is an indicator corresponding to educational status category 4
+
+*using the results from our model, the equation then becomes:*
+
+$ln[h(t|x)] = ln[h_0(t)] +$ \texttt{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`} $x_1 +$ \texttt{`r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)`} $x_2 +$ \texttt{`r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)`} $x_3 +$  \texttt{`r round(as.numeric(coxph.frmgham.adj$coefficients[4]),3)`} $x_4 +$  \texttt{`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)`} $x_5$
 
 \vspace{12pt}
 \vspace{12pt}
@@ -181,10 +228,45 @@ Write the equation for the log-hazard function for the adjusted model you estima
 # Question 6: 
 Using the model you specified in the previous question, show that the hazard ratio comparing current smokers to non-smokers, holding all other covariates constant, is exp($\beta_1$) where $\beta_1$ is the coefficient on the smoking indicator. (Hint: Start by showing the log-hazard for smokers and the log-hazard for non-smokers and use the fact that the log of the hazard ratio is the difference between two log-hazards.) (10 points)
 
-*Using the equation from the previous question, we can calculate that the log-hazard for smokers (holding other covariates constant) is* \texttt{`r a`} *and the comparable log-hazard for non-smokers is* \texttt{`r b`}. *The hazard ratio generated via the model specified in the previous question is* \texttt{`r c`}, *which is the anti-log of the* $\beta_1$ *coefficient on the smoking indicator (with the* $\beta_1$ *coefficient* = \texttt{`r d`}*). This hazard ratio is exactly equal to the log-hazard of smokers divided by the log-hazard of non-smokers:* 
-\[
-\frac{\texttt{`r a`}}{\texttt{`r b`}} = \texttt{`r c`}
-\]
+
+*Using the equation from the previous question, we can calculate that the log-hazard for smokers (holding other covariates constant) is:*
+$$
+ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*1 + 
+`r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 +
+`r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 +
+`r round(as.numeric(coxph.frmgham.adj$coefficients[4]),3)` x_4 +
+`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5
+$$
+*and the comparable log-hazard for non-smokers is:*
+$$
+ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*0 + 
+`r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 +
+`r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 +
+`r round(as.numeric(coxph.frmgham.adj$coefficients[4]),3)` x_4 +
+`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5
+$$
+
+*Thus, the hazard ratio generated via the model specified in the previous question is:*  
+
+$$
+\frac{e^{ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*1 +
+`r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 + 
+`r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 + 
+`r round(as.numeric(coxph.frmgham.adj$coefficients[4]),3)` x_4 +  
+`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5}}
+{e^{ln[h_0(t)] + 
+`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)` *0 + 
+`r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 + 
+`r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 +  
+`r round(as.numeric(coxph.frmgham.adj$coefficients[4]),3)` x_4 +  
+`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5}} = 
+\frac{e^{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*1 }}
+{e^{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*0 }}  = 
+\frac{e^{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`}}{1}
+$$
+
+*which is the anti-log of the* $\beta_1$ *coefficient on the smoking indicator (with the* $\beta_1$ *coefficient* = \texttt{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`}*). This hazard ratio is exactly equal to the log-hazard of smokers divided by the log-hazard of non-smokers:* 
+
 
 \vspace{12pt}
 \vspace{12pt}
@@ -192,14 +274,14 @@ Using the model you specified in the previous question, show that the hazard rat
 # Question 7. 
 Complete the following table. How would you interpret the parameter estimate that compares smokers to non-smokers in the adjusted model? What measure of association common in epidemiologic research does this correspond to? (10 points)
 
-Table 1: Crude and adjusted hazard ratio (HR) estimates of the
+Table 2: Crude and adjusted hazard ratio (HR) estimates of the
 association between baseline smoking status and mortality.
 Framingham Cohort Study. 1948-1972, Framingham, MA.
 
 Smoker | Events| Follow-up Time (yrs) | crude HR (95% CI) | adj. HR (95% CI)
 ------------ | ------------- | ------------------ | ------------------- | ------------------ | ------------------
-No   | \ \ \tt{`r py.smoke.pretty[1,1]`} | \ \ \ \ 44,440.4 | *ref* | *ref*
-Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \ 46,675.2 | 0.917 (0.9872, 1.295) | 1.0085 (.9093, 1.1184) |
+No   | \ \ \tt{`r py.smoke.pretty[1,1]`} | \ \ \ \tt{`r py.smoke.pretty[1,2]`}| *ref* | *ref*
+Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \tt{`r py.smoke.pretty[2,2]`} | \tt{`r round(exp(as.numeric(coxph.frmgham.unadj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[2]),3)`}) | \tt{`r round(exp(as.numeric(coxph.frmgham.adj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.adj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.adj))[2]),3)`}) |
 
 *In the adjusted model, smokers have approximately the same risk of mortality during the 24 years of follow-up as nonsmokers, when adjusting for sex and educational level. While this parameter estimate is a hazard ratio, it corresponds to an incidence density ratio, a common measure of association in epidemiologic research.*
 
@@ -210,4 +292,9 @@ Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \ 46,675.2 | 0.917 (0.9872, 1.2
 Is there evidence for a violation of the proportional hazards assumption in any of the variables? Indicate how you arrived at your conclusion. Describe how you would account for any noted
 violations in the proportional hazards assumption. (10 points)
 
-*ANSWER HERE*
+*We have done an analysis with a model that includes the interaction with time for each of our variables, such that the model is now specified by:*
+$$
+ln[h(t|x)] = ln[h_0(t)] + x_1\beta_1 + x_2\beta_2 + x_3\beta_3 + x_4\beta_4 + x_5\beta_5 + x_1t\beta_6 + x_2t\beta_7 + x_3t\beta_8 + x_4t\beta_9 + x_5t\beta_10
+$$
+
+*where $\beta_6$ through $\beta_10$ are the coefficients on the interaction terms interacting each independant variable with time. For all these variables, the hazard ratios generated in our model are very close to one, with confidence intervals that span one, suggesting that no time-dependant confounding exits. Thus, we can assume that the proportionality of our hazards holds.*
