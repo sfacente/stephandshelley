@@ -19,7 +19,7 @@ knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 # First, (using provided code) load the data:
 #####BE SURE TO UN-COMMENT OUT WHICHEVER LINE YOU NEED HERE####
 
- load("~/GitHub/stephandshelley/frmgham_recoded.Rdata") #windows version
+ #load("~/GitHub/stephandshelley/frmgham_recoded.Rdata") #windows version
  load("frmgham_recoded.Rdata") #mac version
 
 #CREATE A SINGLE-RECORD DATASET (retain 1st observation)
@@ -294,8 +294,8 @@ Framingham Cohort Study. 1948-1972, Framingham, MA.
 
 Smoker | Events| Follow-up Time (yrs) | crude HR (95% CI) | adj. HR (95% CI)
 ------------ | ------------- | ------------------ | ------------------- | ------------------ | ------------------
-No   | \ \ \tt{`r py.smoke.pretty[1,1]`} | \ \ \ \ 46675.20 | *ref* | *ref*
-Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \ 44440.38 | \tt{`r round(exp(as.numeric(coxph.frmgham.unadj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[2]),3)`}) | \tt{`r round(exp(as.numeric(coxph.frmgham.adj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.adj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.adj))[2]),3)`}) |
+No   | \ \ \tt{`r py.smoke.pretty[1,1]`} | \ \ \ \ \tt{46675.20} | *ref* | *ref*
+Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \ \tt{44440.38} | \tt{`r round(exp(as.numeric(coxph.frmgham.unadj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[2]),3)`}) | \tt{`r round(exp(as.numeric(coxph.frmgham.adj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.adj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.adj))[2]),3)`}) |
 
 *In the adjusted model, smokers have approximately the same risk of mortality during the 24 years of follow-up as nonsmokers, when adjusting for sex and educational level. While this parameter estimate is a hazard ratio, it corresponds to an incidence density ratio, a common measure of association in epidemiologic research.*
 
