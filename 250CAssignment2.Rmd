@@ -260,7 +260,7 @@ ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1])
 `r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5
 $$
 
-*Thus, the hazard ratio generated via the model specified in the previous question is:*  
+*The hazard ratio generated via the model specified in the previous question is the log-hazard of smokers divided by the log-hazard of non-smokers:*  
 $$
 \Huge 
 \frac{e^{ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*1 +
@@ -273,13 +273,20 @@ $$
 `r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 + 
 `r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 +  
 `r round(as.numeric(coxph.frmgham.adj$coefficients[4]),3)` x_4 +  
-`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5}} = 
-\frac{e^{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*1 }}
-{e^{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*0 }}  = 
-\frac{e^{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`}}{1}
+`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5}}
 $$
 
-*which is the anti-log of the* $\beta_1$ *coefficient on the smoking indicator (with the* $\beta_1$ *coefficient* = \texttt{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`}*). This hazard ratio is exactly equal to the log-hazard of smokers divided by the log-hazard of non-smokers:* 
+*which when simplified is equal to*
+
+\[
+= 
+\frac{e^{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*1 }}
+{e^{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`*0 }} 
+= 
+\frac{e^{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`}}{1}
+\]
+
+*exactly the same as the anti-log of the* $\beta_1$ *coefficient on the smoking indicator (with the* $\beta_1$ *coefficient* = \texttt{`r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)`}).  
 
 
 \vspace{12pt}
