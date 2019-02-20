@@ -1,7 +1,7 @@
 ---
 title: "HW 2"
 author: "Steph Holm and Shelley Facente"
-date: "February 15, 2019"
+date: "February 19, 2019"
 output:
   pdf_document: default
   word_document: default
@@ -19,8 +19,8 @@ knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 # First, (using provided code) load the data:
 #####BE SURE TO UN-COMMENT OUT WHICHEVER LINE YOU NEED HERE####
 
- #load("~/GitHub/stephandshelley/frmgham_recoded.Rdata") #windows version
- load("frmgham_recoded.Rdata") #mac version
+ load("~/GitHub/stephandshelley/frmgham_recoded.Rdata") #windows version
+ #load("frmgham_recoded.Rdata") #mac version
 
 #CREATE A SINGLE-RECORD DATASET (retain 1st observation)
 frmgham_recoded <- frmgham_recoded[which(frmgham_recoded$period == 1),]
@@ -102,15 +102,14 @@ coxph.frmgham.adj$coefficients[1]
 ```{r}
 #Estimate a model with an interaction between linear follow-up time and each of the covariates in the model.
 
-#Time transform the variables for modeling, from lecture 5, slide 22. Note that this doesn't work for factors- need to make indicators. unedited
-frmgham_recoded$cursmoke2 <-as.integer(frmgham_recoded$cursmoke) 
- cox.timeixn.frmgham <-coxph(Surv(timedth_yrs, death)~ cursmoke + sex 
-                          + as.factor(educ) + tt(cursmoke2) + 
-                            tt(as.integer(sex)) + tt(as.integer(educ==2)) +
+#Time transform the variables for modeling, from lecture 5, slide 22. Note that this doesn't work for factors- need to make indicators.
+cox.timeixn.frmgham <-coxph(Surv(timedth_yrs, death)~ cursmoke + sex + as.factor(educ) + tt(as.integer(cursmoke)) + 
+                            tt(as.integer(sex==2)) + tt(as.integer(educ==2)) +
                             tt(as.integer(educ==3))  + tt(as.integer(educ==4)), 
                             data=frmgham_recoded, method="efron", 
                             tt=function(x,t,...) x*t) 
- summary(cox.timeixn.frmgham)
+summary(cox.timeixn.frmgham)
+pvalues <- coef(summary(cox.timeixn.frmgham))[,5]
 ```
 
 # Question 1: 
@@ -313,9 +312,7 @@ Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \ \tt{44440.38} | \tt{`r round(
 Is there evidence for a violation of the proportional hazards assumption in any of the variables? Indicate how you arrived at your conclusion. Describe how you would account for any noted
 violations in the proportional hazards assumption. (10 points)
 
-*We have done an analysis with a model that includes the interaction with time for each of our variables, such that the model is now specified by:*
-$$
-ln[h(t|x)] = ln[h_0(t)] + x_1\beta_1 + x_2\beta_2 + x_3\beta_3 + x_4\beta_4 + x_5\beta_5 + x_1t\beta_6 + x_2t\beta_7 + x_3t\beta_8 + x_4t\beta_9 + x_5t\beta_10
-$$
+*The summary of our analysis to assess the proportional hazards assumption for this dataset found no significant interactions between time and our exposure variable (smoking at baseline), nor sex or any levels of education (p-values for interaction of time with smoking, sex, and educational levels 2, 3, and 4 were* \tt{`r pvalues[6]`}, \tt{`r pvalues[7]`},  \tt{`r pvalues[8]`}, 
+\tt{`r pvalues[9]`}, \fontfamily{cmr}\itshape\selectfont{and} \tt{`r pvalues[10]`}, \fontfamily{cmr}\itshape\selectfont{respectively). Therefore, we can conclude the the proportional hazards assumption has not been violated.}
 
-*where* $\beta_6$ *through* $\beta_{10}$ *are the coefficients on the interaction terms interacting each independant variable with time. For all these variables, the hazard ratios generated in our model are very close to one, with confidence intervals that span one, suggesting that no time-dependant confounding exits. Thus, we can assume that the proportionality of our hazards holds.*
+\fontfamily{cmr}\itshape\selectfont{If there had been noted violations with confounder variables, we could have accounted for that by including time interactions with that variable in our model, or alternatively by estimating a stratified Cox proportional hazards model (if the variable were categorical). If the violation were in our exposure variable, we would use a model including the time interactions and report time-specific effects (i.e.} $HR(t) = e^{\beta}$ \fontfamily{qag}\selectfont\textsuperscript{+} $^\gamma$ \fontfamily{qag}\selectfont\textsuperscript{x} $^t$).
