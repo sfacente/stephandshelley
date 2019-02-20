@@ -19,8 +19,8 @@ knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 # First, (using provided code) load the data:
 #####BE SURE TO UN-COMMENT OUT WHICHEVER LINE YOU NEED HERE####
 
- load("~/GitHub/stephandshelley/frmgham_recoded.Rdata") #windows version
- #load("frmgham_recoded.Rdata") #mac version
+ #load("~/GitHub/stephandshelley/frmgham_recoded.Rdata") #windows version
+ load("frmgham_recoded.Rdata") #mac version
 
 #CREATE A SINGLE-RECORD DATASET (retain 1st observation)
 frmgham_recoded <- frmgham_recoded[which(frmgham_recoded$period == 1),]
@@ -88,7 +88,7 @@ ties="efron")
 
 ```{r}
 #Now do the same for an adjusted model that also includes age (continuous), sex (binary) and education (4-category) in this model. (For nominal categorical variables, you may need to use the factor() operator in the formula as demonstrated in class.)
-coxph.frmgham.adj <-coxph(Surv(timedth_yrs, death)~cursmoke + sex + as.factor(educ), data=frmgham_recoded,
+coxph.frmgham.adj <-coxph(Surv(timedth_yrs, death)~cursmoke + sex + as.factor(educ) + age, data=frmgham_recoded,
 ties="efron")
  summary(coxph.frmgham.adj)
  
@@ -103,9 +103,10 @@ coxph.frmgham.adj$coefficients[1]
 #Estimate a model with an interaction between linear follow-up time and each of the covariates in the model.
 
 #Time transform the variables for modeling, from lecture 5, slide 22. Note that this doesn't work for factors- need to make indicators.
-cox.timeixn.frmgham <-coxph(Surv(timedth_yrs, death)~ cursmoke + sex + as.factor(educ) + tt(as.integer(cursmoke)) + 
+cox.timeixn.frmgham <-coxph(Surv(timedth_yrs, death)~ cursmoke + sex + as.factor(educ) +                                age + tt(as.integer(cursmoke)) + 
                             tt(as.integer(sex==2)) + tt(as.integer(educ==2)) +
-                            tt(as.integer(educ==3))  + tt(as.integer(educ==4)), 
+                            tt(as.integer(educ==3))  + tt(as.integer(educ==4)) +
+                              tt(age), 
                             data=frmgham_recoded, method="efron", 
                             tt=function(x,t,...) x*t) 
 summary(cox.timeixn.frmgham)
@@ -211,7 +212,7 @@ Write the equation for the log-hazard function for the adjusted model you estima
 *The equation for the model is:*
 $$
 \begin{aligned}
-\Large ln[h(t|x)] = ln[h_0(t)] + x_1\beta_1 + x_2\beta_2 + x_3\beta_3 + x_4\beta_4 + x_5\beta_5
+\Large ln[h(t|x)] = ln[h_0(t)] + x_1\beta_1 + x_2\beta_2 + x_3\beta_3 + x_4\beta_4 + x_5\beta_5 + x_6\beta_6
 \end{aligned}
 $$
 
@@ -221,7 +222,8 @@ $$
 -- $x_2$ *is an indicator of sex, dichotomized into male and female*  
 -- $x_3$ *is an indicator corresponding to educational status category 2*  
 -- $x_4$ *is an indicator corresponding to educational status category 3*  
--- $x_4$ *is an indicator corresponding to educational status category 4*  
+-- $x_5$ *is an indicator corresponding to educational status category 4*  
+-- $x_6$ *is age in years*
 
 *using the results from our model, the equation then becomes:*
 $$ 
@@ -230,7 +232,8 @@ ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1])
 `r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 +
 `r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 +
 `r round(as.numeric(coxph.frmgham.adj$coefficients[4]),3)` x_4 +
-`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5
+`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5 +
+`r round(as.numeric(coxph.frmgham.adj$coefficients[6]),3)` x_6 
 $$
 \vspace{12pt}
 \vspace{6pt}
@@ -246,7 +249,8 @@ ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1])
 `r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 +
 `r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 +
 `r round(as.numeric(coxph.frmgham.adj$coefficients[4]),3)` x_4 +
-`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5
+`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5 +
+`r round(as.numeric(coxph.frmgham.adj$coefficients[6]),3)` x_6 
 $$
 
 *and the comparable log-hazard for non-smokers is:*
@@ -256,7 +260,8 @@ ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1])
 `r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 +
 `r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 +
 `r round(as.numeric(coxph.frmgham.adj$coefficients[4]),3)` x_4 +
-`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5
+`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5 +
+`r round(as.numeric(coxph.frmgham.adj$coefficients[6]),3)` x_6 
 $$
 
 *The hazard ratio generated via the model specified in the previous question is the log-hazard of smokers divided by the log-hazard of non-smokers:*  
@@ -266,13 +271,15 @@ $$
 `r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 + 
 `r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 + 
 `r round(as.numeric(coxph.frmgham.adj$coefficients[4]),3)` x_4 +  
-`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5}}
+`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5 +
+`r round(as.numeric(coxph.frmgham.adj$coefficients[6]),3)` x_6 }}
 {e^{ln[h_0(t)] + 
 `r round(as.numeric(coxph.frmgham.adj$coefficients[1]),3)` *0 + 
 `r round(as.numeric(coxph.frmgham.adj$coefficients[2]),3)` x_2 + 
 `r round(as.numeric(coxph.frmgham.adj$coefficients[3]),3)` x_3 +  
 `r round(as.numeric(coxph.frmgham.adj$coefficients[4]),3)` x_4 +  
-`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5}}
+`r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5 +
+`r round(as.numeric(coxph.frmgham.adj$coefficients[6]),3)` x_6 }}
 $$
 
 *which when simplified is equal to*
@@ -312,7 +319,7 @@ Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \ \tt{44440.38} | \tt{`r round(
 Is there evidence for a violation of the proportional hazards assumption in any of the variables? Indicate how you arrived at your conclusion. Describe how you would account for any noted
 violations in the proportional hazards assumption. (10 points)
 
-*The summary of our analysis to assess the proportional hazards assumption for this dataset found no significant interactions between time and our exposure variable (smoking at baseline), nor sex or any levels of education (p-values for interaction of time with smoking, sex, and educational levels 2, 3, and 4 were* \tt{`r pvalues[6]`}, \tt{`r pvalues[7]`},  \tt{`r pvalues[8]`}, 
-\tt{`r pvalues[9]`}, \fontfamily{cmr}\itshape\selectfont{and} \tt{`r pvalues[10]`}, \fontfamily{cmr}\itshape\selectfont{respectively). Therefore, we can conclude the the proportional hazards assumption has not been violated.}
+*The summary of our analysis to assess the proportional hazards assumption for this dataset found no significant interactions between time and our exposure variable (smoking at baseline), nor sex or any levels of education (p-values for the coefficients on the interaction of time with smoking, sex, and educational levels 2, 3, and 4 were* \tt{`r pvalues[7]`}, \tt{`r pvalues[8]`},  \tt{`r pvalues[8]`}, 
+\tt{`r pvalues[10]`}, \fontfamily{cmr}\itshape\selectfont{and} \tt{`r pvalues[11]`}, \fontfamily{cmr}\itshape\selectfont{respectively). Therefore, we can conclude the the proportional hazards assumption has not been violated for these variables.}
 
-\fontfamily{cmr}\itshape\selectfont{If there had been noted violations with confounder variables, we could have accounted for that by including time interactions with that variable in our model, or alternatively by estimating a stratified Cox proportional hazards model (if the variable were categorical). If the violation were in our exposure variable, we would use a model including the time interactions and report time-specific effects (i.e.} $HR(t) = e^{\beta}$ \fontfamily{qag}\selectfont\textsuperscript{+} $^\gamma$ \fontfamily{qag}\selectfont\textsuperscript{x} $^t$).
+\fontfamily{cmr}\itshape\selectfont{However, we do have a violation of the proportional hazards assumption for sex, a confounder variable (p-value for the coefficient on the interaction of time and sex is \tt{'r pvalues[12]'}). We could account for that by including time interactions with that variable in our model, or alternatively by estimating a stratified Cox proportional hazards model for each of our defined sex categories separately. If the violation were in our exposure variable, we would use a model including the time interactions and report time-specific effects (i.e.} $HR(t) = e^{\beta}$ \fontfamily{qag}\selectfont\textsuperscript{+} $^\gamma$ \fontfamily{qag}\selectfont\textsuperscript{x} $^t$).
