@@ -19,8 +19,8 @@ knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 # First, (using provided code) load the data:
 #####BE SURE TO UN-COMMENT OUT WHICHEVER LINE YOU NEED HERE####
 
- load("~/GitHub/stephandshelley/frmgham_recoded.Rdata") #windows version
- #load("frmgham_recoded.Rdata") #mac version
+ #load("~/GitHub/stephandshelley/frmgham_recoded.Rdata") #windows version
+ load("frmgham_recoded.Rdata") #mac version
 
 #CREATE A SINGLE-RECORD DATASET (retain 1st observation)
 frmgham_recoded <- frmgham_recoded[which(frmgham_recoded$period == 1),]
@@ -319,7 +319,6 @@ Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \ \tt{44440.38} | \tt{`r round(
 Is there evidence for a violation of the proportional hazards assumption in any of the variables? Indicate how you arrived at your conclusion. Describe how you would account for any noted
 violations in the proportional hazards assumption. (10 points)
 
-*The summary of our analysis to assess the proportional hazards assumption for this dataset found no significant interactions between time and our exposure variable (smoking at baseline), nor age or any levels of education (p-values for the coefficients on the interaction of time with smoking, age, and educational levels 2, 3, and 4 were* \tt{`r round(pvalues[7],2)`}, \tt{`r round(pvalues[12],2)`},  \tt{`r round(pvalues[9],2)`}, 
-\tt{`r round(pvalues[10],2)`}, \fontfamily{cmr}\itshape\selectfont{and} \tt{`r round(pvalues[11],2)`}, \fontfamily{cmr}\itshape\selectfont{respectively). Therefore, we can conclude the the proportional hazards assumption has not been violated for these variables.}
+*The summary of our analysis to assess the proportional hazards assumption for this dataset found no significant interactions between time and our exposure variable (smoking at baseline), nor age or any levels of education (p-values for the coefficients on the interaction of time with smoking, age, and educational levels 2, 3, and 4 were* \tt{`r round(pvalues[7],2)`}, \tt{`r round(pvalues[12],2)`},  \tt{`r round(pvalues[9],2)`}, \tt{`r round(pvalues[10],2)`}, \fontfamily{cmr}\itshape\selectfont{and} \tt{`r round(pvalues[11],2)`}, \fontfamily{cmr}\itshape\selectfont{respectively). Therefore, we can conclude the the proportional hazards assumption has not been violated for these variables.}
 
 However, we do have a violation of the proportional hazards assumption for sex, a confounder variable (p-value for the coefficient on the interaction of time and sex is \tt{`r round(pvalues[8],2)`}\fontfamily{cmr}\itshape\selectfont{). We could account for that by including time interactions with that variable in our model, or alternatively by estimating a stratified Cox proportional hazards model for each of our defined sex categories separately. If the violation were in our exposure variable, we would use a model including the time interactions and report time-specific effects (i.e.} $HR(t) = e^{\beta}$ \fontfamily{qag}\selectfont\textsuperscript{+} $^\gamma$ \fontfamily{qag}\selectfont\textsuperscript{x} $^t$).
