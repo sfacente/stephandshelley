@@ -186,17 +186,17 @@ Answer the following questions about the Cox models estimated above: (20 points 
 ##i) 
 Why do we use specialized methods for survival analysis (instead of linear or logistic regression, for example)?
 
-*We use specialized models for survival analysese because they deal with time; time-to-event must be defined as the probability of an event happening at any particular time* **t** *given that the event has not already happened <u>prior</u> to that time* **t**.
+*We use specialized models for survival analyses because they deal with time; time-to-event must be defined as the probability of an event happening at any particular time* **t** *given that the event has not already happened <u>prior</u> to that time* **t**.
 
 ##ii) 
 What are the advantages of the Cox model over other survival analysis methods? What is a potential disadvantage of the Cox model?
 
-*The advantage of the Cox model is that it does not specify the form of the baseline hazard (and thus the distribution of T) and estimates it non-parametrically. However, a potential disadvantage is that you lose some statistial efficiency by using only the part of the likelihood that doesn't contain* $h_0(t)$.
+*The advantage of the Cox model is that it does not specify the form of the baseline hazard (and thus the distribution of T) and estimates it non-parametrically, so we don't have to worry about mis-specification of this baseline hazard. However, a potential disadvantage is that you lose some statistial efficiency by using only the part of the likelihood that doesn't contain* $h_0(t)$.
 
 ##iii) 
 What assumptions, if any, does the standard Cox proportional hazards model make?
 
-*Like other proportional hazards models, the Cox proportional hazards model assues that the effects of the exposure and co-variates of interest are constant over the entire follow-up (i.e. the hazards are proportional over the entire time interval). It also assumes no delayed entry, truncation, or other types of censoring, unless explicitly handled in design/analysis.*
+*Like other proportional hazards models, the Cox proportional hazards model assumes that the effects of the exposure and co-variates of interest are constant over the entire follow-up (i.e. the hazards are proportional over the entire time interval). It also assumes no delayed entry, truncation, or other types of censoring, unless explicitly handled in design/analysis.*
 
 ##iv) 
 Compare the test of the smoking-mortality association between the log-rank test and the likelihood ratio test from the <u>unadjusted</u> Cox proportional hazards model. What do you observe? Between these two analytic approaches, which one would you prefer, and why?
