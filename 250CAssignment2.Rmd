@@ -308,7 +308,7 @@ Framingham Cohort Study. 1948-1972, Framingham, MA.
 Smoker | Events| Follow-up Time (yrs) | crude HR (95% CI) | adj. HR (95% CI)
 ------------ | ------------- | ------------------ | ------------------- | ------------------ | ------------------
 No   | \ \ \tt{`r py.smoke.pretty[1,1]`} | \ \ \ \ \tt{46675.20} | *ref* | *ref*
-Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \ \tt{44440.38} | \tt{`r round(exp(as.numeric(coxph.frmgham.unadj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[2]),3)`}) | \tt{`r round(exp(as.numeric(coxph.frmgham.adj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.adj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.adj))[2]),3)`}) |
+Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \ \tt{44440.38} | \tt{`r round(exp(as.numeric(coxph.frmgham.unadj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[2]),3)`}) | \tt{`r round(exp(as.numeric(coxph.frmgham.adj$coefficients[1])),3)`} (\tt{`r round(exp(confint(coxph.frmgham.adj)[1,1]),3)`}, \tt{`r round(exp(confint(coxph.frmgham.adj)[1,2]),3)`}) |
 
 *In the adjusted model, smokers have approximately the same risk of mortality during the 24 years of follow-up as nonsmokers, when adjusting for sex and educational level. While this parameter estimate is a hazard ratio, it corresponds to an incidence density ratio, a common measure of association in epidemiologic research.*
 
