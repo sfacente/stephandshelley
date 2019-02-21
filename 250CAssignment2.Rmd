@@ -177,7 +177,7 @@ Describe the specific hypothesis that the logrank test is considering here.
 ##ii) 
 What do you conclude from this test (use 5% significance criteria)? What is the limitation of the inference that you obtain from the log-rank test?
 
-*Using 5% as our cut-off for statistical significance, we would conclude that these curves are* <u>not</u> *statistically significant as the p-value is* \texttt{`r round(p.value.log.rank,3)`}, *meaning that if the null hypothesis is true (there is truly no difference in survival between groups) we have a* \texttt{`r 100*round(p.value.log.rank,3)`} *percent chance of generating data such as these by chance. The log-rank test provides no measure of effect, so you can only infer the level of heterogeneity between groups, and nothing more.*
+*Using 5% as our cut-off for statistical significance, we would conclude that these curves are* <u>not</u> *significantly different as the p-value is* \texttt{`r round(p.value.log.rank,3)`}, *meaning that if the null hypothesis is true (there is truly no difference in survival between groups) we have a* \texttt{`r 100*round(p.value.log.rank,3)`} *percent chance of generating data such as these by chance. The log-rank test provides no measure of effect, so you can only infer the level of heterogeneity between groups, and nothing more.*
 
 \vspace{12pt}
 \vspace{6pt}
@@ -188,17 +188,17 @@ Answer the following questions about the Cox models estimated above: (20 points 
 ##i) 
 Why do we use specialized methods for survival analysis (instead of linear or logistic regression, for example)?
 
-*We use specialized models for survival analysese because they deal with time; time-to-event must be defined as the probability of an event happening at any particular time* **t** *given that the event has not already happened <u>prior</u> to that time* **t**.
+*We use specialized models for survival analyses because they deal with time; time-to-event must be defined as the probability of an event happening at any particular time* **t** *given that the event has not already happened <u>prior</u> to that time* **t**.
 
 ##ii) 
 What are the advantages of the Cox model over other survival analysis methods? What is a potential disadvantage of the Cox model?
 
-*The advantage of the Cox model is that it does not specify the form of the baseline hazard (and thus the distribution of T) and estimates it non-parametrically. However, a potential disadvantage is that you lose some statistial efficiency by using only the part of the likelihood that doesn't contain* $h_0(t)$.
+*The advantage of the Cox model is that it does not specify the form of the baseline hazard (and thus the distribution of T) and estimates it non-parametrically, so we don't have to worry about mis-specification of this baseline hazard. However, a potential disadvantage is that you lose some statistial efficiency by using only the part of the likelihood that doesn't contain* $h_0(t)$.
 
 ##iii) 
 What assumptions, if any, does the standard Cox proportional hazards model make?
 
-*Like other proportional hazards models, the Cox proportional hazards model assues that the effects of the exposure and co-variates of interest are constant over the entire follow-up (i.e. the hazards are proportional over the entire time interval). It also assumes no delayed entry, truncation, or other types of censoring, unless explicitly handled in design/analysis.*
+*Like other proportional hazards models, the Cox proportional hazards model assumes that the effects of the exposure and co-variates of interest are constant over the entire follow-up (i.e. the hazards are proportional over the entire time interval). It also assumes no delayed entry, truncation, or other types of censoring, unless explicitly handled in design/analysis.*
 
 ##iv) 
 Compare the test of the smoking-mortality association between the log-rank test and the likelihood ratio test from the <u>unadjusted</u> Cox proportional hazards model. What do you observe? Between these two analytic approaches, which one would you prefer, and why?
@@ -312,7 +312,7 @@ Smoker | Events| Follow-up Time (yrs) | crude HR (95% CI) | adj. HR (95% CI)
 No   | \ \ \tt{`r py.smoke.pretty[1,1]`} | \ \ \ \ \tt{46675.20} | *ref* | *ref*
 Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \ \tt{44440.38} | \tt{`r round(exp(as.numeric(coxph.frmgham.unadj$coefficients[1])),3)`} (\tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[1]),3)`}, \tt{`r round(exp(as.vector(confint(coxph.frmgham.unadj))[2]),3)`}) | \tt{`r round(exp(as.numeric(coxph.frmgham.adj$coefficients[1])),3)`} (\tt{`r round(exp(confint(coxph.frmgham.adj)[1,1]),3)`}, \tt{`r round(exp(confint(coxph.frmgham.adj)[1,2]),3)`}) |
 
-*In the adjusted model, smokers have approximately the same risk of mortality during the 24 years of follow-up as nonsmokers, when adjusting for sex and educational level. While this parameter estimate is a hazard ratio, it corresponds to an incidence density ratio, a common measure of association in epidemiologic research.*
+*In the adjusted model, smokers have roughly a 40% increased risk of mortality during the 24 years of follow-up as nonsmokers, when adjusting for sex and educational level. While this parameter estimate is a hazard ratio, it corresponds to an incidence density ratio, a common measure of association in epidemiologic research.*
 
 \vspace{12pt}
 \vspace{6pt}
@@ -321,7 +321,7 @@ Yes  | \ \ \tt{`r py.smoke.pretty[2,1]`} | \ \ \ \ \tt{44440.38} | \tt{`r round(
 Is there evidence for a violation of the proportional hazards assumption in any of the variables? Indicate how you arrived at your conclusion. Describe how you would account for any noted
 violations in the proportional hazards assumption. (10 points)
 
-*The summary of our analysis to assess the proportional hazards assumption for this dataset found no significant interactions between time and our exposure variable (smoking at baseline), nor age or any levels of education (p-values for the coefficients on the interaction of time with smoking, age, and educational levels 2, 3, and 4 were* \tt{`r pvalues[7]`}, \tt{`r pvalues[12]`},  \tt{`r pvalues[9]`}, 
-\tt{`r pvalues[10]`}, \fontfamily{cmr}\itshape\selectfont{and} \tt{`r pvalues[11]`}, \fontfamily{cmr}\itshape\selectfont{respectively). Therefore, we can conclude the the proportional hazards assumption has not been violated for these variables.}
+*The summary of our analysis to assess the proportional hazards assumption for this dataset found no significant interactions between time and our exposure variable (smoking at baseline), nor age or any levels of education (p-values for the coefficients on the interaction of time with smoking, age, and educational levels 2, 3, and 4 were* \tt{`r round(pvalues[7],2)`}, \tt{`r round(pvalues[12],2)`},  \tt{`r round(pvalues[9],2)`}, 
+\tt{`r round(pvalues[10],2)`}, \fontfamily{cmr}\itshape\selectfont{and} \tt{`r round(pvalues[11],2)`}, \fontfamily{cmr}\itshape\selectfont{respectively). Therefore, we can conclude the the proportional hazards assumption has not been violated for these variables.}
 
-However, we do have a violation of the proportional hazards assumption for sex, a confounder variable (p-value for the coefficient on the interaction of time and sex is \tt{`r pvalues[8]`}\fontfamily{cmr}\itshape\selectfont{). We could account for that by including time interactions with that variable in our model, or alternatively by estimating a stratified Cox proportional hazards model for each of our defined sex categories separately. If the violation were in our exposure variable, we would use a model including the time interactions and report time-specific effects (i.e.} $HR(t) = e^{\beta}$ \fontfamily{qag}\selectfont\textsuperscript{+} $^\gamma$ \fontfamily{qag}\selectfont\textsuperscript{x} $^t$).
+However, we do have a violation of the proportional hazards assumption for sex, a confounder variable (p-value for the coefficient on the interaction of time and sex is \tt{`r round(pvalues[8],2)`}\fontfamily{cmr}\itshape\selectfont{). We could account for that by including time interactions with that variable in our model, or alternatively by estimating a stratified Cox proportional hazards model for each of our defined sex categories separately. If the violation were in our exposure variable, we would use a model including the time interactions and report time-specific effects (i.e.} $HR(t) = e^{\beta}$ \fontfamily{qag}\selectfont\textsuperscript{+} $^\gamma$ \fontfamily{qag}\selectfont\textsuperscript{x} $^t$).
