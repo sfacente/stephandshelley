@@ -175,7 +175,7 @@ Describe the specific hypothesis that the logrank test is considering here.
 ##ii) 
 What do you conclude from this test (use 5% significance criteria)? What is the limitation of the inference that you obtain from the log-rank test?
 
-*Using 5% as our cut-off for statistical significance, we would conclude that these curves are* <u>not</u> *statistically significant as the p-value is* \texttt{`r round(p.value.log.rank,3)`}, *meaning that if the null hypothesis is true (there is truly no difference in survival between groups) we have a* \texttt{`r 100*round(p.value.log.rank,3)`} *percent chance of generating data such as these by chance. The log-rank test provides no measure of effect, so you can only infer the level of heterogeneity between groups, and nothing more.*
+*Using 5% as our cut-off for statistical significance, we would conclude that these curves are* <u>not</u> *significantly different as the p-value is* \texttt{`r round(p.value.log.rank,3)`}, *meaning that if the null hypothesis is true (there is truly no difference in survival between groups) we have a* \texttt{`r 100*round(p.value.log.rank,3)`} *percent chance of generating data such as these by chance. The log-rank test provides no measure of effect, so you can only infer the level of heterogeneity between groups, and nothing more.*
 
 \vspace{12pt}
 \vspace{6pt}
