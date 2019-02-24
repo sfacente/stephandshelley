@@ -149,6 +149,8 @@ legend("bottomleft",
 
 *Upon visual inspection, it appears that people who smoked at baseline have slightly lower probability of survival during the 24 years of follow up, compared with people who were non-smokers at baseline. However, the difference between the two appears small, so we would want to more carefully investigate whether there are meaningful differences between the two groups.*
 
+To be fixed (TBF): add limitations
+
 \vspace{12pt}
 \vspace{6pt}
 
@@ -169,6 +171,10 @@ Smoker | $t^*_{75}$ from KM | $t^*_{75}$ from parametric $S(t^*)$ | $t^*_{50}$ f
 No   | \ \ \texttt{`r round(KMSurv$quantile.25[1],2)`} | \ \ \ \texttt{`r round(py.smoke.pretty$t75[1],2)`}|  \ \ \texttt{`r round(KMSurv$quantile.50[1],2)`} | \ \ \ \texttt{`r round(py.smoke.pretty$t50[1],2)`}
 Yes   | \ \ \texttt{`r round(KMSurv$quantile.25[2],2)`} | \ \ \ \texttt{`r round(py.smoke.pretty$t75[2],2)`}|  \ \ \texttt{`r round(KMSurv$quantile.50[2],2)`} | \ \ \ \texttt{`r round(py.smoke.pretty$t50[2],2)`}
 Total (combined) | \ \ \texttt{`r round(KMSurv2$quantile[1],2)`} | \ \ \ \texttt{`r round(py.smoke.pretty$t75[3],2)`}|  \ \ \texttt{`r KMSurv2$quantile[2]`} | \ \ \ \texttt{`r round(py.smoke.pretty$t50[3],2)`}
+
+
+
+TBF: add an interpretation of the 75th percentile estimate
 
 \vspace{12pt}
 \vspace{6pt}
@@ -251,12 +257,15 @@ ln[h(t|x)] = ln[h_0(t)] + `r round(as.numeric(coxph.frmgham.adj$coefficients[1])
 `r round(as.numeric(coxph.frmgham.adj$coefficients[5]),3)` x_5 +
 `r round(as.numeric(coxph.frmgham.adj$coefficients[6]),3)` x_6 
 $$
+
+TBF: "define" the parameters
 \vspace{12pt}
 \vspace{6pt}
 
 # Question 6: 
 Using the model you specified in the previous question, show that the hazard ratio comparing current smokers to non-smokers, holding all other covariates constant, is $e^{\beta_1}$ where $\beta_1$ is the coefficient on the smoking indicator. (Hint: Start by showing the log-hazard for smokers and the log-hazard for non-smokers and use the fact that the log of the hazard ratio is the difference between two log-hazards.) (10 points)
 
+TBF: these should all be switched back to betas (not the fit coefficients)
 
 *Using the equation from the previous question, we can calculate that the log-hazard for smokers (holding other covariates constant) is:*
 $$ 
