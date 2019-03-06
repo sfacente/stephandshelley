@@ -1,0 +1,229 @@
+---
+title: "HW 3"
+author: "Steph Holm and Shelley Facente"
+date: "3/5/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(survival)
+library(dplyr)
+library(car)
+library(cmprsk)
+knitr::opts_chunk$set(include = FALSE, cache = TRUE)
+
+```
+
+```{r}
+# First, load the data
+StephandShellyDataLoad <- function(filename) 
+{
+  if(Sys.info()['sysname']=="Darwin"){
+    
+     load(as.character(filename), envir = globalenv())}
+  else{
+    windowsfilepath <- paste("~/GitHub/stephandshelley/", filename, sep = "")
+     load(as.character(windowsfilepath), envir = globalenv())
+  }
+}
+
+StephandShellyDataLoad("frmgham_recoded.Rdata")
+StephandShellyDataLoad("cvdrisk.Rdata")
+
+# Keeps first observation of each subject:
+frmgham_recoded <- frmgham_recoded[which(frmgham_recoded$period==1),]
+
+# Makes 18.5-24.9 reference category for BMI
+frmgham_recoded$bmi_cat <- relevel(as.factor(frmgham_recoded$bmi_cat),2)
+```
+
+```{r}
+#Using provided code, to fit a Cox proportional hazards model, an exponential model, and a Weibull model.
+
+# Cox model (for reference)
+survmod.cox.adj <- coxph(Surv(timedth_yrs, death)~ as.factor(bmi_cat) +
+age + male + factor(cursmoke),
+data=frmgham_recoded,
+method="efron")
+
+summary(survmod.cox.adj)
+
+# Exponential model
+
+survreg.exp.adj <- survreg(Surv(timedth_yrs, death)~ as.factor(bmi_cat) +
+age + male + factor(cursmoke),
+data=frmgham_recoded,
+dist="exponential")
+summary(survreg.exp.adj)
+
+# Weibull model
+
+survreg.weib.adj <- survreg(Surv(timedth_yrs, death)~ as.factor(bmi_cat) +
+age + male + factor(cursmoke),
+data=frmgham_recoded, dist="weibull")
+summary(survreg.weib.adj)
+```
+
+```{r}
+#Using provided code, Calculate hazard ratios and 95% confidence intervals for the parametric survival models:
+
+### Calculating log-HRs and SE(log-HR) for Exponential AFT model:
+# The functions of the regression parameters from AFT -> PH
+g <- c("-a2","-a3","-a4")
+
+# The alpha estimates from the Exponential AFT model
+a <- coef(survreg.exp.adj)
+v.a <- vcov(survreg.exp.adj) # Covariance matrix of alphas
+names(a) <- paste("a", 1:length(a), sep="")
+rownames(v.a) <- colnames(v.a) <- names(a)
+
+# Calculate ln(HR) and SEs:
+lnhr.se.exp <- rbind(deltaMethod(a, g[1], vcov=v.a), # UW
+deltaMethod(a, g[2], vcov=v.a), # OW
+deltaMethod(a, g[3], vcov=v.a)) # OB
+lnhr.se.exp
+
+# HR and 95% CIs:
+round(exp(lnhr.se.exp),2)[,c(1,3,4)]
+
+### Calculating log-HRs and SE(log-HR) for Weibull AFT model:
+# The functions of the regression parameters from AFT -> PH
+g <- c("-a2/exp(lscale)","-a3/exp(lscale)","-a4/exp(lscale)")
+
+# The alpha estimates from the Exponential AFT model
+a <- c(coef(survreg.weib.adj), survreg.weib.adj$icoef[2])
+v.a <- vcov(survreg.weib.adj) # Covariance matrix of alphas
+names(a) <- c(paste("a", 1:(length(a)-1), sep=""), "lscale")
+rownames(v.a) <- colnames(v.a) <- names(a)
+
+# Calculate ln(HR) and SEs:
+lnhr.se.weib <- rbind(deltaMethod(a, g[1], vcov=v.a), # UW
+deltaMethod(a, g[2], vcov=v.a), # OW
+deltaMethod(a, g[3], vcov=v.a)) # OB
+lnhr.se.weib
+
+# HR and 95% CIs:
+round(exp(lnhr.se.weib),2)[,c(1,3,4)]
+```
+
+```{r}
+#On your own - Perform a likelihood ratio test to determine if the Weibull model is more appropriate than the exponential model.
+```
+
+```{r}
+###Switching to competing Risks modeling#####
+
+#Create a variable for overall mortality (death from any cause), and a variable that represents standard BMI categories:
+
+cvdrisk.dat$death.any <- as.integer(cvdrisk.dat$ev_typ==1 |
+cvdrisk.dat$ev_typ==2)
+
+# cvdrisk.dat$bmi.cat <- as.integer(cvdrisk.dat$bmi>=25)
+cvdrisk.dat <- cvdrisk.dat[cvdrisk.dat$bmi >=18.5,]
+cvdrisk.dat$bmi.cat <- cut(cvdrisk.dat$bmi,
+breaks=c(18.5,25,30,1000), right=FALSE,
+include.lowest = TRUE)
+cvdrisk.dat$bmi.cat <- relevel(cvdrisk.dat$bmi.cat,ref="[18.5,25)")
+```
+
+```{r}
+#Referring to the code from the lecture notes and below, plot the pooled (single group) cumulative incidence function (CIF) and Kaplan-Meier failure function on the same graph for these data:
+
+# Estimate CIF
+cif <- cuminc(cvdrisk.dat$time, cvdrisk.dat$ev_typ, cencode=0)
+cif.cvd <- cbind(cif["1 1"]$`1 1`$time, cif["1 1"]$`1 1`$est)
+# Estimate KM Failure Function (manually calculate to overlay graphs)
+km <- survfit(Surv(time, as.integer(ev_typ==1))~1, data=cvdrisk.dat)
+km.F <- 1-km$surv
+km.time <- km$time
+
+# Plot CIF:
+plot(cif.cvd[,1], cif.cvd[,2], bty="l",
+main="CVD Mortality", xlab="Days of Follow-Up",
+ylab="Probability of CVD Death", type="l",
+lty="solid",lwd=2)
+
+# Add KM Failure function:
+lines(km.time, km.F, type="l", lty=2, lwd=2, bty="l")
+legend("bottomright",
+legend=c("Cumulative Incidence Function for CVD",
+"Kaplan-Meier Failure Function for CVD"),
+lty=c(1,2),
+lwd=2, cex=1, bty="o")
+```
+
+```{r}
+#Referring to the code from the lecture notes and below, estimate the cause-specific CVD and other cause of death hazard ratios using a Cox proportional hazards model with the binary BMI variable as exposure, and adjusting for age and sex.
+
+# Create cause-specific death indicators
+# censoring at other causes:
+cvdrisk.dat$cvd <- as.integer(cvdrisk.dat$ev_typ==1)
+cvdrisk.dat$other <- as.integer(cvdrisk.dat$ev_typ==2)
+cs.cvd <- coxph(Surv(time, cvd)~bmi.cat+age+sex, ties="efron",
+data=cvdrisk.dat)
+summary(cs.cvd)
+cs.other <- coxph(Surv(time, other)~bmi.cat+age+sex, ties="efron",
+data=cvdrisk.dat)
+summary(cs.other)
+```
+
+```{r}
+#Referring to the code from lecture, estimate the corresponding subdistribution hazard ratios from the Fine-Gray model.
+
+# Create design matrix and remove intercept:
+X.crr <- model.matrix(~ bmi.cat + age + sex, data=cvdrisk.dat)[,-1]
+# Adjusted models:
+sd.cvd <- crr(cvdrisk.dat$time, cvdrisk.dat$ev_typ, X.crr,
+failcode=1, cencode=0)
+summary(sd.cvd)
+sd.other <- crr(cvdrisk.dat$time, cvdrisk.dat$ev_typ, X.crr,
+failcode=2, cencode=0)
+summary(sd.other)
+```
+
+**Parametric Survival Analysis**
+
+# Question 1: Assuming *Weibull* distributed event times,
+
+##a) Write out the *general* expression, not substituting any estimated values, and clearly defining any paramters and distributions for any random terms, the **log-hazard function**, including the complete baseline hazard.
+
+##b) Repeat the above for the **log-time function** (in the accelerated failure time metric).
+
+##c) For an arbitrary covariate, show the expression of the hazard ratio from the proportional hazards Weibull model as a function of parameters from the accelerated failure time expression of the same model.
+
+# Question 2: Complete the following table using the results from your analyses.
+
+BMI | Cox HR (95% CI) | Cox $SE_\beta$ | Exponential HR (95% CI) | Exp $SE_\beta$ | Weibull HR (95% CI) | Weib $SE_\beta$
+------- | ------------- | ------------- | ------------- | ------------- | ------------- | -------------
+<18.5 | | | | | | |
+18.5 - <25 | 1 | - | 1 | - | 1 | -
+25 - <30 | | | | | | |
+>= 30 | | | | | | |
+
+# Question 3: Answer the following questions
+##a) Which model estimates the relationships of interest most precisely? Justify your answer
+
+##b) Based on the likelihood ratio test, what parameter from the model you outlined in Q1 is being evaluated? Based on the results of this test, would you select the exponential or Weibull model? Justify your answer.
+
+##c) Using the output from the Weibull model, calculate the time ratio comparing individuals with BMI > 30 to those with BMI 18.5-<25 (no need for confidence interval). Interpret this parameter. Does this agree or not with the corresponding hazard ratio?
+
+**Competing Risks**
+
+# Question 4: Conceptually, what is the difference between the KM failure estimate for CVD death and the estimated CIF for CVD death? What does the comparison of these curves tell you about the risk of the competing event?
+
+# Question 5: In a competing risks analysis, briefly (1-2 sentences each) define in words the following terms:
+
+## Cause-specific hazard
+
+##Subdistribution hazard
+
+# Question 6: Complete the following table for the cause-specific hazard ratios (csHRs) and subdistribution HRs (sHRs) you estimated
+
+BMI | CVD csHR (95% CI) | Other csHR (95% CI) | CVD sHR (95% CI) | Other sHR (95% CI)  
+------- | ------------- | ------------- | ------------- | ------------- 
+<18.5 | | | | |
+18.5 - <25 | 1 | 1 | | 1 | 1
+25 - <30 | | | | | | |
+>= 30 | | | | | | |
+
+# Question 7: From the above table, explain how the pattern you observe in the csHRs is consistent with the pattern in the sHRs. (Consider the relationship between the csHR and sHRs.)
