@@ -16,7 +16,7 @@ knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
 ```{r}
 # First, load the data
-StephandShellyDataLoad <- function(filename) 
+StephandShelleyDataLoad <- function(filename) 
 {
   if(Sys.info()['sysname']=="Darwin"){
     
@@ -27,8 +27,8 @@ StephandShellyDataLoad <- function(filename)
   }
 }
 
-StephandShellyDataLoad("frmgham_recoded.Rdata")
-StephandShellyDataLoad("cvdrisk.Rdata")
+StephandShelleyDataLoad("frmgham_recoded.Rdata")
+StephandShelleyDataLoad("cvdrisk.Rdata")
 
 # Keeps first observation of each subject:
 frmgham_recoded <- frmgham_recoded[which(frmgham_recoded$period==1),]
