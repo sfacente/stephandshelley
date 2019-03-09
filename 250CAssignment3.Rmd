@@ -224,7 +224,7 @@ $$h^{AFT}(t|\boldsymbol{x}) = \frac{t^{\frac{1}{\sigma}} - 1}{\sigma}exp(-(\alph
 
 BMI | Cox HR (95% CI) | Cox $SE_\beta$ | Exponential HR (95% CI) | Exp $SE_\beta$ | Weibull HR (95% CI) | Weibull $SE_\beta$
 ------- | ------------- | ------------- | ------------- | ------------- | ------------- | -------------
-
+<18.5 | \tt{`r round(exp(coxcoef[1]),3)`} (\tt{`r round(exp(coxCI[1,1]),3)`}, \tt{`r round(exp(coxCI[1,2]),3)`}) | \tt{`r round(coxSE[1],3)`} | \tt{`r round(exp(expPHcoef[1]),3)`} (\tt{`r round(exp(expPHCI[1,1]),3)`}, \tt{`r round(exp(expPHCI[1,2]),3)`}) | \tt{`r round(expPHSE[1],3)`} | \tt{`r round(exp(weibPHcoef[1]),3)`} (\tt{`r round(exp(weibPHCI[1,1]),3)`}, \tt{`r round(exp(weibPHCI[1,2]),3)`}) | \tt{`r round(weibPHSE[1],3)`} 
 18.5 - <25 | 1 | - | 1 | - | 1 | -
 25 - <30 | \tt{`r round(exp(coxcoef[2]),3)`} (\tt{`r round(exp(coxCI[2,1]),3)`}, \tt{`r round(exp(coxCI[2,2]),3)`}) | \tt{`r round(coxSE[2],3)`} | \tt{`r round(exp(expPHcoef[2]),3)`} (\tt{`r round(exp(expPHCI[2,1]),3)`}, \tt{`r round(exp(expPHCI[2,2]),3)`}) | \tt{`r round(expPHSE[2],3)`} | \tt{`r round(exp(weibPHcoef[2]),3)`} (\tt{`r round(exp(weibPHCI[2,1]),3)`}, \tt{`r round(exp(weibPHCI[2,2]),3)`}) | \tt{`r round(weibPHSE[2],3)`} 
 $\ge$ 30 | \tt{`r round(exp(coxcoef[3]),3)`} (\tt{`r round(exp(coxCI[3,1]),3)`}, \tt{`r round(exp(coxCI[3,2]),3)`})| \tt{`r round(coxSE[1],3)`} | \tt{`r round(exp(expPHcoef[3]),3)`} (\tt{`r round(exp(expPHCI[3,1]),3)`}, \tt{`r round(exp(expPHCI[3,2]),3)`}) | \tt{`r round(expPHSE[3],3)`} | \tt{`r round(exp(weibPHcoef[3]),3)`} (\tt{`r round(exp(weibPHCI[3,1]),3)`}, \tt{`r round(exp(weibPHCI[3,2]),3)`}) | \tt{`r round(weibPHSE[3],3)`} 
