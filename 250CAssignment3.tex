@@ -89,42 +89,49 @@
 \begin{document}
 \maketitle
 
-\textbf{Parametric Survival Analysis}
+\section{Parametric Survival
+Analysis}\label{parametric-survival-analysis}
 
-\section{\texorpdfstring{Question 1: Assuming \emph{Weibull} distributed
-event
+\subsection{\texorpdfstring{Question 1: Assuming \emph{Weibull}
+distributed event
 times,}{Question 1: Assuming Weibull distributed event times,}}\label{question-1-assuming-weibull-distributed-event-times}
 
-\subsection{\texorpdfstring{a) Write out the \emph{general} expression,
-not substituting any estimated values, and clearly defining any
-paramters and distributions for any random terms, the \textbf{log-hazard
-function}, including the complete baseline
-hazard.}{a) Write out the general expression, not substituting any estimated values, and clearly defining any paramters and distributions for any random terms, the log-hazard function, including the complete baseline hazard.}}\label{a-write-out-the-general-expression-not-substituting-any-estimated-values-and-clearly-defining-any-paramters-and-distributions-for-any-random-terms-the-log-hazard-function-including-the-complete-baseline-hazard.}
+\subsubsection{\texorpdfstring{a) Write out the \emph{general}
+expression, not substituting any estimated values, and clearly defining
+any parameters and distributions for any random terms, the
+\textbf{log-hazard function}, including the complete baseline
+hazard.}{a) Write out the general expression, not substituting any estimated values, and clearly defining any parameters and distributions for any random terms, the log-hazard function, including the complete baseline hazard.}}\label{a-write-out-the-general-expression-not-substituting-any-estimated-values-and-clearly-defining-any-parameters-and-distributions-for-any-random-terms-the-log-hazard-function-including-the-complete-baseline-hazard.}
 
 \emph{Assuming} \(T \sim\) \emph{Weibull, then the log-hazard function
 is expressed as:} \[
 log[h_0(t|\boldsymbol{x})] = log(p * t^{p-1}) + \beta_0 +\boldsymbol{x}\beta
 \] \emph{where} \(p\) \emph{is the shape parameter,}
 \(log(p * t^{p-1}) + \beta_0\) \emph{is the log-baseline hazard, and}
-\(\boldsymbol{x}\beta\) \emph{is the log HR.}
+\(\boldsymbol{x}\beta\) \emph{is the log hazard ratio, with Weibull
+distribution.}
 
-\vspace{6pt} \#\#b) Repeat the above for the \textbf{log-time function}
-(in the accelerated failure time metric).
+\vspace{6pt}
+
+\subsubsection{\texorpdfstring{b) Repeat the above for the
+\textbf{log-time function} (in the accelerated failure time
+metric).}{b) Repeat the above for the log-time function (in the accelerated failure time metric).}}\label{b-repeat-the-above-for-the-log-time-function-in-the-accelerated-failure-time-metric.}
 
 \emph{Again assuming} \(T \sim\) \emph{Weibull, the log-\textbf{time}
 function is expressed as:} \[
-log(T) = \alpha_0 + \boldsymbol{x}\alpha + \sigma \ \  \mathbb{x} \ \  \epsilon^\ast
+log(T) = \alpha_0 + \boldsymbol{x}\alpha + \sigma \times \epsilon^\ast
 \] \emph{where} \(\alpha_0\) \emph{is the baseline time-to-event,}
 \(\boldsymbol{x}\alpha\) \emph{is the log-time ratio,} \(\sigma\)
 \emph{is the variance-type constant term (also known as} \(p\),
 \emph{unrestricted with Weibull specificiations), and} \(\epsilon^\ast\)
-\emph{is the error term (which with a Weibull model approximates a G
+\emph{is the error term, which with a Weibull model approximates a G
 distribution (0,1).}
 
-\vspace{6pt} \#\#c) For an arbitrary covariate, show the expression of
-the hazard ratio from the proportional hazards Weibull model as a
-function of parameters from the accelerated failure time expression of
-the same model.
+\vspace{6pt}
+
+\subsubsection{c) For an arbitrary covariate, show the expression of the
+hazard ratio from the proportional hazards Weibull model as a function
+of parameters from the accelerated failure time expression of the same
+model.}\label{c-for-an-arbitrary-covariate-show-the-expression-of-the-hazard-ratio-from-the-proportional-hazards-weibull-model-as-a-function-of-parameters-from-the-accelerated-failure-time-expression-of-the-same-model.}
 
 \[h^{AFT}(t|\boldsymbol{x}) = \frac{t^{\frac{1}{\sigma}} - 1}{\sigma}exp(-(\alpha_0 + \boldsymbol{x}\alpha)/\sigma)\]
 
@@ -134,48 +141,99 @@ expressed in part (a)}.
 
 \vspace{12pt}
 
-\section{Question 2: Complete the following table using the results from
-your
+\subsection{Question 2: Complete the following table using the results
+from your
 analyses.}\label{question-2-complete-the-following-table-using-the-results-from-your-analyses.}
 
 \begin{longtable}[]{@{}lllllll@{}}
 \toprule
-\begin{minipage}[b]{0.07\columnwidth}\raggedright\strut
+\begin{minipage}[b]{0.10\columnwidth}\raggedright\strut
 BMI\strut
-\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.19\columnwidth}\raggedright\strut
 Cox HR (95\% CI)\strut
-\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.05\columnwidth}\raggedright\strut
 Cox \(SE_\beta\)\strut
-\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.19\columnwidth}\raggedright\strut
 Exponential HR (95\% CI)\strut
-\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.05\columnwidth}\raggedright\strut
 Exp \(SE_\beta\)\strut
-\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.19\columnwidth}\raggedright\strut
 Weibull HR (95\% CI)\strut
-\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.05\columnwidth}\raggedright\strut
 Weibull \(SE_\beta\)\strut
 \end{minipage}\tabularnewline
 \midrule
 \endhead
+\begin{minipage}[t]{0.10\columnwidth}\raggedright\strut
+\textless{}18.5\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{1.26} (\tt{0.79}, \tt{2.01})\strut
+\end{minipage} & \begin{minipage}[t]{0.05\columnwidth}\raggedright\strut
+\tt{0.24}\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{0.83} (\tt{0.52}, \tt{1.32})\strut
+\end{minipage} & \begin{minipage}[t]{0.05\columnwidth}\raggedright\strut
+\tt{0.24}\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{0.88} (\tt{0.66}, \tt{1.16})\strut
+\end{minipage} & \begin{minipage}[t]{0.05\columnwidth}\raggedright\strut
+\tt{0.14}\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.10\columnwidth}\raggedright\strut
+18.5 - \textless{}25\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\emph{ref}\strut
+\end{minipage} & \begin{minipage}[t]{0.05\columnwidth}\raggedright\strut
+-\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\emph{ref}\strut
+\end{minipage} & \begin{minipage}[t]{0.05\columnwidth}\raggedright\strut
+-\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\emph{ref}\strut
+\end{minipage} & \begin{minipage}[t]{0.05\columnwidth}\raggedright\strut
+-\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.10\columnwidth}\raggedright\strut
+25 - \textless{}30\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{1.06} (\tt{0.95}, \tt{1.19})\strut
+\end{minipage} & \begin{minipage}[t]{0.05\columnwidth}\raggedright\strut
+\tt{0.06}\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{0.93} (\tt{0.83}, \tt{1.05})\strut
+\end{minipage} & \begin{minipage}[t]{0.05\columnwidth}\raggedright\strut
+\tt{0.06}\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{0.96} (\tt{0.9}, \tt{1.03})\strut
+\end{minipage} & \begin{minipage}[t]{0.05\columnwidth}\raggedright\strut
+\tt{0.03}\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.10\columnwidth}\raggedright\strut
+\(\ge\) 30\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{1.54} (\tt{1.32}, \tt{1.78})\strut
+\end{minipage} & \begin{minipage}[t]{0.05\columnwidth}\raggedright\strut
+\tt{0.24}\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{0.69} (\tt{0.59}, \tt{0.8})\strut
+\end{minipage} & \begin{minipage}[t]{0.05\columnwidth}\raggedright\strut
+\tt{0.08}\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{0.78} (\tt{0.71}, \tt{0.85})\strut
+\end{minipage} & \begin{minipage}[t]{0.05\columnwidth}\raggedright\strut
+\tt{0.05}\strut
+\end{minipage}\tabularnewline
 \bottomrule
 \end{longtable}
 
-18.5 - \textless{}25 \textbar{} 1 \textbar{} - \textbar{} 1 \textbar{} -
-\textbar{} 1 \textbar{} - 25 - \textless{}30 \textbar{} \tt{1.062}
-(\tt{0.948}, \tt{1.189}) \textbar{} \tt{0.058} \textbar{} \tt{0.827}
-(\tt{0.517}, \tt{1.322}) \textbar{} \tt{0.24} \textbar{} \tt{0.878}
-(\tt{0.665}, \tt{1.161}) \textbar{} \tt{0.142} \(\ge\) 30 \textbar{}
-\tt{1.536} (\tt{1.323}, \tt{1.783})\textbar{} \tt{0.24} \textbar{}
-\tt{0.934} (\tt{0.835}, \tt{1.046}) \textbar{} \tt{0.058} \textbar{}
-\tt{0.964} (\tt{0.902}, \tt{1.031}) \textbar{} \tt{0.034}
-
 \vspace{12pt}
 
-\section{Question 3: Answer the following
+\subsection{Question 3: Answer the following
 questions}\label{question-3-answer-the-following-questions}
 
-\subsection{a) Which model estimates the relationships of interest most
-precisely? Justify your
+\subsubsection{a) Which model estimates the relationships of interest
+most precisely? Justify your
 answer.}\label{a-which-model-estimates-the-relationships-of-interest-most-precisely-justify-your-answer.}
 
 \emph{The Weibull model estimates the relations of interest most
@@ -186,36 +244,50 @@ to vary over the entire time period (the scale of the shape parameter}
 \(p\) \emph{is allowed to vary), making it more flexible than the
 exponential model, which restricts} \(p = 1\).
 
-\vspace{6pt} \#\#b) Based on the likelihood ratio test, what parameter
+\vspace{2pt}
+
+\subsubsection{b) Based on the likelihood ratio test, what parameter
 from the model you outlined in Q1 is being evaluated? Based on the
 results of this test, would you select the exponential or Weibull model?
-Justify your answer.
+Justify your
+answer.}\label{b-based-on-the-likelihood-ratio-test-what-parameter-from-the-model-you-outlined-in-q1-is-being-evaluated-based-on-the-results-of-this-test-would-you-select-the-exponential-or-weibull-model-justify-your-answer.}
 
 \emph{The likelihood ratio test produces the following output:}
 
+\begin{verbatim}
+##                                                Terms Resid. Df    -2*LL
+## 1 as.factor(bmi_cat) + age + male + factor(cursmoke)      4408 14695.21
+## 2 as.factor(bmi_cat) + age + male + factor(cursmoke)      4407 14292.94
+##   Test Df Deviance     Pr(>Chi)
+## 1      NA       NA           NA
+## 2    =  1 402.2752 1.760543e-89
+\end{verbatim}
+
 \emph{From this we can see that the p-value for} \(H_0 : p = 1\)
 \emph{(exponential) vs.} \(H_A : \sigma \neq 1\) \emph{is essentially
-zero; therefore we reject the exponential and select the Weibull model.}
+zero; therefore we reject the exponential model and select the Weibull
+model.}
 
-\vspace{6pt} \#\#c) Using the output from the Weibull model, calculate
-the time ratio comparing individuals with BMI \textgreater{} 30 to those
+\vspace{2pt}
+
+\subsubsection{c) Using the output from the Weibull model, calculate the
+time ratio comparing individuals with BMI \textgreater{} 30 to those
 with BMI 18.5-\textless{}25 (no need for confidence interval). Interpret
 this parameter. Does this agree or not with the corresponding hazard
-ratio?
+ratio?}\label{c-using-the-output-from-the-weibull-model-calculate-the-time-ratio-comparing-individuals-with-bmi-30-to-those-with-bmi-18.5-25-no-need-for-confidence-interval.-interpret-this-parameter.-does-this-agree-or-not-with-the-corresponding-hazard-ratio}
 
 \emph{The time ratio (TR) for individuals with BMI \textgreater{} 30
 compared to those with BMI 18.5-\textless{}25 is} \(e^{-0.248}\) = .781.
-
 \emph{This means that being obese (BMI \textgreater{} 30) multiplies
 survival time by by .781, or decreases survival time by about 22\%.}
 
-\vspace{12pt}
+\vspace{2pt}
 
 \section{Competing Risks}\label{competing-risks}
 
-\section{Question 4: Conceptually, what is the difference between the KM
-failure estimate for CVD death and the estimated CIF for CVD death? What
-does the comparison of these curves tell you about the risk of the
+\subsection{Question 4: Conceptually, what is the difference between the
+KM failure estimate for CVD death and the estimated CIF for CVD death?
+What does the comparison of these curves tell you about the risk of the
 competing
 event?}\label{question-4-conceptually-what-is-the-difference-between-the-km-failure-estimate-for-cvd-death-and-the-estimated-cif-for-cvd-death-what-does-the-comparison-of-these-curves-tell-you-about-the-risk-of-the-competing-event}
 
@@ -230,20 +302,22 @@ follow-up, with the KM failure function continuing to demonstrate
 greater probability of mortality than the CIF for the remainder of
 follow-up).}
 
-\vspace{12pt}
+\vspace{6pt}
 
-\section{Question 5: In a competing risks analysis, briefly (1-2
+\subsection{Question 5: In a competing risks analysis, briefly (1-2
 sentences each) define in words the following
 terms:}\label{question-5-in-a-competing-risks-analysis-briefly-1-2-sentences-each-define-in-words-the-following-terms}
 
-\subsection{Cause-specific hazard}\label{cause-specific-hazard}
+\subsubsection{Cause-specific hazard}\label{cause-specific-hazard}
 
 \emph{A cause-specific hazard is the instantaneous (very short-term)
 rate of failure \textbf{for event* \(j\)} }among those who have not yet
 experienced the event of interest* \textbf{or} \emph{a competing event
 prior to} \(t\).
 
-\vspace{6pt} \#\#Subdistribution hazard
+\vspace{6pt}
+
+\subsubsection{Subdistribution hazard}\label{subdistribution-hazard}
 
 \emph{The subdistribution hazard is the instantaneous (very short-term)
 rate of failure for event} \(j\) \emph{among those alive at time} \(t\)
@@ -251,64 +325,67 @@ rate of failure for event} \(j\) \emph{among those alive at time} \(t\)
 
 \vspace{12pt}
 
-\section{Question 6: Complete the following table for the cause-specific
-hazard ratios (csHRs) and subdistribution HRs (sHRs) you
+\subsection{Question 6: Complete the following table for the
+cause-specific hazard ratios (csHRs) and subdistribution HRs (sHRs) you
 estimated.}\label{question-6-complete-the-following-table-for-the-cause-specific-hazard-ratios-cshrs-and-subdistribution-hrs-shrs-you-estimated.}
 
 \begin{longtable}[]{@{}lllll@{}}
 \toprule
-\begin{minipage}[b]{0.09\columnwidth}\raggedright\strut
+\begin{minipage}[b]{0.10\columnwidth}\raggedright\strut
 BMI\strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.20\columnwidth}\raggedright\strut
 CVD csHR (95\% CI)\strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.20\columnwidth}\raggedright\strut
 Other csHR (95\% CI)\strut
-\end{minipage} & \begin{minipage}[b]{0.23\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.19\columnwidth}\raggedright\strut
 CVD sHR (95\% CI)\strut
-\end{minipage} & \begin{minipage}[b]{0.23\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.19\columnwidth}\raggedright\strut
 Other sHR (95\% CI)\strut
 \end{minipage}\tabularnewline
 \midrule
 \endhead
-\begin{minipage}[t]{0.09\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.10\columnwidth}\raggedright\strut
 18.5 - \textless{}25\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.20\columnwidth}\raggedright\strut
 1\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.20\columnwidth}\raggedright\strut
 1\strut
-\end{minipage} & \begin{minipage}[t]{0.23\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
 1\strut
-\end{minipage} & \begin{minipage}[t]{0.23\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
 1\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.09\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.10\columnwidth}\raggedright\strut
 25 - \textless{}30\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-\tt{0.892, 2.361, 1.064, 1.559} (\tt{0.314}, \tt{2.535})\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-\tt{0.541, 0.248, 0.967, 1.359} (\tt{0.194}, \tt{1.508})\strut
-\end{minipage} & \begin{minipage}[t]{0.23\columnwidth}\raggedright\strut
-\tt{1.172} (.396, 3.47)\strut
-\end{minipage} & \begin{minipage}[t]{0.23\columnwidth}\raggedright\strut
-\tt{0.412} (.153, 1.11)\strut
+\end{minipage} & \begin{minipage}[t]{0.20\columnwidth}\raggedright\strut
+\tt{0.89} (\tt{0.31}, \tt{2.53})\strut
+\end{minipage} & \begin{minipage}[t]{0.20\columnwidth}\raggedright\strut
+\tt{0.54} (\tt{0.19}, \tt{1.51})\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{1.17} (.40, 3.5)\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{0.41} (.15, 1.1)\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.09\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.10\columnwidth}\raggedright\strut
 \(\ge\) 30\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-\tt{2.361} (\tt{0.794}, \tt{7.022})\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-\tt{0.248} (\tt{0.064}, \tt{0.962})\strut
-\end{minipage} & \begin{minipage}[t]{0.23\columnwidth}\raggedright\strut
-\tt{3.302} (1.22, 8.94)\strut
-\end{minipage} & \begin{minipage}[t]{0.23\columnwidth}\raggedright\strut
-\tt{0.177} (.070, .453)\strut
+\end{minipage} & \begin{minipage}[t]{0.20\columnwidth}\raggedright\strut
+\tt{2.36} (\tt{0.79}, \tt{7.02})\strut
+\end{minipage} & \begin{minipage}[t]{0.20\columnwidth}\raggedright\strut
+\tt{0.25} (\tt{0.06}, \tt{0.96})\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{3.3} (1.2, 8.9)\strut
+\end{minipage} & \begin{minipage}[t]{0.19\columnwidth}\raggedright\strut
+\tt{0.18} (.07, .45)\strut
 \end{minipage}\tabularnewline
 \bottomrule
 \end{longtable}
 
-\vspace{12pt} \# Question 7: From the above table, explain how the
-pattern you observe in the csHRs is consistent with the pattern in the
-sHRs. (Consider the relationship between the csHR and sHRs.)
+\vspace{12pt}
+
+\subsection{Question 7: From the above table, explain how the pattern
+you observe in the csHRs is consistent with the pattern in the sHRs.
+(Consider the relationship between the csHR and
+sHRs.)}\label{question-7-from-the-above-table-explain-how-the-pattern-you-observe-in-the-cshrs-is-consistent-with-the-pattern-in-the-shrs.-consider-the-relationship-between-the-cshr-and-shrs.}
 
 
 \end{document}
