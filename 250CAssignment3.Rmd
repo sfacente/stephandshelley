@@ -1,7 +1,7 @@
 ---
 title: "HW 3"
 author: "Steph Holm and Shelley Facente"
-date: "3/5/2019"
+date: "3/8/2019"
 output: pdf_document
 ---
 
@@ -45,23 +45,29 @@ survmod.cox.adj <- coxph(Surv(timedth_yrs, death)~ as.factor(bmi_cat) +
 age + male + factor(cursmoke),
 data=frmgham_recoded,
 method="efron")
-
 summary(survmod.cox.adj)
+coxcoef <- coef(survmod.cox.adj)
+coxCI <- confint(survmod.cox.adj)
+coxSE <-sqrt(diag(vcov(survmod.cox.adj)))
 
 # Exponential model
-
 survreg.exp.adj <- survreg(Surv(timedth_yrs, death)~ as.factor(bmi_cat) +
 age + male + factor(cursmoke),
 data=frmgham_recoded,
 dist="exponential")
 summary(survreg.exp.adj)
+expPHcoef <- coef(survreg.exp.adj)
+expPHCI <- confint(survreg.exp.adj)
+expPHSE <-sqrt(diag(vcov(survreg.exp.adj)))
 
 # Weibull model
-
 survreg.weib.adj <- survreg(Surv(timedth_yrs, death)~ as.factor(bmi_cat) +
 age + male + factor(cursmoke),
 data=frmgham_recoded, dist="weibull")
 summary(survreg.weib.adj)
+weibPHcoef <- coef(survreg.weib.adj)
+weibPHCI <- confint(survreg.weib.adj)
+weibPHSE <-sqrt(diag(vcov(survreg.weib.adj)))
 ```
 
 ```{r}
@@ -69,18 +75,18 @@ summary(survreg.weib.adj)
 
 ### Calculating log-HRs and SE(log-HR) for Exponential AFT model:
 # The functions of the regression parameters from AFT -> PH
-g <- c("-a2","-a3","-a4")
+ge <- c("-a2","-a3","-a4")
 
 # The alpha estimates from the Exponential AFT model
-a <- coef(survreg.exp.adj)
-v.a <- vcov(survreg.exp.adj) # Covariance matrix of alphas
-names(a) <- paste("a", 1:length(a), sep="")
-rownames(v.a) <- colnames(v.a) <- names(a)
+ae <- coef(survreg.exp.adj)
+v.ae <- vcov(survreg.exp.adj) # Covariance matrix of alphas
+names(ae) <- paste("a", 1:length(ae), sep="")
+rownames(v.ae) <- colnames(v.ae) <- names(ae)
 
 # Calculate ln(HR) and SEs:
-lnhr.se.exp <- rbind(deltaMethod(a, g[1], vcov=v.a), # UW
-deltaMethod(a, g[2], vcov=v.a), # OW
-deltaMethod(a, g[3], vcov=v.a)) # OB
+lnhr.se.exp <- rbind(deltaMethod(ae, ge[1], vcov=v.ae), # UW
+deltaMethod(ae, ge[2], vcov=v.ae), # OW
+deltaMethod(ae, ge[3], vcov=v.ae)) # OB
 lnhr.se.exp
 
 # HR and 95% CIs:
@@ -88,18 +94,18 @@ round(exp(lnhr.se.exp),2)[,c(1,3,4)]
 
 ### Calculating log-HRs and SE(log-HR) for Weibull AFT model:
 # The functions of the regression parameters from AFT -> PH
-g <- c("-a2/exp(lscale)","-a3/exp(lscale)","-a4/exp(lscale)")
+gw <- c("-a2/exp(lscale)","-a3/exp(lscale)","-a4/exp(lscale)")
 
-# The alpha estimates from the Exponential AFT model
-a <- c(coef(survreg.weib.adj), survreg.weib.adj$icoef[2])
-v.a <- vcov(survreg.weib.adj) # Covariance matrix of alphas
-names(a) <- c(paste("a", 1:(length(a)-1), sep=""), "lscale")
-rownames(v.a) <- colnames(v.a) <- names(a)
+# The alpha estimates from the Weibull AFT model
+aw <- c(coef(survreg.weib.adj), survreg.weib.adj$icoef[2])
+v.aw <- vcov(survreg.weib.adj) # Covariance matrix of alphas
+names(aw) <- c(paste("a", 1:(length(aw)-1), sep=""), "lscale")
+rownames(v.aw) <- colnames(v.aw) <- names(aw)
 
 # Calculate ln(HR) and SEs:
-lnhr.se.weib <- rbind(deltaMethod(a, g[1], vcov=v.a), # UW
-deltaMethod(a, g[2], vcov=v.a), # OW
-deltaMethod(a, g[3], vcov=v.a)) # OB
+lnhr.se.weib <- rbind(deltaMethod(aw, gw[1], vcov=v.aw), # UW
+deltaMethod(aw, gw[2], vcov=v.aw), # OW
+deltaMethod(aw, gw[3], vcov=v.aw)) # OB
 lnhr.se.weib
 
 # HR and 95% CIs:
@@ -108,13 +114,14 @@ round(exp(lnhr.se.weib),2)[,c(1,3,4)]
 
 ```{r}
 #On your own - Perform a likelihood ratio test to determine if the Weibull model is more appropriate than the exponential model.
+lrtest.exp.weibull <- anova(survreg.exp.adj, survreg.weib.adj)
+lrtest.exp.weibull
 ```
 
 ```{r}
-###Switching to competing Risks modeling#####
+###Switching to competing Risks modeling###
 
 #Create a variable for overall mortality (death from any cause), and a variable that represents standard BMI categories:
-
 cvdrisk.dat$death.any <- as.integer(cvdrisk.dat$ev_typ==1 |
 cvdrisk.dat$ev_typ==2)
 
@@ -149,7 +156,7 @@ legend("bottomright",
 legend=c("Cumulative Incidence Function for CVD",
 "Kaplan-Meier Failure Function for CVD"),
 lty=c(1,2),
-lwd=2, cex=1, bty="o")
+lwd=2, cex=1, bty="n")
 ```
 
 ```{r}
@@ -162,9 +169,11 @@ cvdrisk.dat$other <- as.integer(cvdrisk.dat$ev_typ==2)
 cs.cvd <- coxph(Surv(time, cvd)~bmi.cat+age+sex, ties="efron",
 data=cvdrisk.dat)
 summary(cs.cvd)
+cIcs.cvd <- as.vector(confint(cs.cvd))
 cs.other <- coxph(Surv(time, other)~bmi.cat+age+sex, ties="efron",
 data=cvdrisk.dat)
 summary(cs.other)
+cIcs.other <- as.vector(confint(cs.other))
 ```
 
 ```{r}
@@ -187,43 +196,93 @@ summary(sd.other)
 
 ##a) Write out the *general* expression, not substituting any estimated values, and clearly defining any paramters and distributions for any random terms, the **log-hazard function**, including the complete baseline hazard.
 
+*Assuming* $T \sim$ *Weibull, then the log-hazard function is expressed as:*
+\[
+log[h_0(t|\boldsymbol{x})] = log(p * t^{p-1}) + \beta_0 +\boldsymbol{x}\beta
+\]
+*where* $p$ *is the shape parameter,* $log(p * t^{p-1}) + \beta_0$ *is the log-baseline hazard, and* $\boldsymbol{x}\beta$ *is the log HR.*
+  
+\vspace{6pt}  
 ##b) Repeat the above for the **log-time function** (in the accelerated failure time metric).
 
+*Again assuming* $T \sim$ *Weibull, the log-__time__ function is expressed as:*
+\[
+log(T) = \alpha_0 + \boldsymbol{x}\alpha + \sigma \ \  \mathbb{x} \ \  \epsilon^\ast
+\]
+*where* $\alpha_0$ *is the baseline time-to-event,* $\boldsymbol{x}\alpha$ *is the log-time ratio,* $\sigma$ *is the variance-type constant term (also known as* $p$, *unrestricted with Weibull specificiations), and* $\epsilon^\ast$ *is the error term (which with a Weibull model approximates a G distribution (0,1).*
+  
+\vspace{6pt}
 ##c) For an arbitrary covariate, show the expression of the hazard ratio from the proportional hazards Weibull model as a function of parameters from the accelerated failure time expression of the same model.
+
+$$h^{AFT}(t|\boldsymbol{x}) = \frac{t^{\frac{1}{\sigma}} - 1}{\sigma}exp(-(\alpha_0 + \boldsymbol{x}\alpha)/\sigma)$$
+
+*Note that this hazard function will take the ratio of $h^{AFT}$ but will not necessary be proportional as in the log-hazard function expressed in part (a)*.
+  
+\vspace{12pt}
 
 # Question 2: Complete the following table using the results from your analyses.
 
-BMI | Cox HR (95% CI) | Cox $SE_\beta$ | Exponential HR (95% CI) | Exp $SE_\beta$ | Weibull HR (95% CI) | Weib $SE_\beta$
+BMI | Cox HR (95% CI) | Cox $SE_\beta$ | Exponential HR (95% CI) | Exp $SE_\beta$ | Weibull HR (95% CI) | Weibull $SE_\beta$
 ------- | ------------- | ------------- | ------------- | ------------- | ------------- | -------------
-<18.5 | | | | | | |
+<18.5 | \tt{`r round(exp(coxcoef[1]),3)`} (\tt{`r round(exp(coxCI[1,1]),3)`}, \tt{`r round(exp(coxCI[1,2]),3)`}) | \tt{`r round(coxSE[1],3)`} | \tt{`r round(exp(expPHcoef[1]),3)`} (\tt{`r round(exp(expPHCI[1,1]),3)`}, \tt{`r round(exp(expPHCI[1,2]),3)`}) | \tt{`r round(expPHSE[1],3)`} | \tt{`r round(exp(weibPHcoef[1]),3)`} (\tt{`r round(exp(weibPHCI[1,1]),3)`}, \tt{`r round(exp(weibPHCI[1,2]),3)`}) | \tt{`r round(weibPHSE[1],3)`} 
 18.5 - <25 | 1 | - | 1 | - | 1 | -
-25 - <30 | | | | | | |
->= 30 | | | | | | |
+25 - <30 | \tt{`r round(exp(coxcoef[2]),3)`} (\tt{`r round(exp(coxCI[2,1]),3)`}, \tt{`r round(exp(coxCI[2,2]),3)`}) | \tt{`r round(coxSE[2],3)`} | \tt{`r round(exp(expPHcoef[2]),3)`} (\tt{`r round(exp(expPHCI[2,1]),3)`}, \tt{`r round(exp(expPHCI[2,2]),3)`}) | \tt{`r round(expPHSE[2],3)`} | \tt{`r round(exp(weibPHcoef[2]),3)`} (\tt{`r round(exp(weibPHCI[2,1]),3)`}, \tt{`r round(exp(weibPHCI[2,2]),3)`}) | \tt{`r round(weibPHSE[2],3)`} 
+$\ge$ 30 | \tt{`r round(exp(coxcoef[3]),3)`} (\tt{`r round(exp(coxCI[3,1]),3)`}, \tt{`r round(exp(coxCI[3,2]),3)`})| \tt{`r round(coxSE[1],3)`} | \tt{`r round(exp(expPHcoef[3]),3)`} (\tt{`r round(exp(expPHCI[3,1]),3)`}, \tt{`r round(exp(expPHCI[3,2]),3)`}) | \tt{`r round(expPHSE[3],3)`} | \tt{`r round(exp(weibPHcoef[3]),3)`} (\tt{`r round(exp(weibPHCI[3,1]),3)`}, \tt{`r round(exp(weibPHCI[3,2]),3)`}) | \tt{`r round(weibPHSE[3],3)`} 
+  
+\vspace{12pt}
 
 # Question 3: Answer the following questions
-##a) Which model estimates the relationships of interest most precisely? Justify your answer
+##a) Which model estimates the relationships of interest most precisely? Justify your answer.
 
+*The Weibull model estimates the relations of interest most precisely, because as a parametric model the Weibull provides better statistical efficiency than the Cox model (evidenced by tighter CIs in the table from Question 2); the Weibull also allows the baseline hazard to vary over the entire time period (the scale of the shape parameter* $p$ *is allowed to vary), making it more flexible than the exponential model, which restricts* $p = 1$.
+  
+\vspace{6pt}
 ##b) Based on the likelihood ratio test, what parameter from the model you outlined in Q1 is being evaluated? Based on the results of this test, would you select the exponential or Weibull model? Justify your answer.
 
+*The likelihood ratio test produces the following output:*
+```{r ECHO=FALSE}
+lrtest.exp.weibull
+```
+
+*From this we can see that the p-value for* $H_0 : p = 1$ *(exponential) vs.* $H_A : \sigma \neq 1$ *is essentially zero; therefore we reject the exponential and select the Weibull model.*
+  
+\vspace{6pt}
 ##c) Using the output from the Weibull model, calculate the time ratio comparing individuals with BMI > 30 to those with BMI 18.5-<25 (no need for confidence interval). Interpret this parameter. Does this agree or not with the corresponding hazard ratio?
 
-**Competing Risks**
+*The time ratio (TR) for individuals with BMI > 30 compared to those with BMI 18.5-<25 is* $e^{`r round(aw[4],3)`}$ = .781.
+
+*This means that being obese (BMI > 30) multiplies survival time by by .781, or decreases survival time by about 22%.*
+  
+\vspace{12pt}
+
+#Competing Risks
 
 # Question 4: Conceptually, what is the difference between the KM failure estimate for CVD death and the estimated CIF for CVD death? What does the comparison of these curves tell you about the risk of the competing event?
+
+*The KM failure estimate for CVD death is the risk of all-cause mortality at time* $t$, *for people with CVD (compared to those without). The estimated CIF for CVD death represents the joint probability of mortality __from CVD__, by time* $t$. *Comparison of the curves tells you that as days of follow-up increase, subjects begin to die from causes other than CVD in higher proportion (i.e. the curves begin to diverge around 50 days of follow-up, with the KM failure function continuing to demonstrate greater probability of mortality than the CIF for the remainder of follow-up).* 
+  
+\vspace{12pt}
 
 # Question 5: In a competing risks analysis, briefly (1-2 sentences each) define in words the following terms:
 
 ## Cause-specific hazard
 
+*A cause-specific hazard is the instantaneous (very short-term) rate of failure __for event* $j$__ *among those who have not yet experienced the event of interest* __or__ *a competing event prior to* $t$.
+  
+\vspace{6pt}
 ##Subdistribution hazard
 
-# Question 6: Complete the following table for the cause-specific hazard ratios (csHRs) and subdistribution HRs (sHRs) you estimated
+*The subdistribution hazard is the instantaneous (very short-term) rate of failure for event* $j$ *among those alive at time* $t$ *or who experienced a competing event before time* $t$.
+  
+\vspace{12pt}
+
+# Question 6: Complete the following table for the cause-specific hazard ratios (csHRs) and subdistribution HRs (sHRs) you estimated.
 
 BMI | CVD csHR (95% CI) | Other csHR (95% CI) | CVD sHR (95% CI) | Other sHR (95% CI)  
 ------- | ------------- | ------------- | ------------- | ------------- 
-<18.5 | | | | |
-18.5 - <25 | 1 | 1 | | 1 | 1
-25 - <30 | | | | | | |
->= 30 | | | | | | |
-
+18.5 - <25 | 1 | 1 | 1 | 1
+25 - <30 | \tt{`r round(exp(coef(cs.cvd[1])),3)`} (\tt{`r round(exp(cIcs.cvd[1]),3)`}, \tt{`r round(exp(cIcs.cvd[5]),3)`}) | \tt{`r round(exp(coef(cs.other[1])),3)`} (\tt{`r round(exp(cIcs.other[1]),3)`}, \tt{`r round(exp(cIcs.other[5]),3)`}) | \tt{`r round(exp(as.vector(sd.cvd$coef[1])),3)`} (.396, 3.47)| \tt{`r round(exp(as.vector(sd.other$coef[1])),3)`} (.153, 1.11) 
+$\ge$ 30 | \tt{`r round(exp(as.vector(coef(cs.cvd))[2]),3)`} (\tt{`r round(exp(cIcs.cvd[2]),3)`}, \tt{`r round(exp(cIcs.cvd[6]),3)`}) | \tt{`r round(exp(as.vector(coef(cs.other))[2]),3)`} (\tt{`r round(exp(cIcs.other[2]),3)`}, \tt{`r round(exp(cIcs.other[6]),3)`}) | \tt{`r round(exp(as.vector(sd.cvd$coef[2])),3)`} (1.22, 8.94) | \tt{`r round(exp(as.vector(sd.other$coef[2])),3)`} (.070, .453) 
+  
+\vspace{12pt}
 # Question 7: From the above table, explain how the pattern you observe in the csHRs is consistent with the pattern in the sHRs. (Consider the relationship between the csHR and sHRs.)
