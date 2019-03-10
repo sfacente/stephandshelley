@@ -1,7 +1,7 @@
 ---
 title: "HW 3"
 author: "Steph Holm and Shelley Facente"
-date: "3/8/2019"
+date: "3/10/2019"
 output: pdf_document
 ---
 
@@ -229,17 +229,6 @@ $$h^{AFT}(t|\boldsymbol{x}) = \frac{t^{\frac{1}{\sigma}} - 1}{\sigma}exp(-(\alph
 
 BMI | Cox HR (95% CI) | Cox $SE_\beta$ | Exponential HR (95% CI) | Exp $SE_\beta$ | Weibull HR (95% CI) | Weibull $SE_\beta$ |
 ----------- | --------------------- | ----- | --------------------- | ----- | --------------------- | ----- |
-<18.5 | \tt{`r round(exp(coxcoef[1]),2)`} (\tt{`r round(exp(coxCI[1,1]),2)`}, \tt{`r round(exp(coxCI[1,2]),2)`}) | \tt{`r round(coxSE[1],2)`} | \tt{`r round(exp(expPHcoef[2]),2)`} (\tt{`r round(exp(expPHCI[2,1]),2)`}, \tt{`r round(exp(expPHCI[2,2]),2)`}) | \tt{`r round(expPHSE[2],2)`} | \tt{`r round(exp(weibPHcoef[2]),2)`} (\tt{`r round(exp(weibPHCI[2,1]),2)`}, \tt{`r round(exp(weibPHCI[2,2]),2)`}) | \tt{`r round(weibPHSE[2],2)`} | 
-18.5 - <25 | *ref* | - | *ref* | - | *ref* | -
-25 - <30 | \tt{`r round(exp(coxcoef[2]),2)`} (\tt{`r round(exp(coxCI[2,1]),2)`}, \tt{`r round(exp(coxCI[2,2]),2)`}) | \tt{`r round(coxSE[2],2)`} | \tt{`r round(exp(expPHcoef[3]),2)`} (\tt{`r round(exp(expPHCI[3,1]),2)`}, \tt{`r round(exp(expPHCI[3,2]),2)`}) | \tt{`r round(expPHSE[3],2)`} | \tt{`r round(exp(weibPHcoef[3]),2)`} (\tt{`r round(exp(weibPHCI[3,1]),2)`}, \tt{`r round(exp(weibPHCI[3,2]),2)`}) | \tt{`r round(weibPHSE[3],2)`} | 
-$\ge$ 30 | \tt{`r round(exp(coxcoef[3]),2)`} (\tt{`r round(exp(coxCI[3,1]),2)`}, \tt{`r round(exp(coxCI[3,2]),2)`})| \tt{`r round(coxSE[3],2)`} | \tt{`r round(exp(expPHcoef[4]),2)`} (\tt{`r round(exp(expPHCI[4,1]),2)`}, \tt{`r round(exp(expPHCI[4,2]),2)`}) | \tt{`r round(expPHSE[4],2)`} | \tt{`r round(exp(weibPHcoef[4]),2)`} (\tt{`r round(exp(weibPHCI[4,1]),2)`}, \tt{`r round(exp(weibPHCI[4,2]),2)`}) | \tt{`r round(weibPHSE[4],2)`} | 
-  
-\vspace{12pt}
-
-% Steph copied and then edited table here so original version remains if we need to discuss further
-
-BMI | Cox HR (95% CI) | Cox $SE_\beta$ | Exponential HR (95% CI) | Exp $SE_\beta$ | Weibull HR (95% CI) | Weibull $SE_\beta$ |
------------ | --------------------- | ----- | --------------------- | ----- | --------------------- | ----- |
 <18.5 | \tt{`r round(exp(coxcoef[1]),2)`} (\tt{`r round(exp(coxCI[1,1]),2)`}, \tt{`r round(exp(coxCI[1,2]),2)`}) | \tt{`r round(coxSE[1],2)`} | \tt{`r CalcExpPHHR[1,1]`} (\tt{`r CalcExpPHHR[1,2]`}, \tt{`r CalcExpPHHR[1,3]`}) | \tt{`r round(lnhr.se.exp[1,2],2)`} | \tt{`r CalcWeibPHHR[1,1]`} (\tt{`r CalcWeibPHHR[1,2]`}, \tt{`r CalcWeibPHHR[1,3]`}) | \tt{`r round(lnhr.se.weib[1,2],2)`} | 
 18.5 - <25 | *ref* | - | *ref* | - | *ref* | -
 25 - <30 | \tt{`r round(exp(coxcoef[2]),2)`} (\tt{`r round(exp(coxCI[2,1]),2)`}, \tt{`r round(exp(coxCI[2,2]),2)`}) | \tt{`r round(coxSE[2],2)`} |\tt{`r CalcExpPHHR[2,1]`} (\tt{`r CalcExpPHHR[2,2]`}, \tt{`r CalcExpPHHR[2,3]`}) | \tt{`r round(lnhr.se.exp[2,2],2)`} | \tt{`r CalcWeibPHHR[2,1]`} (\tt{`r CalcWeibPHHR[2,2]`}, \tt{`r CalcWeibPHHR[2,3]`}) | \tt{`r round(lnhr.se.weib[2,2],2)`} | 
@@ -248,65 +237,70 @@ $\ge$ 30 | \tt{`r round(exp(coxcoef[3]),2)`} (\tt{`r round(exp(coxCI[3,1]),2)`},
 \vspace{12pt}
 
 ## Question 3: Answer the following questions
+  
+\vspace{6pt}
+
 ### a) Which model estimates the relationships of interest most precisely? Justify your answer.
 
 *For these data, all three of the models provide a quite good fit. However, the Weibull model estimates the relations of interest most precisely,  as evidenced by tighter CIs and smaller standard errors in the table from Question 2. Explanations for this slightly better fit are likely related to the basic definition of the models. As a parametric model the Weibull provides better statistical efficiency than the Cox model, when the assumptions are met. The Weibull also allows the baseline hazard to vary over the entire time period (the scale of the shape parameter* $p$ *is allowed to vary), making it more flexible than the exponential model, which restricts* $p = 1$.
   
-\vspace{2pt}
+\vspace{6pt}
 
 ### b) Based on the likelihood ratio test, what parameter from the model you outlined in Q1 is being evaluated? Based on the results of this test, would you select the exponential or Weibull model? Justify your answer.
 
 *The likelihood ratio test is evaluating whether p, the shape parameter, is significantly different than 1. The test produces the following p-value:* $\tt{`r lrOvary`}$.
 *From this we can see that the p-value for* $H_0 : p = 1$ *(exponential) vs.* $H_A : p \neq 1$ *is essentially zero; therefore we reject the exponential model and select the Weibull model.*
   
-\vspace{2pt}
+\vspace{6pt}
 
 ### c) Using the output from the Weibull model, calculate the time ratio comparing individuals with BMI > 30 to those with BMI 18.5-<25 (no need for confidence interval). Interpret this parameter. Does this agree or not with the corresponding hazard ratio?
 
 *The time ratio (TR) for individuals with BMI > 30 compared to those with BMI 18.5-<25 is* \tt{`r round(exp(aw[4]),3)`}. \fontfamily{cmr}\itshape\selectfont{This means that in the adjusted model, the time to death for those with BMI > 30  is} \tt{`r round(exp(aw[4]),3)`} \fontfamily{cmr}\itshape\selectfont{times the time to death for those in the normal weight category, conditional on age, sex and smoking status. This implies that those with a BMI >30 have an accelerated time until death. The corresponding hazard ratio from the Weibull model was} \tt{`r CalcWeibPHHR[3,1]`} \fontfamily{cmr}\itshape\selectfont{meaning that in the adjusted model, the hazard of death for those with BMI > 30  is} \tt{`r CalcWeibPHHR[3,1]`} \fontfamily{cmr}\itshape\selectfont{times the hazard of death for those in the normal weight category, conditional on age, sex and smoking status. A hazard ratio greater than one, as in this case, corresponds to a failure time ratio of less than one; so yes, the time ratio and hazard ratio agree.}
 
-\vspace{8pt}
+\vspace{20pt}
 
 # Competing Risks
+  
+\vspace{8pt}
 
 ## Question 4: Conceptually, what is the difference between the KM failure estimate for CVD death and the estimated CIF for CVD death? What does the comparison of these curves tell you about the risk of the competing event?
 
-*The KM failure estimate for CVD death is the risk of all-cause mortality at time* $t$, *for people with CVD (compared to those without). The estimated CIF for CVD death represents the joint probability of mortality __from CVD__, by time* $t$. * (stated differently, this is the joint probability of both having death by time t, and it being the result of CVD). Comparison of the curves tells you that around 50 days of follow-up, subjects begin to die from causes other than CVD in higher proportion. The curves begin to diverge, with the KM failure function demonstrating greater probability of mortality than the CIF for the remainder of follow-up, implying that another cause is contributing to the higher mortality in the KM failure function.* 
+The KM failure estimate for CVD death is the risk of all-cause mortality at time $t$, for people with CVD (compared to those without). The estimated CIF for CVD death represents the joint probability of mortality __from CVD__, by time $t$. (Stated differently, this is the joint probability of both having death by time t, and it being the result of CVD). Comparison of the curves tells you that around 50 days of follow-up, subjects begin to die from causes other than CVD in higher proportion. The curves begin to diverge, with the KM failure function demonstrating greater probability of mortality than the CIF for the remainder of follow-up, implying that another cause is contributing to the higher mortality in the KM failure function.
   
-\vspace{6pt}
+\vspace{20pt}
 
-## Question 5: In a competing risks analysis, briefly define in words the following:
+## Question 5: In a competing risks analysis, briefly (in 1-2 sentences) define in words the following terms:
 
 ### Cause-specific hazard
 
-*A cause-specific hazard is the instantaneous (very short-term) rate of failure __for event* $j$__ *among those who have not yet experienced either the event of interest* __or__ *a competing event prior to* $t$.
+A cause-specific hazard is the instantaneous (very short-term) rate of failure __for event $j$__ among those who have not yet experienced either the event of interest __or__ a competing event prior to $t$.
 
 ### Subdistribution hazard
 
-*The subdistribution hazard is the instantaneous (very short-term) rate of failure for event* $j$ *among those alive at time* $t$ *or who experienced a competing event before time* $t$.
+The subdistribution hazard is the instantaneous (very short-term) rate of failure for event $j$ among those alive at time $t$ or who experienced a competing event before time $t$.
   
-\vspace{12pt}
+\vspace{3pt}
 
 ## Question 6: Complete the following table for the cause-specific hazard ratios (csHRs) and subdistribution HRs (sHRs) you estimated.
 
-BMI | CVD csHR (95% CI) | Other csHR (95% CI) | CVD sHR (95% CI) | Other sHR (95% CI) |  
+*BMI* | *CVD csHR (95% CI)* | *Oth csHR (95% CI)* | *CVD sHR (95% CI)* | *Oth sHR (95% CI)* |  
 --------- | ------------------- | ------------------- | ------------------ | ------------------ |
-18.5 - <25 | *ref* | *ref* | *ref* | *ref* |
-25 - <30 | \tt{`r round(exp(coef(cs.cvd)[1]),2)`} (\tt{`r round(exp(cIcs.cvd[1]),2)`}, \tt{`r round(exp(cIcs.cvd[5]),2)`}) | \tt{`r round(exp(coef(cs.other)[1]),2)`} (\tt{`r round(exp(cIcs.other[1]),2)`}, \tt{`r round(exp(cIcs.other[5]),2)`}) | \tt{`r round(exp(as.vector(sd.cvd$coef[1])),2)`} (0.40, 3.47)| \tt{`r round(exp(as.vector(sd.other$coef[1])),2)`} (0.15, 1.11) |
-$\ge$ 30 | \tt{`r round(exp(as.vector(coef(cs.cvd))[2]),2)`} (\tt{`r round(exp(cIcs.cvd[2]),2)`}, \tt{`r round(exp(cIcs.cvd[6]),2)`}) | \tt{`r round(exp(as.vector(coef(cs.other))[2]),2)`} (\tt{`r round(exp(cIcs.other[2]),2)`}, \tt{`r round(exp(cIcs.other[6]),2)`}) | \tt{`r round(exp(as.vector(sd.cvd$coef[2])),2)`} (1.22, 8.94) | \tt{`r round(exp(as.vector(sd.other$coef[2])),2)`} (0.07, 0.45) |
+*18.5 - <25* | ref | ref | ref | ref |
+*25 - <30* | \tt{`r round(exp(coef(cs.cvd)[1]),2)`} (\tt{`r round(exp(cIcs.cvd[1]),2)`}, \tt{`r round(exp(cIcs.cvd[5]),2)`}) | \tt{`r round(exp(coef(cs.other)[1]),2)`} (\tt{`r round(exp(cIcs.other[1]),2)`}, \tt{`r round(exp(cIcs.other[5]),2)`}) | \tt{`r round(exp(as.vector(sd.cvd$coef[1])),2)`} (0.40, 3.47)| \tt{`r round(exp(as.vector(sd.other$coef[1])),2)`} (0.15, 1.11) |
+*$\ge$ 30* | \tt{`r round(exp(as.vector(coef(cs.cvd))[2]),2)`} (\tt{`r round(exp(cIcs.cvd[2]),2)`}, \tt{`r round(exp(cIcs.cvd[6]),2)`}) | \tt{`r round(exp(as.vector(coef(cs.other))[2]),2)`} (\tt{`r round(exp(cIcs.other[2]),2)`}, \tt{`r round(exp(cIcs.other[6]),2)`}) | \tt{`r round(exp(as.vector(sd.cvd$coef[2])),2)`} (1.22, 8.94) | \tt{`r round(exp(as.vector(sd.other$coef[2])),2)`} (0.07, 0.45) |
   
-\vspace{12pt}
+\vspace{2pt}
 
 ## Question 7: From the above table, explain how the pattern you observe in the csHRs is consistent with the pattern in the sHRs. (Consider the relationship between the csHR and sHRs.)
 
-*The pattern in the csHRs shows that hazard of CVD-related death appears lower in people who are overweight (BMI 25 - <30) compared to those who are normal weight (BMI 18.5 - <25) but increases considerably for people who are obese (BMI >30) (hazard of mortality from CVD more than doubles). Note that both of these csHRs have very wide confidence intervals, making these results not statistically significant. These cause-specific hazards from the cox model approximate rates of the outcome.* 
+The pattern in the csHRs shows that hazard of CVD-related death appears lower in people who are overweight (BMI 25 - <30) compared to those who are normal weight (BMI 18.5 - <25) but increases considerably for people who are obese (BMI >30) (hazard of mortality from CVD more than doubles). Note that both of these csHRs have very wide confidence intervals, making these results not statistically significant. These cause-specific hazards from the cox model approximate rates of the outcome. 
 
-*As would be expected, then, the csHR for non-CVD-related mortality is lower among people who are obese compared to people who are overweight, since the rate of __CVD-related__ death has substantially increased for people who are obese, swamping out other causes.* 
+As would be expected, then, the csHR for non-CVD-related mortality is lower among people who are obese compared to people who are overweight, since the rate of __CVD-related__ death has substantially increased for people who are obese, swamping out other causes. 
 
-*Comparing the csHR for the overweight category to the sHR it is notable that this changes from less than one to greater than one (though again both of these have confidence intervals that cross one). This implies that those in the overweight category who died of other causes would have been likely to die from CVD had they not been censored, increasing the subdistribution hazard of CVD mortality in the overweight group above one. Thus, even though the rate of CVD mortality in the overweight group is less than in the normal group, the risk is higher for the overweight group. (Though again, these are not statistically significant differences).*
+Comparing the csHR for the overweight category to the sHR it is notable that this changes from less than one to greater than one (though again both of these have confidence intervals that cross one). This implies that those in the overweight category who died of other causes would have been likely to die from CVD had they not been censored, increasing the subdistribution hazard of CVD mortality in the overweight group above one. Thus, even though the rate of CVD mortality in the overweight group is less than in the normal group, the risk is higher for the overweight group. (Though again, these are not statistically significant differences).
 
-*Regarding the relationship comparing weight categories, we see a similar pattern in the sHRs compared to the csHRs: risk of death from CVD is just slightly elevated (1.17 times the risk) in people who are overweight compared to those who are normal weight ; however, for people who are obese the risk of death from CVD is more than triple that of people who are normal weight (this increase in risk is in fact statistically significant).*
+Regarding the relationship comparing weight categories, we see a similar pattern in the sHRs compared to the csHRs: risk of death from CVD is just slightly elevated (1.17 times the risk) in people who are overweight compared to those who are normal weight ; however, for people who are obese the risk of death from CVD is more than triple that of people who are normal weight (this increase in risk is in fact statistically significant).
 
-*As with the csHRs, with the sHRs we see a corresponding decrease in risk of mortality from non-CVD causes as BMI increases; risk of death from non-CVD causes is substantially lower for people who are obese compared to people of normal weight, since their risk of death from CVD has tripled.*
+As with the csHRs, with the sHRs we see a corresponding decrease in risk of mortality from non-CVD causes as BMI increases; risk of death from non-CVD causes is substantially lower for people who are obese compared to people of normal weight, since their risk of death from CVD has tripled.
 
-*Simply put, while __rate__ of failure (death) from an event of interest and/or competing events cannot be easily translated to __risk__ of failure from that same event of interest and/or competing risks, we would expect the patterns to remain roughly the same - i.e. as cause-specific mortality rate increases, risk of failure from that cause also increases, and rate/risk of failure from other causes likely decreases.*  
+Simply put, while __rate__ of failure (death) from an event of interest and/or competing events cannot be easily translated to __risk__ of failure from that same event of interest and/or competing risks, we would expect the patterns to remain roughly the same - i.e. as cause-specific mortality rate increases, risk of failure from that cause also increases, and rate/risk of failure from other causes likely decreases. 
