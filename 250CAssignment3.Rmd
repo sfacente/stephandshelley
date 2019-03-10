@@ -51,23 +51,25 @@ coxCI <- confint(survmod.cox.adj)
 coxSE <-sqrt(diag(vcov(survmod.cox.adj)))
 
 # Exponential model
+#note from Steph- I don't think these coefficients are PH coeffs- I vote we delete the lines I marked (or rename them)
 survreg.exp.adj <- survreg(Surv(timedth_yrs, death)~ as.factor(bmi_cat) +
 age + male + factor(cursmoke),
 data=frmgham_recoded,
 dist="exponential")
 summary(survreg.exp.adj)
-expPHcoef <- coef(survreg.exp.adj)
-expPHCI <- confint(survreg.exp.adj)
-expPHSE <-sqrt(diag(vcov(survreg.exp.adj)))
+expPHcoef <- coef(survreg.exp.adj) #this
+expPHCI <- confint(survreg.exp.adj)#this
+expPHSE <-sqrt(diag(vcov(survreg.exp.adj))) #this
 
 # Weibull model
+#note from Steph- I don't think these coefficients are PH coeffs- I vote we delete the lines I marked (or rename them)
 survreg.weib.adj <- survreg(Surv(timedth_yrs, death)~ as.factor(bmi_cat) +
 age + male + factor(cursmoke),
 data=frmgham_recoded, dist="weibull")
 summary(survreg.weib.adj)
-weibPHcoef <- coef(survreg.weib.adj)
-weibPHCI <- confint(survreg.weib.adj)
-weibPHSE <-sqrt(diag(vcov(survreg.weib.adj)))
+weibPHcoef <- coef(survreg.weib.adj) #this
+weibPHCI <- confint(survreg.weib.adj) #this
+weibPHSE <-sqrt(diag(vcov(survreg.weib.adj))) #this
 ```
 
 ```{r}
@@ -90,7 +92,7 @@ deltaMethod(ae, ge[3], vcov=v.ae)) # OB
 lnhr.se.exp
 
 # HR and 95% CIs:
-round(exp(lnhr.se.exp),2)[,c(1,3,4)]
+CalcExpPHHR <- round(exp(lnhr.se.exp),2)[,c(1,3,4)]
 
 ### Calculating log-HRs and SE(log-HR) for Weibull AFT model:
 # The functions of the regression parameters from AFT -> PH
@@ -109,13 +111,14 @@ deltaMethod(aw, gw[3], vcov=v.aw)) # OB
 lnhr.se.weib
 
 # HR and 95% CIs:
-round(exp(lnhr.se.weib),2)[,c(1,3,4)]
+CalcWeibPHHR <- round(exp(lnhr.se.weib),2)[,c(1,3,4)]
 ```
 
 ```{r}
 #On your own - Perform a likelihood ratio test to determine if the Weibull model is more appropriate than the exponential model.
 lrtest.exp.weibull <- anova(survreg.exp.adj, survreg.weib.adj)
 lrtest.exp.weibull
+lrOvary <- round(lrtest.exp.weibull$`Pr(>Chi)`[2], 90) #teeheeheeheeheehee (aka pvalue)
 ```
 
 ```{r}
@@ -200,7 +203,7 @@ summary(sd.other)
 \[
 log[h_0(t|\boldsymbol{x})] = log(p * t^{p-1}) + \beta_0 +\boldsymbol{x}\beta
 \]
-*where* $p$ *is the shape parameter,* $log(p * t^{p-1}) + \beta_0$ *is the log-baseline hazard, and* $\boldsymbol{x}\beta$ *is the log hazard ratio, with Weibull distribution.*
+*where* $p$ *is the shape parameter,* $log(p * t^{p-1}) + \beta_0$ *is the log-baseline hazard, and* $\boldsymbol{x}\beta$ *is the vector of coefficients times the vector of covariate values. Each individual $\beta$ within the $\beta$ vector is the log hazard ratio for a one unit change in that variable, with Weibull distribution.*
   
 \vspace{6pt}
 
@@ -210,7 +213,7 @@ log[h_0(t|\boldsymbol{x})] = log(p * t^{p-1}) + \beta_0 +\boldsymbol{x}\beta
 \[
 log(T) = \alpha_0 + \boldsymbol{x}\alpha + \sigma \times \epsilon^\ast
 \]
-*where* $\alpha_0$ *is the baseline time-to-event,* $\boldsymbol{x}\alpha$ *is the log-time ratio,* $\sigma$ *is the variance-type constant term (also known as* $p$, *unrestricted with Weibull specificiations), and* $\epsilon^\ast$ *is the error term, which with a Weibull model approximates a G distribution (0,1).*
+*where* $\alpha_0$ *is the baseline time-to-event,* $\boldsymbol{x}\alpha$ *is the vector of covariate values multiplied by the vector of coefficients (with each individual coefficient representing the log-time ratio for a one unit change in that variable),* $\sigma$ *is the variance-type constant term (also known as* $p$, *unrestricted with Weibull specificiations), and* $\epsilon^\ast$ *is the error term, which with a Weibull model approximates a G distribution (0,1).*
   
 \vspace{6pt}
 
@@ -233,28 +236,35 @@ $\ge$ 30 | \tt{`r round(exp(coxcoef[3]),2)`} (\tt{`r round(exp(coxCI[3,1]),2)`},
   
 \vspace{12pt}
 
+% Steph copied and then edited table here so original version remains if we need to discuss further
+
+BMI | Cox HR (95% CI) | Cox $SE_\beta$ | Exponential HR (95% CI) | Exp $SE_\beta$ | Weibull HR (95% CI) | Weibull $SE_\beta$ |
+----------- | --------------------- | ----- | --------------------- | ----- | --------------------- | ----- |
+<18.5 | \tt{`r round(exp(coxcoef[1]),2)`} (\tt{`r round(exp(coxCI[1,1]),2)`}, \tt{`r round(exp(coxCI[1,2]),2)`}) | \tt{`r round(coxSE[1],2)`} | \tt{`r CalcExpPHHR[1,1]`} (\tt{`r CalcExpPHHR[1,2]`}, \tt{`r CalcExpPHHR[1,3]`}) | \tt{`r round(lnhr.se.exp[1,2],2)`} | \tt{`r CalcWeibPHHR[1,1]`} (\tt{`r CalcWeibPHHR[1,2]`}, \tt{`r CalcWeibPHHR[1,3]`}) | \tt{`r round(lnhr.se.weib[1,2],2)`} | 
+18.5 - <25 | *ref* | - | *ref* | - | *ref* | -
+25 - <30 | \tt{`r round(exp(coxcoef[2]),2)`} (\tt{`r round(exp(coxCI[2,1]),2)`}, \tt{`r round(exp(coxCI[2,2]),2)`}) | \tt{`r round(coxSE[2],2)`} |\tt{`r CalcExpPHHR[2,1]`} (\tt{`r CalcExpPHHR[2,2]`}, \tt{`r CalcExpPHHR[2,3]`}) | \tt{`r round(lnhr.se.exp[2,2],2)`} | \tt{`r CalcWeibPHHR[2,1]`} (\tt{`r CalcWeibPHHR[2,2]`}, \tt{`r CalcWeibPHHR[2,3]`}) | \tt{`r round(lnhr.se.weib[2,2],2)`} | 
+$\ge$ 30 | \tt{`r round(exp(coxcoef[3]),2)`} (\tt{`r round(exp(coxCI[3,1]),2)`}, \tt{`r round(exp(coxCI[3,2]),2)`})| \tt{`r round(coxSE[3],2)`} | \tt{`r CalcExpPHHR[3,1]`} (\tt{`r CalcExpPHHR[3,2]`}, \tt{`r CalcExpPHHR[3,3]`}) | \tt{`r round(lnhr.se.exp[3,2],2)`} | \tt{`r CalcWeibPHHR[3,1]`} (\tt{`r CalcWeibPHHR[3,2]`}, \tt{`r CalcWeibPHHR[3,3]`}) | \tt{`r round(lnhr.se.weib[3,2],2)`} | 
+  
+\vspace{12pt}
+
 ## Question 3: Answer the following questions
 ### a) Which model estimates the relationships of interest most precisely? Justify your answer.
 
-*The Weibull model estimates the relations of interest most precisely, because as a parametric model the Weibull provides better statistical efficiency than the Cox model (evidenced by tighter CIs in the table from Question 2); the Weibull also allows the baseline hazard to vary over the entire time period (the scale of the shape parameter* $p$ *is allowed to vary), making it more flexible than the exponential model, which restricts* $p = 1$.
+*For these data, all three of the models provide a quite good fit. However, the Weibull model estimates the relations of interest most precisely,  as evidenced by tighter CIs and smaller standard errors in the table from Question 2. Explanations for this slightly better fit are likely related to the basic definition of the models. As a parametric model the Weibull provides better statistical efficiency than the Cox model, when the assumptions are met. The Weibull also allows the baseline hazard to vary over the entire time period (the scale of the shape parameter* $p$ *is allowed to vary), making it more flexible than the exponential model, which restricts* $p = 1$.
   
 \vspace{2pt}
 
 ### b) Based on the likelihood ratio test, what parameter from the model you outlined in Q1 is being evaluated? Based on the results of this test, would you select the exponential or Weibull model? Justify your answer.
 
-*The likelihood ratio test produces the following output:*
-```{r, echo=FALSE, include=TRUE}
-lrtest.exp.weibull
-```
-
-*From this we can see that the p-value for* $H_0 : p = 1$ *(exponential) vs.* $H_A : \sigma \neq 1$ *is essentially zero; therefore we reject the exponential model and select the Weibull model.*
+*The likelihood ratio test is evaluating whether p, the shape parameter, is significantly different than 1. The test produces the following p-value:* $\tt{`r lrOvary`}$.
+*From this we can see that the p-value for* $H_0 : p = 1$ *(exponential) vs.* $H_A : p \neq 1$ *is essentially zero; therefore we reject the exponential model and select the Weibull model.*
   
 \vspace{2pt}
 
 ### c) Using the output from the Weibull model, calculate the time ratio comparing individuals with BMI > 30 to those with BMI 18.5-<25 (no need for confidence interval). Interpret this parameter. Does this agree or not with the corresponding hazard ratio?
 
-*The time ratio (TR) for individuals with BMI > 30 compared to those with BMI 18.5-<25 is* $e^{`r round(aw[4],3)`}$ = .781. *This means that BMI > 30 multiplies survival time by by .781, or decreases survival time by about 22%.*
-  
+*The time ratio (TR) for individuals with BMI > 30 compared to those with BMI 18.5-<25 is* \tt{`r round(exp(aw[4]),3)`}. \fontfamily{cmr}\itshape\selectfont{This means that in the adjusted model, the time to death for those with BMI > 30  is} \tt{`r round(exp(aw[4]),3)`} \fontfamily{cmr}\itshape\selectfont{times the time to death for those in the normal weight category, conditional on age, sex and smoking status. This implies that those with a BMI >30 have an accelerated time until death. The corresponding hazard ratio from the Weibull model was} \tt{`r CalcWeibPHHR[3,1]`} \fontfamily{cmr}\itshape\selectfont{meaning that in the adjusted model, the hazard of death for those with BMI > 30  is} \tt{`r CalcWeibPHHR[3,1]`} \fontfamily{cmr}\itshape\selectfont{times the hazard of death for those in the normal weight category, conditional on age, sex and smoking status. A hazard ratio greater than one, as in this case, corresponds to a failure time ratio of less than one; so yes, the time ratio and hazard ratio agree.}
+
 \vspace{8pt}
 
 # Competing Risks
