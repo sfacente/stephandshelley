@@ -271,7 +271,7 @@ $\ge$ 30 | \tt{`r round(exp(coxcoef[3]),2)`} (\tt{`r round(exp(coxCI[3,1]),2)`},
 
 ## Question 4: Conceptually, what is the difference between the KM failure estimate for CVD death and the estimated CIF for CVD death? What does the comparison of these curves tell you about the risk of the competing event?
 
-*The KM failure estimate for CVD death is the risk of all-cause mortality at time* $t$, *for people with CVD (compared to those without). The estimated CIF for CVD death represents the joint probability of mortality __from CVD__, by time* $t$. *Comparison of the curves tells you that around 50 days of follow-up, subjects begin to die from causes other than CVD in higher proportion (i.e. the curves begin to diverge, with the KM failure function demonstrating greater probability of mortality than the CIF for the remainder of follow-up).* 
+*The KM failure estimate for CVD death is the risk of all-cause mortality at time* $t$, *for people with CVD (compared to those without). The estimated CIF for CVD death represents the joint probability of mortality __from CVD__, by time* $t$. * (stated differently, this is the joint probability of both having death by time t, and it being the result of CVD). Comparison of the curves tells you that around 50 days of follow-up, subjects begin to die from causes other than CVD in higher proportion. The curves begin to diverge, with the KM failure function demonstrating greater probability of mortality than the CIF for the remainder of follow-up, implying that another cause is contributing to the higher mortality in the KM failure function.* 
   
 \vspace{6pt}
 
@@ -279,7 +279,7 @@ $\ge$ 30 | \tt{`r round(exp(coxcoef[3]),2)`} (\tt{`r round(exp(coxCI[3,1]),2)`},
 
 ### Cause-specific hazard
 
-*A cause-specific hazard is the instantaneous (very short-term) rate of failure __for event* $j$__ *among those who have not yet experienced the event of interest* __or__ *a competing event prior to* $t$.
+*A cause-specific hazard is the instantaneous (very short-term) rate of failure __for event* $j$__ *among those who have not yet experienced either the event of interest* __or__ *a competing event prior to* $t$.
 
 ### Subdistribution hazard
 
@@ -299,12 +299,14 @@ $\ge$ 30 | \tt{`r round(exp(as.vector(coef(cs.cvd))[2]),2)`} (\tt{`r round(exp(c
 
 ## Question 7: From the above table, explain how the pattern you observe in the csHRs is consistent with the pattern in the sHRs. (Consider the relationship between the csHR and sHRs.)
 
-*The pattern in the csHRs shows that rate of CVD-related death appears lower in people who are overweight (BMI 25 - <30) compared to those who are normal weight (BMI 18.5 - <25) but increases considerably for people who are obese (BMI >30) (rate of mortality from CVD more than doubles). Note that both of these csHRs have very wide confidence intervals, making these results not statistically significant.* 
+*The pattern in the csHRs shows that hazard of CVD-related death appears lower in people who are overweight (BMI 25 - <30) compared to those who are normal weight (BMI 18.5 - <25) but increases considerably for people who are obese (BMI >30) (hazard of mortality from CVD more than doubles). Note that both of these csHRs have very wide confidence intervals, making these results not statistically significant. These cause-specific hazards from the cox model approximate rates of the outcome.* 
 
 *As would be expected, then, the csHR for non-CVD-related mortality is lower among people who are obese compared to people who are overweight, since the rate of __CVD-related__ death has substantially increased for people who are obese, swamping out other causes.* 
 
-*We see a similar pattern in the sHRs in the table: risk of death from CVD is just slightly elevated in people who are overweight compared to those who are normal rate (17% higher risk, again with a very wide confidence interval); however, for people who are obese the risk of death from CVD is more than triple that of people who are normal weight (this increase in risk is in fact statistically significant).*
+*Comparing the csHR for the overweight category to the sHR it is notable that this changes from less than one to greater than one (though again both of these have confidence intervals that cross one). This implies that those in the overweight category who died of other causes would have been likely to die from CVD had they not been censored, increasing the subdistribution hazard of CVD mortality in the overweight group above one. Thus, even though the rate of CVD mortality in the overweight group is less than in the normal group, the risk is higher for the overweight group. (Though again, these are not statistically significant differences).*
 
-*As with the csHRs, with the sHRs we see a corresponding decrease in risk of mortality from non-CVD causes as BMI increases; risk of death from non-CVD causes is 92% lower for people who are obese compared to people of normal weight, since their risk of death from CVD has tripled.*
+*Regarding the relationship comparing weight categories, we see a similar pattern in the sHRs compared to the csHRs: risk of death from CVD is just slightly elevated (1.17 times the risk) in people who are overweight compared to those who are normal weight ; however, for people who are obese the risk of death from CVD is more than triple that of people who are normal weight (this increase in risk is in fact statistically significant).*
+
+*As with the csHRs, with the sHRs we see a corresponding decrease in risk of mortality from non-CVD causes as BMI increases; risk of death from non-CVD causes is substantially lower for people who are obese compared to people of normal weight, since their risk of death from CVD has tripled.*
 
 *Simply put, while __rate__ of failure (death) from an event of interest and/or competing events cannot be easily translated to __risk__ of failure from that same event of interest and/or competing risks, we would expect the patterns to remain roughly the same - i.e. as cause-specific mortality rate increases, risk of failure from that cause also increases, and rate/risk of failure from other causes likely decreases.*  
