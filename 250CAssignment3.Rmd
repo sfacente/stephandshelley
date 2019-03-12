@@ -195,10 +195,14 @@ summary(sd.other)
 
 # Parametric Survival Analysis
 
+\vspace{1mm}
+
 ## Question 1: Assuming *Weibull* distributed event times,
 
 ### a) Write out the *general* expression, not substituting any estimated values, and clearly defining any parameters and distributions for any random terms, the **log-hazard function**, including the complete baseline hazard.
+*Assuming* $T \sim$ *Weibull, then the log-hazard function is expressed as:* $log[h(t|\boldsymbol{x})] = log(p * t^{p-1}) + \beta_0 +\boldsymbol{x}\beta$
 
+<<<<<<< HEAD
 *Assuming* $T \sim$ *Weibull, then the log-hazard function is expressed as:*
 \[
 log[h(t|\boldsymbol{x})] = log(p * t^{p-1}) + \beta_0 +\boldsymbol{x}\beta
@@ -206,24 +210,24 @@ log[h(t|\boldsymbol{x})] = log(p * t^{p-1}) + \beta_0 +\boldsymbol{x}\beta
 *where* $log[h_0(t|\boldsymbol{x}]$ *is the log-hazard function given the set of covariates,* $p$ *is the shape parameter,* $log(p * t^{p-1}) + \beta_0$ *is the log-baseline hazard, and* $\boldsymbol{x}\beta$ *is the vector of coefficients times the vector of covariate values. Each individual $\beta$ within the $\beta$ vector (in this case, the coefficients are on the following covariates: $x_1$ = underweight BMI (<18.5), $x_2$ = overweight BMI (25 - <30), $x_3$ = obese BMI (>30), $x_4$ = current smoking status, $x_5$ = age, and $x_6$ = sex) is the log hazard ratio for a one unit change in that variable (or for indicator variables comparing that value to the baseline), with Weibull distribution. For example, $\beta_1$ is the log hazard ratio for those who have underweight BMI compared to those of normal BMI and $\beta_5$ is the log hazard ratio for each 1 year increase in age.*
   
 \vspace{6pt}
+=======
+*where* $log[h_0(t|\boldsymbol{x}]$ *is the log-hazard function given the set of covariates,* $p$ *is the shape parameter,* $log(p * t^{p-1}) + \beta_0$ *is the log-baseline hazard, and* $\boldsymbol{x}\beta$ *is the vector of coefficients times the vector of covariate values. Each individual $\beta$ within the $\beta$ vector (in this case, the coefficients are on the following covariates: $x_1$ = underweight BMI (<18.5), $x_2$ = overweight BMI (25 - <30), $x_3$ = obese BMI (>30), $x_4$ = current smoking status, $x_5$ = age, and $x_6$ = sex) is the log hazard ratio for a one unit change in that variable (or for indicator variables comparing that value to the baseline), with Weibull distribution. For example, $\beta_1$ is the log hazard ratio for those who have underweight BMI compared to normal BMI and $\beta_5$ is the log hazard ratio for each 1 year increase in age.*
+>>>>>>> 2f2ea0a2b47aa88cdbb1e4af7bd51a55d9569724
 
 ### b) Repeat the above for the **log-time function** (in the accelerated failure time metric).
-
 *Again assuming* $T \sim$ *Weibull, the log-__time__ function is expressed as:*
 \[
 log(T) = \alpha_0 + \boldsymbol{x}\alpha + \sigma \times \epsilon^\ast
 \]
 *where* $\alpha_0$ *is the baseline time-to-event,* $\boldsymbol{x}\alpha$ *is the vector of covariate values multiplied by the vector of coefficients (with each individual coefficient representing the log-time ratio for a one unit change in each variable as listed in 1(a)),* $\sigma$ *is the variance-type constant term (also known as* $p$, *unrestricted with Weibull specificiations), and* $\epsilon^\ast$ *is the error term, which with a Weibull model approximates a G distribution (0,1).*
   
-\vspace{6pt}
-
 ### c) For an arbitrary covariate, show the expression of the hazard ratio from the proportional hazards Weibull model as a function of parameters from the accelerated failure time expression of the same model.
 
 $$h^{AFT}(t|\boldsymbol{x}) = \frac{t^{\frac{1}{\sigma}} - 1}{\sigma}exp(-(\alpha_0 + \boldsymbol{x}\alpha)/\sigma)$$
 
 *Note that this hazard function will take the ratio of $h^{AFT}$ but will not necessary be proportional as in the log-hazard function expressed in part (a)*.
   
-\vspace{12pt}
+\vspace{4pt}
 
 ## Question 2: Complete the following table using the results from your analyses.
 
