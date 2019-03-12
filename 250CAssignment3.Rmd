@@ -201,7 +201,7 @@ summary(sd.other)
 
 *Assuming* $T \sim$ *Weibull, then the log-hazard function is expressed as:*
 \[
-log[h_0(t|\boldsymbol{x})] = log(p * t^{p-1}) + \beta_0 +\boldsymbol{x}\beta
+log[h(t|\boldsymbol{x})] = log(p * t^{p-1}) + \beta_0 +\boldsymbol{x}\beta
 \]
 *where* $log[h_0(t|\boldsymbol{x}]$ *is the log-hazard function given the set of covariates,* $p$ *is the shape parameter,* $log(p * t^{p-1}) + \beta_0$ *is the log-baseline hazard, and* $\boldsymbol{x}\beta$ *is the vector of coefficients times the vector of covariate values. Each individual $\beta$ within the $\beta$ vector (in this case, the coefficients are on the following covariates: $x_1$ = underweight BMI (<18.5), $x_2$ = overweight BMI (25 - <30), $x_3$ = obese BMI (>30), $x_4$ = current smoking status, $x_5$ = age, and $x_6$ = sex) is the log hazard ratio for a one unit change in that variable (or for indicator variables comparing that value to the baseline), with Weibull distribution. For example, $\beta_1$ is the log hazard ratio for those who have underweight BMI compared to those of normal BMI and $\beta_5$ is the log hazard ratio for each 1 year increase in age.*
   
