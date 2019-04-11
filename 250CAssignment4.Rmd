@@ -362,22 +362,24 @@ For the normal weight male group:
 &= e^{(\beta_2 + \beta_3 + \beta_9)} - e^{\beta_2} - e^{\beta_3} + 1
 \end{aligned}
 \]
-
+ 
 where
 \[
 \begin{aligned}
-\text{HR}_\text{11} &= `r RR11[1]` = the \ hazard \ ratio \ for \ obese \ males,\\ 
-\text{HR}_\text{10} &= `r RR10[1]` = the \ hazard \ ratio \ for \ obese \ females,\\ 
-\text{HR}_\text{01} &= `r RR11div01[1]` = the \ hazard \ ratio \ for \ normal\text{-}weight \ males, and\\ 
+\text{HR}_\text{11} &= `r RR11[1]` = the \ hazard \ ratio \ for \ obese \ males \ compared \ to \ the \ referent \ group,\\ 
+\text{HR}_\text{10} &= `r RR10[1]` = the \ hazard \ ratio \ for \ obese \ females \ compared \ to \ the \ referent \ group,\\ 
+\text{HR}_\text{01} &= `r RR11div01[1]` = the \ hazard \ ratio \ for \ normal\text{-}weight \ males \ compared \ to \ the \ referent \ group, and\\ 
 \text{the final term} &= 1.0 = the \ hazard \ ratio \ for \ normal\text{-}weight \ females \ (the \ referent \ group)
 \end{aligned}
 \]
+
+All of these hazard ratios are referring to the hazard of stroke based on BMI and sex. 
 
 \pagebreak
 
 ## 6. Complete Table 1, being sure to include point estimates and confidence intervals where appropriate, as well as the relevant parts of the footnotes.
 
-\fontfamily{cmr}\selectfont{Table 1. Adjusted hazards ratio estimates and 95% CI of the association between baseline BMI status and mortality. The Framingham Cohort Study, 1948-1972, Framingham, MA.}
+\fontfamily{cmr}\selectfont{Table 1. Adjusted hazards ratio estimates and 95\% CI of the association between baseline BMI status and mortality. The Framingham Cohort Study, 1948-1972, Framingham, MA.}
 
 | BMI | Female | Male (single ref) | Male (stratum-specific) |
 | ----- | ----- | ---------- | ---------- |
@@ -402,10 +404,10 @@ Likelihood ratio test p-value: `r round(lroutput[2,4],3)`.
   
 \fontfamily{cmr}\itshape\selectfont{We conclude that given the wide confidence intervals, there is no convincing evidence of effect measure modification - either positive or negative - on the additive scales for either overweight or obese males and females. In both cases the lower and upper bound of the CIs comfortably contain the null (zero).}
 
-\fontfamily{cmr}\itshape\selectfont{The same is true on the multiplicative scales for both overweight and obese males and females. Again in both cases the lower and upper bound of the CIs for tests of interaction comfortably contain the null (in this case, one). This is further supported by the p-value on the likelihood ratio test, which is `r round(lroutput[2,4],3)` - quite high.}
+\fontfamily{cmr}\itshape\selectfont{The same is true on the multiplicative scales for both overweight and obese males and females. Again in both cases the lower and upper bound of the CIs for tests of interaction comfortably contain the null (in this case, one). This is further supported by the p-value on the likelihood ratio test (which compared our model with interactions included to that without interaction terms), which is `r round(lroutput[2,4],3)` - quite high.}
 
 \vspace{10pt}
 
 ## 8. What assumptions regarding confounding have you made in assessing effect modification? If you were instead interested in the __causal__ interaction between BMI and these variables would you have to consider any other relationships? If so, what? 
   
-\fontfamily{cmr}\itshape\selectfont{In assessing effect modification, we have assumed that the only additional variables that confound our primary exposure (BMI) are age and education, which we controlled for in our model. If we were interested in the $\textbf{causal}$ interaction between BMI and these variables, however, we would also need to identify whether there is a relationship between age and education with our secondary exposure (sex).}
+\fontfamily{cmr}\itshape\selectfont{In assessing effect modification, we have assumed that the only additional variables that confound our primary exposure (BMI) are age and education, which we controlled for in our model. If we were interested in the $\textbf{causal}$ interaction between BMI and these variables, however, we would also need to identify whether age and education confound the relationship between stroke and our secondary exposure (sex), as well as whether any other confounders exist for that relationship.}
