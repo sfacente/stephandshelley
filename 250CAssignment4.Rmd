@@ -37,13 +37,14 @@ finaldata.stroke$s60 <- ifelse(finaldata.stroke$cigpday>60,finaldata.stroke$cigp
 finaldata.stroke$rqs20 <- finaldata.stroke$s20^2 - finaldata.stroke$s60^2
 finaldata.stroke$rqs40 <- finaldata.stroke$s40^2 - finaldata.stroke$s60^2
 
+
 # Fit two Cox proportional hazards models with the follow-up variable timestrk and outcome indicator stroke, both adjusted for age (linear in log-hazard).
 # Code cigarettes per day as linear in the log-hazard.
 stroke.linear <- coxph(Surv(timestrk, stroke) ~ age + cigpday, data=finaldata.stroke, ties="efron")
-# Code cigarettes per day as a restricted quadratic spline. 
-stroke.rqs <- coxph(Surv(timestrk, stroke) ~ age + rqs20 + rqs40, data=finaldata.stroke, ties="efron")
+# Code cigarettes per day as a restricted quadratic spline-note from Steph- this was missing cigpday (per Lect 9,slide 49 it should be included)
+stroke.rqs <- coxph(Surv(timestrk, stroke) ~ age + cigpday + rqs20 + rqs40, data=finaldata.stroke, ties="efron")
 
-# Using the code below, plot predicted risk score ($exp(xˆ\beta)$) at median age for each model, side-by-side:
+# Using the code below, plot predicted risk score ($exp(x?\beta)$) at median age for each model, side-by-side:
 # Create a new dataset where age is fixed to its median value (will use this for calculating predicted values):
 finaldata.stroke.new <- finaldata.stroke
 finaldata.stroke.new$age <- median(finaldata.stroke$age)
@@ -69,15 +70,38 @@ spl1 <- 20
 spl2 <- 40
 spl3 <- 60 
 
-k30 <- matrix(c((x1-x0), ((x1-spl1)^2 - (x1-spl3)^2 - (x0-spl1)^2), ((x1-spl2)^2 - (x1-spl3)^2)), 1)
+#Shelley's code- I think there's two issues here-a) there's the main effect variable that was left off initially so your matrix only had 3 rows instead of four b) I think you forgot that some of the terms won't be used at some levels. so like since neither of the values we're comparing are greater than sixty, I don't think you should have any terms subtracting spl3.
+
+#k30 <- matrix(c((x1-x0), 
+#               ((x1-spl1)^2 - (x1-spl3)^2 - (x0-spl1)^2), 
+#              ((x1-spl2)^2 - (x1-spl3)^2)), 
+#             1)
+
+#Note from Steph-recall this is our formula: age + cigpday + rqs20 + rqs40, so I think this is the appropriate contrast for cig=30:
+k30 <- matrix(c(0,
+                (x1-x0), 
+                ((x1-spl1)^2),
+                0),
+                1)
+
 HR.confint.30 <- exp(confint(glht(stroke.rqs, linfct=k30))$confint)[,1:3]
-k50 <- matrix(c((x2-x0), ((x2-spl1)^2 - (x2-spl3)^2 - (x0-spl1)^2), ((x2-spl2)^2 - (x2-spl3)^2)), 1)
+
+#Shelley's Code
+#k50 <- matrix(c((x2-x0), ((x2-spl1)^2 - (x2-spl3)^2 - (x0-spl1)^2), ((x2-spl2)^2 - (x2-spl3)^2)), 1)
+
+
+k50 <- matrix(c(0,
+                (x2-x0), 
+                ((x2-spl1)^2), 
+                ((x2-spl2)^2), 
+                1))
+
 HR.confint.50 <- exp(confint(glht(stroke.rqs, linfct=k50))$confint)[,1:3]
 ```
 
 ```{r}
 #Compare the simple linear coding and restricted quadratic spline coding with a likelihood ratio test:
-anova(stroke.linear, stroke.rqs)
+LRLinearVsRqs<- anova(stroke.linear, stroke.rqs)
 ```
 
 ```{r}
@@ -94,8 +118,11 @@ stroke.bmi.adj <- coxph(Surv(timestrk, stroke) ~ factor(bmi_cat) + factor(male) 
 ixn <- summary(stroke.bmi.ixn.sex) 
 overweight.ixn.coefs <- ixn$conf.int[8,]
 obese.ixn.coefs <- ixn$conf.int[9,]
+
 # LR p-value for multiplicative IXN
 lroutput <- anova(stroke.bmi.adj, stroke.bmi.ixn.sex) 
+
+#FYI from Steph, I just re-ordered this following section (but no real changes) so the matrices and then CIs are in the same order so I could see what we were doing more easily.
 
 # estimate the common-referent HRs (using normal-weight females as ref) 
 k.HR10 <- matrix(c(0,1,0,0,0,0,0,0,0),1) #obese females 
@@ -103,6 +130,7 @@ k.HR1a0 <- matrix(c(1,0,0,0,0,0,0,0,0),1) #overweight females
 k.HR01 <- matrix(c(0,0,1,0,0,0,0,0,0),1) #normal-weight males 
 k.HR11 <- matrix(c(0,1,1,0,0,0,0,0,1),1) #obese males 
 k.HR1a1 <- matrix(c(1,0,1,0,0,0,0,1,0),1) #overweight males
+
 k.HR11divHR01 <- matrix(c(0,1,0,0,0,0,0,0,1),1) #obese males - normal-weight males
 k.HR1a1divHR01 <- matrix(c(1,0,0,0,0,0,0,1,0),1) #overweight males - normal-weight males
 
@@ -110,16 +138,18 @@ k.HR1a1divHR01 <- matrix(c(1,0,0,0,0,0,0,1,0),1) #overweight males - normal-weig
 RR10 <- round(exp(confint(glht(stroke.bmi.ixn.sex, linfct=k.HR10))$confint[,1:3]),2)
 #overweight females v normal-weight females
 RR1a0 <- round(exp(confint(glht(stroke.bmi.ixn.sex, linfct=k.HR1a0))$confint[,1:3]),2)
+#normal-weight males v normal-weight females
+RR01 <- round(exp(confint(glht(stroke.bmi.ixn.sex, linfct=k.HR01))$confint[,1:3]),2)
+#obese males v normal-weight females
+RR11 <- round(exp(confint(glht(stroke.bmi.ixn.sex, linfct=k.HR11))$confint[,1:3]),2)
+#overweight males v normal-weight females
+RR1a1 <- round(exp(confint(glht(stroke.bmi.ixn.sex, linfct=k.HR1a1))$confint[,1:3]),2)
+
 #obese males v normal-weight males
 RR11div01 <- round(exp(confint(glht(stroke.bmi.ixn.sex, linfct=k.HR11divHR01))$confint[,1:3]),2)
 #overweight males v normal-weight males
 RR1a1div01 <- round(exp(confint(glht(stroke.bmi.ixn.sex, linfct=k.HR1a1divHR01))$confint[,1:3]),2)
-#obese males v normal-weight females
-RR11 <- round(exp(confint(glht(stroke.bmi.ixn.sex, linfct=k.HR11))$confint[,1:3]),2)
-#obese males v normal-weight females
-RR01 <- round(exp(confint(glht(stroke.bmi.ixn.sex, linfct=k.HR01))$confint[,1:3]),2)
-#overweight males v normal-weight females
-RR1a1 <- round(exp(confint(glht(stroke.bmi.ixn.sex, linfct=k.HR1a1))$confint[,1:3]),2)
+
 
 # calculate the RERI for additive interactions between overweight BMI and sex, and using the delta method, corresponding 95% CIs.
 reri.sex.bmi25 <- deltaMethod(stroke.bmi.ixn.sex, "exp(b1+b3+b8) - exp(b1) - exp(b3) +1", parameterNames= paste("b", 1:9, sep=""))
@@ -155,11 +185,11 @@ where
 \\
 \mathbf{log[h_0(t)]} &\ is \ the \ log \ baseline \ hazard \ at \ time \ t \ for \ an \ individual \ with \ the \ referent \ value\\ &\ for \ all \ of \ the \ variables.\\
 \\
-\mathbf{age \times \beta_1} &\ is \ age \ in \ years, \ meaning \ that \ if \ e \ is \ raised \ to \ the \ \beta_1 \ power, \ this \ is \ the \ hazard \ ratio\\
+\mathbf{\beta_1} &\ is \ the \  coefficient \ on \ age \ in \ years, \ meaning \ that \ if \ e \ is \ raised \ to \ the \ \beta_1 \ power, \ this \ is \ the \ hazard \ ratio\\
 &\ comparing \ the \ hazard \ of \ death \ for \ those \ with \ a \ one\text{-}year \ increase \ in \ age \ compared\\
 &\ to \ those \ one \ year \ younger, \ holding \ constant \ the \ other \ variables \ in \ the \ model.\\
 \\
-\mathbf{cigsperday \times \beta_2} &\ is \ the \ number \ of \ cigarettes \ the \ participant \ consumed \ per \ day, \ meaning \ that \ if \ e \ is \ raised \ to\\
+\mathbf{\beta_2} &\ is \ the \ coefficient \ on \ the \ number \ of \ cigarettes \ the \ participant \ consumed \ per \ day, \ meaning \ that \ if \ e \ is \ raised \ to\\
 &\ the \ \beta_2 \ power, \ this \ is \ the \ hazard \ ratio \ comparing \ the \ hazard \ of \ death \ for \ those \ with \ a \\ &\ one\text{-}unit \ increase \ in \ cigarettes \ per \ day \ compared \ to \ those \ consuming \ one \ fewer \ cigarette, \\ 
 &\ holding \ constant \ the \ other \ variables \ in \ the \ model.
 \end{aligned}
@@ -183,29 +213,33 @@ where
 \mathbf{log[h_0(t)]} &\ is \ the \ log \ baseline \ hazard \ at \ time \ t \ for \ an \ individual \ with \ the \ referent \ value for \ all\\
 &\ of \ the \ variables.\\
 \\
-\mathbf{age \times \beta_1} &\ is \ age \ in \ years, \ meaning \ that \ if \ e \ is \ raised \ to \ the \ \beta_1 \ power, \ this \ is \ the \ hazard \ ratio\\
+\mathbf{\beta_1} &\ is \ the \ coefficient \ on \ age \ in \ years, \ meaning \ that \ if \ e \ is \ raised \ to \ the \ \beta_1 \ power, \ this \ is \ the \ hazard \ ratio\\
 &\ comparing \ the \ hazard \ of \ death \ for \ those \ with \ a \ one\text{-}year \ increase \ in \ age \ compared\\
 &\ to \ those \ one \ year \ younger, \ holding \ constant \ the \ other \ variables \ in \ the \ model.\\
 \\
-\mathbf{cigsperday \times \beta_2} &\ is \ the \ number \ of \ cigarettes \ the \ participant \ consumed \ per \ day, \ meaning \\
+\mathbf{\beta_2} &\ is \ the \ coefficient \ on \ the \ number \ of \ cigarettes \ the \ participant \ consumed \ per \ day, \ meaning \\
 &\ that \ if \ e \ is \ raised \ to \ the \ \beta_2 \ power, \ this \ is \ the \ hazard \ ratio \ comparing \ the \ hazard \\
 &\ of \ death \ for \ those \ with \ a \ one\text{-}unit \ increase \ in \ cigarettes \ per \ day \ compared \ to \ those \ consuming \\
 &\ one \ fewer \ cigarette, \ holding \ constant \ the \ other \ variables \ in \ the \ model.\\
 \\
-\mathbf{(s^2_{20} - s^2_{60})} &\ is \ the \ quadratic \ spline \ term \ for \ one \ pack \ a \ day \ minus \ the \ uppermost \ quadratic \ spline \ term \\
+\mathbf{(s^2_{20} - s^2_{60})} &\ is \ the \ coefficient  \ on \ the \  quadratic \ spline \ term \ for \ one \ pack \ a \ day \ minus \ the \ uppermost \ quadratic \ spline \ term \\
 &\ in \ the \ model \ (three \ packs \ a \ day), \ which \ sets \ a \ knot \ in \ the \ curve \ at \ 20 \ cigarettes \ per \ day, \\ 
 &\ meaning\ that \ if \ e \ is \ raised \ to \ the \ \beta_3 \ power, \ this \ is \ the \ hazard \ ratio \ comparing \ the \ hazard \\
 &\ of \ death \ for \ those \ consuming \ one \ pack \ per \ day \ compared \ to \ non\text{-}smokers, \ holding \\
 &\ constant \ the \ other \ variables \ in \ the \ model. \ Because \ the \ uppermost \ quadratic \ spline \ term \ has \\
 &\ been \ subtracted \ here, \ we \ are \ tying \ down \ the \ ends \ of \ the \ model, \ disallowing \ erratic \\ 
-&\ behavior \ in \ the \ model \ due \ to \ sparse \ data.\\ 
+&\ behavior \ in \ the \ model \ due \ to \ sparse \ data. \ At \ values \ below \ sixty, 
+ the \ s^2_{60} \ term \  drops \ out \ and \ the  \\ 
+&\ coefficient \ simplifies \ to \ s^2_{20}. \ Furthermore, at \ values \ less \ than \ twenty, \ the \ entire \ term \ drops \ out. \\
 \\
-\mathbf{(s^2_{40} - s^2_{60})} &\ is \ the \ quadratic \ spline \ term \ for \ two \ packs \ a \ day \ minus \ the \ uppermost \ quadratic \ spline \ term \\ 
+\mathbf{(s^2_{40} - s^2_{60})} &\ is \ the \ coefficient \ on \ the \ quadratic \ spline \ term \ for \ two \ packs \ a \ day \ minus \ the \ uppermost \ quadratic \ spline \ term \\ 
 &\ in \ the \ model \ (three \ packs \ a \ day), \ which \ sets \ a \ knot \ in \ the \ curve \ at \ 40 \ cigarettes \ per \ day, \\ &\ meaning\ that \ if \ e \ is \ raised \ to \ the \ \beta_4 \ power, \ this \ is \ the \ hazard \ ratio \ comparing \ the \\
 &\ hazard \ of \ death \ for \ those \ consuming \ two \ packs \ per \ day \ compared \ to \ non\text{-}smokers, \ holding \\
 &\ constant \ the \ other \ variables \ in \ the \ model. \ Again, \ because \ the \ uppermost \ quadratic \\ 
 &\ spline \ term \ has \ been \ subtracted \ here, \ we \ are \ tying \ down \ the \ ends \ of \ the \\
-&\ model, \ disallowing \ erratic \ behavior \ in \ the \ model \ due \ to \ sparse \ data.\\ 
+&\ model, \ disallowing \ erratic \ behavior \ in \ the \ model \ due \ to \ sparse \ data.\ At \ values \ below \ sixty, 
+ the \ s^2_{60} \ term \\  
+&\ drops \ out \ and \ the  \ coefficient \ simplifies \ to \ s^2_{20}. \ Furthermore, at \ values \ less \ than \ forty, \ the \ entire \ term \ drops \ out. \\
 \end{aligned}
 \]
 
@@ -224,7 +258,7 @@ H_A: &\mathcal{L}(log[h_0(t)] + age \times \beta_1 + cigsperday \times \beta_2) 
 \end{aligned}
 \]
 
-*Based on the results of this test (p-value = 0.0005), we would choose the restricted quadratic spline model and express cigarette smoking using the spline knots as described in question 1, where the model parameters are defined.*
+*Based on the results of this test (p-value = `r round(LRLinearVsRqs$`P(>|Chi|)`[2],2)`), we would choose the linear model as the null hypothesis is not rejected and this is a simpler model.*
 
 \vspace{10pt}
 
@@ -247,6 +281,20 @@ H_A: &\mathcal{L}(log[h_0(t)] + age \times \beta_1 + cigsperday \times \beta_2) 
 
 ## a) The HR comparing obese (BMI $\ge$ 30) vs. normal weight (18.5 $\le$ BMI < 25.0) among females.
   
+  For the obese female group:
+  \[
+\begin{aligned}
+ 0 \times \beta_1 + 1 \times \beta_2 + 0 \times \beta_3 + 0 \times \beta_4 + 0 \times \beta_5 + 0 \times \beta_6 + 0 \times \beta_7 + 0 \times \beta_8 + 0 \times \beta_9 
+\end{aligned}
+\]
+
+For the normal weight female group:
+  \[
+\begin{aligned}
+ 0 \times \beta_1 + 0 \times \beta_2 + 0 \times \beta_3 + 0 \times \beta_4 + 0 \times \beta_5 + 0 \times \beta_6 + 0 \times \beta_7 + 0 \times \beta_8 + 0 \times \beta_9
+\end{aligned}
+\]
+
 \[
 \begin{aligned}
 \text{log(HR}_{10}) &= (0 \times \beta_1 + 1 \times \beta_2 + 0 \times \beta_3 + 0 \times \beta_4 + 0 \times \beta_5 + 0 \times \beta_6 + 0 \times \beta_7 + 0 \times \beta_8 + 0 \times \beta_9) \ - \\
@@ -256,10 +304,24 @@ H_A: &\mathcal{L}(log[h_0(t)] + age \times \beta_1 + cigsperday \times \beta_2) 
 \end{aligned}
 \]
 
-*Coefficient vector:* (\tt{`r k.HR10`})
+*Coefficient vector (k) :* (\tt{`r k.HR10`})
 
 ## b) The HR comparing obese (BMI $\ge$ 30) vs. normal weight (18.5 $\le$ BMI < 25.0) among males.
-  
+    For the obese male group:
+  \[
+\begin{aligned}
+0 \times \beta_1 + 1 \times \beta_2 + 1 \times \beta_3 + 0 \times \beta_4 + 0 \times \beta_5 + 0 \times \beta_6 + 0 \times \beta_7 + 0 \times \beta_8 + 1 \times \beta_9
+\end{aligned}
+\]
+
+For the normal weight male group:
+  \[
+\begin{aligned}
+0 \times \beta_1 + 0 \times \beta_2 + 1 \times \beta_3 + 0 \times \beta_4 + 0 \times \beta_5 + 0 \times \beta_6 + 0 \times \beta_7 + 0 \times \beta_8 + 0 \times \beta_9
+\end{aligned}
+\]
+
+
 \[
 \begin{aligned}
 \text{log(HR}_{11}/\text{HR}_{01}) &= (0 \times \beta_1 + 1 \times \beta_2 + 1 \times \beta_3 + 0 \times \beta_4 + 0 \times \beta_5 + 0 \times \beta_6 + 0 \times \beta_7 + 0 \times \beta_8 + 1 \times \beta_9) \ - \\
@@ -269,11 +331,13 @@ H_A: &\mathcal{L}(log[h_0(t)] + age \times \beta_1 + cigsperday \times \beta_2) 
 \end{aligned}
 \]
 
-*Coefficient vector:* (\tt{`r k.HR11divHR01`})
+*Coefficient vector (k):* (\tt{`r k.HR11divHR01`})
   
 \vspace{10pt}
 
 ## c) The HR comparing obese (BMI $\ge$ 30) males vs. normal-weight (18.5 $\le$ BMI < 25.0) females.
+  
+  See above for expressions for obese males and normal-weight females.
   
 \[
 \begin{aligned}
