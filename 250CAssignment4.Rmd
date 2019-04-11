@@ -93,8 +93,8 @@ HR.confint.30 <- exp(confint(glht(stroke.rqs, linfct=k30))$confint)[,1:3]
 k50 <- matrix(c(0,
                 (x2-x0), 
                 ((x2-spl1)^2), 
-                ((x2-spl2)^2), 
-                1))
+                ((x2-spl2)^2)), 
+                1)
 
 HR.confint.50 <- exp(confint(glht(stroke.rqs, linfct=k50))$confint)[,1:3]
 ```
@@ -258,7 +258,7 @@ H_A: &\mathcal{L}(log[h_0(t)] + age \times \beta_1 + cigsperday \times \beta_2) 
 \end{aligned}
 \]
 
-*Based on the results of this test (p-value = `r round(LRLinearVsRqs$`P(>|Chi|)`[2],2)`), we would choose the linear model as the null hypothesis is not rejected and this is a simpler model.*
+*Based on the results of this test (p-value = `r round(LRLinearVsRqs$"P(>|Chi|)"[2],2)`), we would choose the linear model as the null hypothesis is not rejected and this is a simpler model.*
 
 \vspace{10pt}
 
