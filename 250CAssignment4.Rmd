@@ -307,7 +307,8 @@ For the normal weight female group:
 *Coefficient vector (k) :* (\tt{`r k.HR10`})
 
 ## b) The HR comparing obese (BMI $\ge$ 30) vs. normal weight (18.5 $\le$ BMI < 25.0) among males.
-    For the obese male group:
+
+\fontfamily{cmr}\selectfont{For the obese male group:}
   \[
 \begin{aligned}
 0 \times \beta_1 + 1 \times \beta_2 + 1 \times \beta_3 + 0 \times \beta_4 + 0 \times \beta_5 + 0 \times \beta_6 + 0 \times \beta_7 + 0 \times \beta_8 + 1 \times \beta_9
@@ -337,7 +338,7 @@ For the normal weight male group:
 
 ## c) The HR comparing obese (BMI $\ge$ 30) males vs. normal-weight (18.5 $\le$ BMI < 25.0) females.
   
-  See above for expressions for obese males and normal-weight females.
+  \fontfamily{cmr}\selectfont{See above for expressions for obese males and normal-weight females.}
   
 \[
 \begin{aligned}
@@ -354,6 +355,7 @@ For the normal weight male group:
 
 ## 5. Write out the expression for the RERI for the obesity (BMI $\ge$ 30)-sex interaction in terms of the hazard in each exposure group. Define/interpret each term in the equation and express each term using coefficients from the above regression model. 
 
+\fontfamily{cmr}\selectfont{The RERI for the obesity-sex interaction is:}
 \[
 \begin{aligned}
 \text{RERI}_\text{HR} &= \text{HR}_\text{11} - \text{HR}_\text{10} - \text{HR}_\text{01} + 1\\
@@ -375,7 +377,7 @@ where
 
 ## 6. Complete Table 1, being sure to include point estimates and confidence intervals where appropriate, as well as the relevant parts of the footnotes.
 
-Table 1. Adjusted hazards ratio estimates and 95% CI of the association between baseline BMI status and mortality. The Framingham Cohort Study, 1948-1972, Framingham, MA.
+\fontfamily{cmr}\selectfont{Table 1. Adjusted hazards ratio estimates and 95% CI of the association between baseline BMI status and mortality. The Framingham Cohort Study, 1948-1972, Framingham, MA.}
 
 | BMI | Female | Male (single ref) | Male (stratum-specific) |
 | ----- | ----- | ---------- | ---------- |
