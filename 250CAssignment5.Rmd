@@ -47,15 +47,15 @@ b4 <- coef(fit.cox.cvd)[4] # Age effect
 RAP.OB <- b3/b4 # Point estimate of RAP
 ```
 
-```{r delta method CI-from PB}
+```{r delta method CI-edited slightly}
 # Confidence interval using Delta method:
 RAP.OB.CI<- deltaMethod(fit.cox.cvd,"b3/b4", 
                         parameterNames= paste("b", 1:length(coef(fit.cox.cvd)), sep=""))
 
-round(RAP.OB.CI$Estimate + RAP.OB.CI$SE*c(0,-1.96,1.96),2)
+RAP.OB.CI.EstandCI <- round(RAP.OB.CI$Estimate + RAP.OB.CI$SE*c(0,-1.96,1.96),2)
 ```
 
-```{r bootstrap}
+```{r bootstrap-edited slightly}
 # # Confidence interval via Bootstrapping:
 # N.sims <- 5000 # Number of simulations (resamples) PB sets to 5000
 # 
@@ -97,14 +97,14 @@ plot(density(RAP.OB.BOOT), main="Empirical density of RAP for Obesity")
 dev.off()
 ```
 
-```{r Bayesian Linear Regression Model}
+```{r Bayesian Linear Regression Model-from PB}
 library(R2jags) 
 library(coda) 
 library(lmtest) 
 library(foreign) 
 library(survival)
 
- StephandShelleyDataLoad(frmgham_recoded.Rdata)
+ StephandShelleyDataLoad("frmgham_recoded.Rdata")
  
  #For now, we assume a vague prior with zero mean and variance 1000
  
@@ -163,7 +163,7 @@ bmi.sim <- jags(data=bmi.data,inits=bmi.inits,
 print(bmi.sim,digits=4)
 ```
 
-```{r Assessing Convergence}
+```{r Assessing Convergence-from PB}
 bmi.mcmc <- as.mcmc(bmi.sim)
 
 # Traceplot and density plots for regression coefficients 
@@ -185,13 +185,14 @@ autocorr.plot(bmi.mcmc[2][,1:7])    # For chain 2 (optional)
 title("Chain 2", outer=T)
 
 autocorr.plot(bmi.mcmc[3][,1:7])    # For chain 3 (optional)
-title("Chain 3", outer=T) dev.off()
+title("Chain 3", outer=T) 
+dev.off()
 
 geweke.diag(bmi.mcmc[,1:7])         # Geweke test
 
 ```
 
-```{r Informative prior 1}
+```{r Informative prior 1-from PB}
 #Change the prior on the smoking variable to reflect that you expect the mean of the corresponding slope to be +100 (current smokers have a BMI 100 kg/m2 greater than non-smokers [yes, this is nonsensical]), while leaving the means on the other slope parameters equal to zero and all prior variances=1000; call this model “Informative Prior 1.”
 
 # Informative prior 1 (Change prior mean to 1000 for beta[4])
@@ -203,7 +204,7 @@ bmi.sim.inform1 <- jags(data=bmi.data,inits=bmi.inits,
                           print(bmi.sim.inform1,digits=4)
 ```
 
-```{r Informative prior 2}
+```{r Informative prior 2-from PB}
 tau.b[4,4] <- 1/0.1225 # Gets evaluated when "jags" function is called
 
 bmi.sim.inform2 <- jags(data=bmi.data,inits=bmi.inits, parameters.to.save=bmi.parameters,
@@ -213,23 +214,60 @@ bmi.sim.inform2 <- jags(data=bmi.data,inits=bmi.inits, parameters.to.save=bmi.pa
 print(bmi.sim.inform2,digits=4)
 ```
 
-\vspace{20pt}
 
 # Bootstrap confidence interval for RAP
 
 \vspace{10pt}
 
-## 1. Write out the statistical model that you fit to calculate the RAP in terms of the parameters (e.g. β-coefficients). What is the expression for the RAP in terms of the model parameters? (15 points)
+## 1. Write out the statistical model that you fit to calculate the RAP in terms of the parameters (e.g. $\beta$-coefficients). What is the expression for the RAP in terms of the model parameters? (15 points)
   
 \vspace{10pt}
+The model that we fit was a cox proportional hazards model for time to incident CVD as a function of BMI, age, sex, education and current smoking status. BMI and education were each categorized into 4 categories (with appropriate indicators.)
 
-## 2. What is the value for the RAP for the obese vs. normal weight exposure level and its 95% CI from the delta method? Offer an interpretation of this effect measure. (15 points)
+\vspace{4mm}
+
+\[
+\begin{array}{cc}
+log[h(t|\boldsymbol{x})] & = log[h_0(t)] + BMI_{underweight} \times \beta_1 + BMI_{overweight} \times \beta_2 + BMI_{obese} \times \beta_3 + \\
+& age \times \beta_4 + sex \times \beta_5 +  highschool \times \beta_6 +\\ 
+&  some college \times \beta_7 + morethancollege \times \beta_8 + current smoking \times \beta _9
+\end{array}
+\]
+
+\vspace{6mm}
+
+The RAP (rate advancement period) of how much obesity increases the risk of CVD with age is the ratio of the log hazard ratio of obesity on CVD, divided by the log hazard ratio of age on CVD. Thus,
+
+\vspace{4mm}
+
+\[
+\begin{array}{cc}
+RAP_{\text{obesity by age}} = \frac{log HR_{\text{obesity}}}{log HR_{\text{age}}} = \frac{\beta_{\text{obesity}}}{\beta_{\text{age}}} = \frac{\beta_3}{\beta_4}
+\end{array}
+\]
+
+\vspace{6mm}
+
+## 2. What is the value for the RAP for the obese vs. normal weight exposure level and its 95\% CI from the delta method? Offer an interpretation of this effect measure. (15 points)
 
 \vspace{10pt}
 
-## 3. What is the bootstrapped mean and 95% confidence interval estimate for the RAP for the obesity effect. How does this bootstrapped estimate of the 95% confidence interval compare to the estimate from the delta method (remembering that they are both approximations!). Turn in the density plot for the bootstrapped RAP. (10 points)
+Based on the delta method analysis, the RAP for obese vs. normal weight participants is `r RAP.OB.CI.EstandCI[1]` (`r RAP.OB.CI.EstandCI[2]`,  `r RAP.OB.CI.EstandCI[3]`) . This implies that for a one year increase in age, the hazard of CVD based on obesity increases by `r RAP.OB.CI.EstandCI[1]`. If we were to take many samples of participants from the same underlying population, and calculate a 95\% confidence interval from each sample using these methods, 95\% of those confidence intervals should contain the true population value for the RAP. (`r RAP.OB.CI.EstandCI[2]`,  `r RAP.OB.CI.EstandCI[3]`) is one such interval.
+
+## 3. What is the bootstrapped mean and 95\% confidence interval estimate for the RAP for the obesity effect. How does this bootstrapped estimate of the 95\% confidence interval compare to the estimate from the delta method (remembering that they are both approximations!). Turn in the density plot for the bootstrapped RAP. (10 points)
 
 \vspace{20pt}
+
+Based on our bootstrap, the RAP is estimated to be `r round(mean(RAP.OB.BOOT),2)` ( `r round(quantile(RAP.OB.BOOT, c(0.025, 0.975)),2)[1]`, `r round(quantile(RAP.OB.BOOT, c(0.025, 0.975)),2)[2]`). This estimate is very similar to the estimate from the delta method. See density plot for the bootstrapped RAP below.
+
+\vspace{8mm}
+
+```{r include = TRUE, echo = FALSE, out.width = '80%'}
+plot(density(RAP.OB.BOOT), main="Empirical density of RAP for Obesity")
+```
+
+\vspace{10mm}
+
 
 # Linear regression model of BMI
 
@@ -239,7 +277,7 @@ print(bmi.sim.inform2,digits=4)
 
 ## 4. Using the R code provided, complete Table 1. (20 points)
 
-\fontfamily{cmr}\selectfont{Table 1. Posterior means and 95% credible intervals for slope coefficient from linear regression model of BMI on age, sex, and education level.}
+\fontfamily{cmr}\selectfont{Table 1. Posterior means and 95\% credible intervals for slope coefficient from linear regression model of BMI on age, sex, and education level.}
 
 | Variable | Vague Prior | Informative Prior 1* | Informative Prior $2^\dagger{}$ |
 | ----- | ----- | ---------- | ---------- |
@@ -251,6 +289,7 @@ College+ (vs. <HS)              | | | |
 Current smoker (vs. non)        | | | |
 
 *Prior mean for effect of current smoking=100, prior variance = 1000
+
 $\dagger$ Prior mean for effect of current smoking=100, prior variance = 0.1225
 
 \vspace{10pt}
