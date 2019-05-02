@@ -196,7 +196,7 @@ geweke.diag(bmi.mcmc[,1:7])         # Geweke test
 ```{r Informative prior 1-from PB}
 #Change the prior on the smoking variable to reflect that you expect the mean of the corresponding slope to be +100 (current smokers have a BMI 100 kg/m2 greater than non-smokers [yes, this is nonsensical]), while leaving the means on the other slope parameters equal to zero and all prior variances=1000; call this model “Informative Prior 1.”
 
-# Informative prior 1 (Change prior mean to 1000 for beta[4])
+# Informative prior 1 (Change prior mean to 100 for beta[4])
 mu.b[4] <- 100
 bmi.sim.inform1 <- jags(data=bmi.data,inits=bmi.inits, 
                         parameters.to.save=bmi.parameters,
@@ -295,13 +295,13 @@ Varying the prior variance was considerably more influential than varying the pr
 
 ## 6. Using the trace plots, density plots and autocorrelation plots (focus on 1st chain) from the diagnostics for the first model ("Vague prior"), briefly describe any evidence of convergence (or lack of convergence) that you see. Attach these plots (2 pages for trace/density plots; 1 page for autocorrelation plots). (20 points)
 
-According to the trace plots, density plots, and 1st chain autocorrelation plots, there is strong evidence of convergence. The trace plots show "fuzzy caterpillars" that are straight and essentially display noise along a horizontal line. The density plots look fairly normally distributed, with only minor bumps and distortions (i.e. like with $\beta_2$); nothing concerning. The autocorrelation plots drop nearly to zero starting with k = 1, which is also a sign that the thinning was sufficient. (*See the following pages for the plots referenced in this answer.*)
+According to the trace plots, density plots, and 1st chain autocorrelation plots, there is strong evidence of convergence. The trace plots show "fuzzy caterpillars" that are straight and essentially display noise along a horizontal line with no sharp jumps, periodicity or trending. The density plots look fairly normally distributed, with only minor bumps and distortions (i.e. like with $\beta_2$); nothing concerning. The autocorrelation plots drop nearly to zero starting with k = 1, which is also a sign that the thinning was sufficient. (*See the following pages for the plots referenced in this answer.*)
 
 \vspace{10pt}
 
 ## 7. From the results of the Geweke test, is there evidence for lack of convergence? Justify your answer. (10 points)
 
-The largest test statistic (in absolute number) from the Geweke test is -1.82775 in the 1st chain, 1.8920 in the second chain, and -1.41083 in the 3rd chain. Since none of those test statistics are $>$1.96 (the threshold for non-convergence), we can feel pretty comfortable we have reached convergence (noting that the test statistics do come fairly close to the threshold).
+The largest test statistic (in absolute number) from the Geweke test is -1.82775 in the 1st chain, 1.8920 in the second chain, and -1.41083 in the 3rd chain. Since none of those test statistics are $>$ 1.96 (the threshold for non-convergence), we can feel relatively comfortable we have reached convergence (noting that the test statistics do come fairly close to the threshold).
 
 
 \pagebreak
