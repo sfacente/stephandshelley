@@ -160,7 +160,8 @@ bmi.sim <- jags(data=bmi.data,inits=bmi.inits,
                 parameters.to.save=bmi.parameters,
               n.iter=10000, model.file=bmi.model,
               n.thin=1, jags.seed=110410)
-print(bmi.sim,digits=4)
+bmi.sim.output <- print(bmi.sim,digits=4)
+
 ```
 
 ```{r Assessing Convergence-from PB}
@@ -252,55 +253,67 @@ RAP_{\text{obesity by age}} = \frac{log HR_{\text{obesity}}}{log HR_{\text{age}}
 
 \vspace{10pt}
 
-Based on the delta method analysis, the RAP for obese vs. normal weight participants is `r RAP.OB.CI.EstandCI[1]` (`r RAP.OB.CI.EstandCI[2]`,  `r RAP.OB.CI.EstandCI[3]`) . This implies that for a one year increase in age, the hazard of CVD based on obesity increases by `r RAP.OB.CI.EstandCI[1]`. If we were to take many samples of participants from the same underlying population, and calculate a 95\% confidence interval from each sample using these methods, 95\% of those confidence intervals should contain the true population value for the RAP. (`r RAP.OB.CI.EstandCI[2]`,  `r RAP.OB.CI.EstandCI[3]`) is one such interval.
+Based on the delta method analysis, the RAP for obese vs. normal weight participants is `r RAP.OB.CI.EstandCI[1]` (`r RAP.OB.CI.EstandCI[2]`,  `r RAP.OB.CI.EstandCI[3]`). This implies that for a one year increase in age, the hazard of CVD based on obesity increases by `r RAP.OB.CI.EstandCI[1]`. If we were to take many samples of participants from the same underlying population, and calculate a 95\% confidence interval from each sample using these methods, 95\% of those confidence intervals should contain the true population value for the RAP. (`r RAP.OB.CI.EstandCI[2]`, `r RAP.OB.CI.EstandCI[3]`) is one such interval.
 
-## 3. What is the bootstrapped mean and 95\% confidence interval estimate for the RAP for the obesity effect. How does this bootstrapped estimate of the 95\% confidence interval compare to the estimate from the delta method (remembering that they are both approximations!). Turn in the density plot for the bootstrapped RAP. (10 points)
+## 3. What is the bootstrapped mean and 95\% confidence interval estimate for the RAP for the obesity effect? How does this bootstrapped estimate of the 95\% confidence interval compare to the estimate from the delta method (remembering that they are both approximations!)? Turn in the density plot for the bootstrapped RAP. (10 points)
 
 \vspace{20pt}
 
-Based on our bootstrap, the RAP is estimated to be `r round(mean(RAP.OB.BOOT),2)` ( `r round(quantile(RAP.OB.BOOT, c(0.025, 0.975)),2)[1]`, `r round(quantile(RAP.OB.BOOT, c(0.025, 0.975)),2)[2]`). This estimate is very similar to the estimate from the delta method. See density plot for the bootstrapped RAP below.
-
-\vspace{8mm}
-
-```{r include = TRUE, echo = FALSE, out.width = '80%'}
+Based on our bootstrap, the RAP is estimated to be `r round(mean(RAP.OB.BOOT),2)` (`r round(quantile(RAP.OB.BOOT, c(0.025, 0.975)),2)[1]`, `r round(quantile(RAP.OB.BOOT, c(0.025, 0.975)),2)[2]`). This estimate is very similar to the estimate from the delta method. See density plot for the bootstrapped RAP below.
+  
+```{r include = TRUE, echo = FALSE, out.width = '65%'}
 plot(density(RAP.OB.BOOT), main="Empirical density of RAP for Obesity")
 ```
 
-\vspace{10mm}
-
-
 # Linear regression model of BMI
 
-\vspace{10pt}
-
-\vspace{10pt}
+\vspace{2pt}
 
 ## 4. Using the R code provided, complete Table 1. (20 points)
 
 \fontfamily{cmr}\selectfont{Table 1. Posterior means and 95\% credible intervals for slope coefficient from linear regression model of BMI on age, sex, and education level.}
 
-| Variable | Vague Prior | Informative Prior 1* | Informative Prior $2^\dagger{}$ |
-| ----- | ----- | ---------- | ---------- |
-Age(per year increase)          | | | |
-Female sex (vs. male)           | | | |
-High school education (vs. <HS) | | | |
-Some college (vs. <HS)          | | | |
-College+ (vs. <HS)              | | | |
-Current smoker (vs. non)        | | | |
-
-*Prior mean for effect of current smoking=100, prior variance = 1000
-
-$\dagger$ Prior mean for effect of current smoking=100, prior variance = 0.1225
+| Variable | Vague Prior | Informative Prior 1* | Informative Prior $2^\dagger{}$ |--
+| ---------------------- | -------------------------------- | ---------------------------------- | -------------------------------- |
+__Age__   (per year increase)          |  0.0312      (0.0171, 0.0456) | 1.1370 (0.9733, 1.2988) | 0.0331 (0.0189, 0.0476) |
+__Female sex__ (vs. male)           | -0.8222      (-1.0674, -0.5762) | 18.2504 (15.4178, 21.0927) | -0.7914 (-1.0313, -0.5516) |
+__HS education__ (vs. $<$HS) | -0.9377 (-1.2327, -0.6462) | -3.5712 (-7.0184, -0.1744) | -0.9419 (-1.2382, -0.6472) |
+__Some college__ (vs. $<$HS)          | -1.3889 (-1.7360, -1.0393) | 0.2782 (-3.8106, 4.3455) | -1.3863 (-1.7367, -1.0407) |
+__College+__ (vs. $<$HS)              | -1.2422 (-1.6439, -0.8368) | 2.0072 (-2.5946, 6.7131) | -1.2368 (-1.6326, -0.8398) |
+__Curr. smoker__ (vs. non)        | -1.3662 (-1.6161, -1.1167) | 94.5712 (93.8629, 95.2786)| -1.2113 (-1.4426, -0.9772) |
+*Prior mean for effect of current smoking = 100, prior variance = 1000  
+$\dagger$Prior mean for effect of current smoking = 100, prior variance = 0.1225
 
 \vspace{10pt}
 
 ## 5. What seems to be more influential, varying the prior mean, or the prior variance? In one sentence, briefly explain what you think is happening? (10 points)
 
+Varying the prior variance was considerably more influential than varying the prior mean. Because the prior and the maximum likelihood from the current data are weighted based on the certainty (i.e. variance in the data), when the variance of the prior is very small it has strong influence, and when the variance is very large it is overwhelmed by the shape of the data itself.
+
 
 \vspace{10pt}
 
-## 6. Using the trace plots, density plots and autocorrelation plots (focus on 1st chain) from the diagnostics for the first model (“Vague prior”), briefly describe any evidence of convergence (or lack of convergence) that you see. Attach these plots (2 pages for trace/density plots; 1 page for autocorrelation plots). (20 points)
+## 6. Using the trace plots, density plots and autocorrelation plots (focus on 1st chain) from the diagnostics for the first model ("Vague prior"), briefly describe any evidence of convergence (or lack of convergence) that you see. Attach these plots (2 pages for trace/density plots; 1 page for autocorrelation plots). (20 points)
+
+According to the trace plots, density plots, and 1st chain autocorrelation plots, there is strong evidence of convergence. The trace plots show "fuzzy caterpillars" that are straight and essentially display noise along a horizontal line. The density plots look fairly normally distributed, with only minor bumps and distortions (i.e. like with $\beta_2$); nothing concerning. The autocorrelation plots drop nearly to zero starting with k = 1, which is also a sign that the thinning was sufficient. (*See the following pages for the plots referenced in this answer.*)
 
 \vspace{10pt}
 
 ## 7. From the results of the Geweke test, is there evidence for lack of convergence? Justify your answer. (10 points)
+
+The largest test statistic (in absolute number) from the Geweke test is -1.82775 in the 1st chain, 1.8920 in the second chain, and -1.41083 in the 3rd chain. Since none of those test statistics are $>$1.96 (the threshold for non-convergence), we can feel pretty comfortable we have reached convergence (noting that the test statistics do come fairly close to the threshold).
+
+
+\pagebreak
+
+```{r include = TRUE, echo = FALSE, out.width = '100%'}
+knitr::include_graphics("HW5_attachments_Page_1.png")
+```
+
+```{r include = TRUE, echo = FALSE, out.width = '100%'}
+knitr::include_graphics("HW5_attachments_Page_2.png")
+```
+
+```{r include = TRUE, echo = FALSE, out.width = '100%'}
+knitr::include_graphics("HW5_attachments_Page_3.png")
+```
