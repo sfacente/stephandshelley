@@ -253,7 +253,8 @@ RAP_{\text{obesity by age}} = \frac{log HR_{\text{obesity}}}{log HR_{\text{age}}
 
 \vspace{10pt}
 
-Based on the delta method analysis, the RAP for obese vs. normal weight participants is `r RAP.OB.CI.EstandCI[1]` (`r RAP.OB.CI.EstandCI[2]`, `r RAP.OB.CI.EstandCI[3]`). This implies that for a one year increase in age, the hazard of CVD based on obesity increases by `r RAP.OB.CI.EstandCI[1]`. If we were to take many samples of participants from the same underlying population, and calculate a 95\% confidence interval from each sample using these methods, 95\% of those confidence intervals should contain the true population value for the RAP. (`r RAP.OB.CI.EstandCI[2]`, `r RAP.OB.CI.EstandCI[3]`) is one such interval.
+Based on the delta method analysis, the RAP for obese vs. normal weight participants is `r RAP.OB.CI.EstandCI[1]` (`r RAP.OB.CI.EstandCI[2]`,  `r RAP.OB.CI.EstandCI[3]`). This implies that obese subjects reach the same rate of CVD `r RAP.OB.CI.EstandCI[1]` years earlier than normal weight subjects assuming that the rate consistently increases with age and conditional on survival to the baseline age. If we were to take many samples of participants from the same underlying population, and calculate a 95\% confidence interval from each sample using these methods, 95\% of those confidence intervals should contain the true population value for the RAP. (`r RAP.OB.CI.EstandCI[2]`, `r RAP.OB.CI.EstandCI[3]`) is one such interval.
+
 
 ## 3. What is the bootstrapped mean and 95\% confidence interval estimate for the RAP for the obesity effect? How does this bootstrapped estimate of the 95\% confidence interval compare to the estimate from the delta method (remembering that they are both approximations!)? Turn in the density plot for the bootstrapped RAP. (10 points)
 
