@@ -7,9 +7,8 @@ output: pdf_document
 
 
 ```{r setup, include=FALSE}
-library(foreign) 
-library(survival) 
-library(car)
+library(pacman) 
+p_load(foreign, survival, car) #THIS WILL LIBRARY - OR INSTALL IF NECESSARY - ANY PACKAGE IN THE LIST (need to library pacman for all r setups though)
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 ```
 
@@ -276,12 +275,12 @@ plot(density(RAP.OB.BOOT), main="Empirical density of RAP for Obesity")
 
 | Variable | Vague Prior | Informative Prior 1* | Informative Prior $2^\dagger{}$ |--
 | ---------------------------------- | -------------------------- | ---------------------------- | -------------------------- |
-__Age__   (per year increase)          |  0.03 (0.02, 0.05)   | 0.03 (0.02, 0.05)    | 1.14 (0.97, 1.30) |
-__Female sex__ (vs. male)              | -0.82 (-1.07, -0.58) | -0.82 (-1.07, -0.58) | 18.27 (15.40, 21.12) |
-__HS education__ (vs. $<$HS)           | -0.94 (-1.23, -0.65) | -0.94 (-1.23, -0.64) | -3.61 (-7.08, -0.16) |
-__Some college__ (vs. $<$HS)           | -1.39 (-1.74, -1.04) | -1.39 (-1.74, -1.05) | 0.27 (-3.82, 4.27) |
-__College+__ (vs. $<$HS)               | -1.24 (-1.64, -0.84) | -1.24 (-1.64, -0.85) | 2.00 (-2.64, 6.60) |
-__Curr. smoker__ (vs. non)             | -1.37 (-1.62, -1.12) | -1.37 (-1.61, -1.12) | 94.58 (93.87, 95.30) |
+__Age__   (per year increase)          |  `r round(bmi.sim$BUGSoutput$summary[2,1], 2)` (`r round(bmi.sim$BUGSoutput$summary[2,3], 2)`, `r round(bmi.sim$BUGSoutput$summary[2,7], 2)`)   | `r round(bmi.sim.inform1$BUGSoutput$summary[2,1], 2)` (`r round(bmi.sim.inform1$BUGSoutput$summary[2,3], 2)`, `r round(bmi.sim.inform1$BUGSoutput$summary[2,7], 2)`)     | `r round(bmi.sim.inform2$BUGSoutput$summary[2,1], 2)` (`r round(bmi.sim.inform2$BUGSoutput$summary[2,3], 2)`, `r round(bmi.sim.inform2$BUGSoutput$summary[2,7], 2)`) |
+__Female sex__ (vs. male)              | `r round(bmi.sim$BUGSoutput$summary[3,1], 2)` (`r round(bmi.sim$BUGSoutput$summary[3,3], 2)`, `r round(bmi.sim$BUGSoutput$summary[3,7], 2)`)   | `r round(bmi.sim.inform1$BUGSoutput$summary[3,1], 2)` (`r round(bmi.sim.inform1$BUGSoutput$summary[3,3], 2)`, `r round(bmi.sim.inform1$BUGSoutput$summary[3,7], 2)`)     | `r round(bmi.sim.inform2$BUGSoutput$summary[3,1], 2)` (`r round(bmi.sim.inform2$BUGSoutput$summary[3,3], 2)`, `r round(bmi.sim.inform2$BUGSoutput$summary[3,7], 2)`) |
+__HS education__ (vs. $<$HS)           | `r round(bmi.sim$BUGSoutput$summary[5,1], 2)` (`r round(bmi.sim$BUGSoutput$summary[5,3], 2)`, `r round(bmi.sim$BUGSoutput$summary[5,7], 2)`)   | `r round(bmi.sim.inform1$BUGSoutput$summary[5,1], 2)` (`r round(bmi.sim.inform1$BUGSoutput$summary[5,3], 2)`, `r round(bmi.sim.inform1$BUGSoutput$summary[5,7], 2)`)     | `r round(bmi.sim.inform2$BUGSoutput$summary[5,1], 2)` (`r round(bmi.sim.inform2$BUGSoutput$summary[5,3], 2)`, `r round(bmi.sim.inform2$BUGSoutput$summary[5,7], 2)`) |
+__Some college__ (vs. $<$HS)           | `r round(bmi.sim$BUGSoutput$summary[6,1], 2)` (`r round(bmi.sim$BUGSoutput$summary[6,3], 2)`, `r round(bmi.sim$BUGSoutput$summary[6,7], 2)`)   | `r round(bmi.sim.inform1$BUGSoutput$summary[6,1], 2)` (`r round(bmi.sim.inform1$BUGSoutput$summary[6,3], 2)`, `r round(bmi.sim.inform1$BUGSoutput$summary[6,7], 2)`)     | `r round(bmi.sim.inform2$BUGSoutput$summary[6,1], 2)` (`r round(bmi.sim.inform2$BUGSoutput$summary[6,3], 2)`, `r round(bmi.sim.inform2$BUGSoutput$summary[6,7], 2)`) |
+__College+__ (vs. $<$HS)               | `r round(bmi.sim$BUGSoutput$summary[7,1], 2)` (`r round(bmi.sim$BUGSoutput$summary[7,3], 2)`, `r round(bmi.sim$BUGSoutput$summary[7,7], 2)`)   | `r round(bmi.sim.inform1$BUGSoutput$summary[7,1], 2)` (`r round(bmi.sim.inform1$BUGSoutput$summary[7,3], 2)`, `r round(bmi.sim.inform1$BUGSoutput$summary[7,7], 2)`)     | `r round(bmi.sim.inform2$BUGSoutput$summary[7,1], 2)` (`r round(bmi.sim.inform2$BUGSoutput$summary[7,3], 2)`, `r round(bmi.sim.inform2$BUGSoutput$summary[7,7], 2)`) |
+__Curr. smoker__ (vs. non)             | `r round(bmi.sim$BUGSoutput$summary[4,1], 2)` (`r round(bmi.sim$BUGSoutput$summary[4,3], 2)`, `r round(bmi.sim$BUGSoutput$summary[4,7], 2)`)   | `r round(bmi.sim.inform1$BUGSoutput$summary[4,1], 2)` (`r round(bmi.sim.inform1$BUGSoutput$summary[4,3], 2)`, `r round(bmi.sim.inform1$BUGSoutput$summary[4,7], 2)`)     | `r round(bmi.sim.inform2$BUGSoutput$summary[4,1], 2)` (`r round(bmi.sim.inform2$BUGSoutput$summary[4,3], 2)`, `r round(bmi.sim.inform2$BUGSoutput$summary[4,7], 2)`) |
 *Prior mean for effect of current smoking = 100, prior variance = 1000  
 $\dagger$Prior mean for effect of current smoking = 100, prior variance = 0.1225
 
