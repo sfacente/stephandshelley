@@ -8,7 +8,7 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 library(pacman) 
-p_load(foreign, survival, car) #THIS WILL LIBRARY - OR INSTALL IF NECESSARY - ANY PACKAGE IN THE LIST (need to library pacman for all r setups though)
+p_load(foreign, survival, car) #THIS WILL LIBRARY - OR INSTALL IF NECESSARY - ANY PACKAGE IN THE LIST (need to library pacman for all r setups though) THIS IS SO COOL!!!!!!
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 ```
 
