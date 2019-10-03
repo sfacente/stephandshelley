@@ -53,6 +53,8 @@ colnames(HCVData)[colnames(HCVData) == 'DX_TYPE OR TEST_TYPE-Reason for inclusio
 HCVData$`DX_NAME OR TEST RESULT-Reason for inclusion`<- as.factor(HCVData$`DX_NAME OR TEST RESULT-Reason for inclusion`)
 colnames(HCVData)[colnames(HCVData) == 'DX_NAME OR TEST RESULT-Reason for inclusion'] <- 'inclusion.reason'
 
+#Didn't do anything with the column 'ICD10 OR RESULT_DATE' because it's a mix of formats/info
+
 colnames(HCVData)[colnames(HCVData) == 'SPECIMN TAKEN DATE of first positive'] <- 'date.first.pos.HCV.test'
 
 HCVData$RESULT <- as.factor(HCVData$RESULT)
@@ -68,53 +70,146 @@ colnames(HCVData)[colnames(HCVData) == 'FIRST POS (Or if no POS, "SEE TEXT") RNA
 
 colnames(HCVData)[colnames(HCVData) == 'MOST RECENT RNA POS'] <- 'Most.Recent.RNA.Pos'
 
-HCVData$XXX <- as.factor(HCVData$XXX)
-colnames(HCVData)[colnames(HCVData) == XXX] <- ''
+colnames(HCVData)[colnames(HCVData) == 'MOST RECENT RNA NEG'] <- 'Most.Recent.RNA.Neg'
 
+#This column is in the midst of the RNA testing section but is unlabeled. It's a date.
+colnames(HCVData)[colnames(HCVData) == '...19'] <- 'UnknownColumn'
+
+colnames(HCVData)[colnames(HCVData) == 'MOST RECENT RNA "SEE TEXT"'] <- 'Most.Recent.RNA.SeeText'
+
+colnames(HCVData)[colnames(HCVData) == 'RNA interpretation'] <- 'RNA.interpretation'
+
+colnames(HCVData)[colnames(HCVData) == 'other notes on diagnosis'] <- 'Notes'
+
+HCVData$'Where getting care' <- as.factor(HCVData$'Where getting care')
+colnames(HCVData)[colnames(HCVData) == 'Where getting care'] <- 'Care.Location'
+
+#This errors because there are a number of non-dates in this column. Should discuss with Rena if using.
+#HCVData$'HEP C GENOTYPE DATE' <- as.POSIXct(HCVData$'HEP C GENOTYPE DATE')
+#colnames(HCVData)[colnames(HCVData) == 'HEP C GENOTYPE DATE'] <- 'HCV.Genotype.Date'
+
+HCVData$'HEP C GENOTYPE RESULT' <- as.factor(HCVData$'HEP C GENOTYPE RESULT')
+colnames(HCVData)[colnames(HCVData) == 'HEP C GENOTYPE RESULT'] <- 'HCV.Genotype.Result'
+
+HCVData$'Ever Had a Primary Care Visit' <- as.factor(HCVData$'Ever Had a Primary Care Visit')
+colnames(HCVData)[colnames(HCVData) == 'Ever Had a Primary Care Visit'] <- 'EverPrimaryCareVisit'
+
+HCVData$'DEPT_NAME' <- as.factor(HCVData$'DEPT_NAME')
+
+HCVData$'CURRENT_PCP' <- as.factor(HCVData$'CURRENT_PCP')
+
+HCVData$'CURRENT_PCP_DEPT' <- as.factor(HCVData$'CURRENT_PCP_DEPT')
+
+HCVData$'ORD_VALUE' <- as.factor(HCVData$'ORD_VALUE')
+colnames(HCVData)[colnames(HCVData) == 'ORD_VALUE'] <- 'HIV.Result'
+
+HCVData$'HepA_IgG' <- as.factor(HCVData$'HepA_IgG')
+
+HCVData$'HBsAg_Value' <- as.factor(HCVData$'HBsAg_Value')
+
+HCVData$'Med_1' <- as.factor(HCVData$'Med_1')
+
+HCVData$'Med_2' <- as.factor(HCVData$'Med_2')
+
+HCVData$'HEPB_CORE_IgM_RESULT' <- as.factor(HCVData$'HEPB_CORE_IgM_RESULT')
+
+HCVData$'HEPB_CORE_Total_RESULT' <- as.factor(HCVData$'HEPB_CORE_Total_RESULT')
+
+HCVData$DX_TYPE <- as.factor(HCVData$DX_TYPE)
+colnames(HCVData)[colnames(HCVData) == 'DX_TYPE'] <- 'Cancer.Diagnosis.Source'
+
+HCVData$DX_NAME <- as.factor(HCVData$DX_NAME)
+colnames(HCVData)[colnames(HCVData) == 'DX_NAME'] <- 'Cancer.Diagnosis.Name'
+
+HCVData$ICD10 <- as.factor(HCVData$ICD10)
+colnames(HCVData)[colnames(HCVData) == 'ICD10'] <- 'Cancer.ICD10'
 ```
 ## Description of our Dataset
 
-Define your variables}
--We have not yet worked on defining specific target casual parameters of interested. However, thinking ahead, what variables are you interested in intervening on? What are your outcome variables? When were your variables measured? 
--Go through first step of roadmap (i.e., specify the causal model representing real background knowledge)}.
+We have access to a dataset of chronic Hepatitis C patients currently receiving care in the UCSF system. There are `r nrow(HCVData)` patients, who are seen in a variety of primary care clinics and the hepatology (liver) clinic. These data come from a query of Apex, the UCSF-specific build of the electronic medical record system Epic. 
+We have a preliminary dataset resulting from the intial Apex query and will be getting access to more data soon. This initial report has been completed with our intended causal question, describing the data that we currently have and indicating where we are waiting for more data.
+
+### Defining Our Variables
+
+*Exposures*: We will have data on the annual number of clinical visits that each chronic HCV patient had in the UCSF system over the last five years.
+
+*Outcome*: The outcome will be diagnosis of hepatocellular carcinoma (HCC), which occured in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. We do not currently have the dates of the HCC diagnoses for all patients, however, for the subset that had biopsies (n =`r nrow(HCVData)- as.numeric(summary(is.na(HCVData$BIOPSY_DATE))["TRUE"])`) `r round((as.numeric(summary(HCVData$BIOPSY_DATE < as.POSIXct(strptime("2015-01-01", "%Y-%m-%d")))["FALSE"])/(nrow(HCVData)- as.numeric(summary(is.na(HCVData$BIOPSY_DATE))["TRUE"])))*100,2)`% of them occured after 01/01/2015 suggesting that the large majority of the hepatocellular carcinoma diagnoses occured in the last 5 years. 
+
+*Covariates*: Annual FIB-4 score (a validated measure used for prediction of cirrhosis, which uses age, platelet count and liver transaminases), gender, race, insurance type (mediCal vs private- a surrogate of socioeconomic status.)
+
+### Our DAG
 -Draw a DAG to represent how you believe the variables relate to each other based on background knowledge. Do this for two timepoints.
+
+
+### Our Structural Causal Model
 -Using those relationships drawn in the previous step, define your structural equations generically; in other words, don't assuming distributions or functional forms yet. Do you have any prior knowledge on the functional forms?
--Make histograms for continuous variables and tables for binary/categorical variables.}
+
+
+### Exploring Our Data
+-Make histograms for continuous variables and tables for binary/categorical variables.
 -What shapes do the distributions seem to take? Based on the shape, what known distribution do you think that variable's error term is drawn from?
+
 -If you've picked a distribution for an exogenous variable, how would you parameterize it?
+
+### Missingness
 -Is there missingness in your dataset?
+
 -Which variables are subject to missingness? The covariates? treatment? outcome? 
+
 -Is there censoring? In other words, are there people who, at a certain timepoint, have missing values for the rest of the study?
+
 -Based on \textit{a priori} knowledge, do you expect missingness to depend on other variables? Which ones?
+
+### Simulation
 -Come up with more specific structural equations that relate the endogenous variables based on the previous two questions.
--Create a function to simulate your data and generate $n = 1000$ copies of your $O$.}
+
+-Create a function to simulate your data and generate $n = 1000$ copies of your $O$.
+
 -Check the histograms and summary statistics of the variables in your simulated data and see how they match up to your real data. Over the course of the class you can refine your data generating structure to match the data at hand. 
 
 
 ## Proposed Causal Question
 -Inclusion criteria
+
 -Outcome
+
 -Intervention Nodes
+
 -Counterfactual outcomes of interest
+
 -Target Causal parameter
 
 
 ### Defining your Causal Question}
 -What is the Causal Question (or questions) of interest for your dataset?
+
 -What is the ideal experiment that would answer your Causal Question?
+
 -Which of your variables variables would you intervene on to answer your Causal Question(s)? What values would you set them equal to?
+
 -What outcomes are you interested in? Measured when?
+
 -Target parameter and counterfactual outcomes
+
 -What are your counterfactual outcomes, and how would you explain them in words?
+
 -Come up with a target parameter that would answer your Causal Question.
+
 -What aspects of the counterfactual outcome distribution are you interested in contrasting?
+
 -What contrast are you interested in (e.g., absolute difference? relative difference? MSMs? conditional on subgroups?)?
-### Intervention on SCM}
+
+### Intervention on SCM
 -How would you intervene on the SCM you came up with to evaluate the causal target parameter?
+
 -Implement this intervention computationally.
+
 -Evaluate $\Psi^F(P_{U,X})$
+
 -Using simulations, generate many counterfactual outcomes.
+
 -Evaluate $\Psi^F(P_{U,X})$.
+
 -Write a sentence interpreting your $\Psi^F(P_{U,X})$.
 
 
