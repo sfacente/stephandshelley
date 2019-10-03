@@ -152,11 +152,9 @@ We have a preliminary dataset resulting from the intial Apex query and will be g
 -If you've picked a distribution for an exogenous variable, how would you parameterize it?
 
 ### Missingness
--Is there missingness in your dataset?
+  There will be some patients that do not have a FIB-4 score in a given year because they did not have a laboratory assessment of their platelets or transaminases. There is not missingness in the exposure-since EMRs are designed for clinical billing, the data on whether or not visit(s) occured are expected to be highly accurate. Because HCC is a common and severe complication of HCV, we are comfortable assuming that a patient who is still followed in the system, and does not yet have a diagnosis of HCC, is truly negative fo HCC, rather than simply missing that data.
 
--Which variables are subject to missingness? The covariates? treatment? outcome? 
-
--Is there censoring? In other words, are there people who, at a certain timepoint, have missing values for the rest of the study?
+Patients can be censored from the dataset in one of two ways: either by no longer seeking care within the UCSF system, or if they are deceased.
 
 -Based on \textit{a priori} knowledge, do you expect missingness to depend on other variables? Which ones?
 
