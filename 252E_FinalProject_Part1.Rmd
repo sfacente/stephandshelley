@@ -19,7 +19,7 @@ HCVData <- read_excel("Deidentified Chronic HCV Dataset 9-10-19 (1).xlsx")
 ```{r Data Cleaning}
 #Let's do all Variable prep/Data cleaning in this chunk
 
-#first just making variables their proper type
+#first just making variables their proper type, and renaming so there's no spaces
 HCVData$`Deidentified Pt Numb`<- as.factor(HCVData$`Deidentified Pt Numb`)
 colnames(HCVData)[colnames(HCVData) == 'Deidentified Pt Numb'] <- 'PtID'
 
@@ -27,11 +27,25 @@ HCVData$`Hep Visit`<- as.factor(HCVData$`Hep Visit`)
 colnames(HCVData)[colnames(HCVData) == 'Hep Visit'] <- 'EverHepVisit'
 
 HCVData$`Ever Chronic HCV` <- as.factor(HCVData$`Ever Chronic HCV`)
+colnames(HCVData)[colnames(HCVData) == 'Ever Chronic HCV'] <- 'EverChronicHCV'
+
 HCVData$`Spontaneous Clearance?` <- as.factor(HCVData$`Spontaneous Clearance?`)
+colnames(HCVData)[colnames(HCVData) == 'Spontaneous Clearance?'] <- 'SpontClearance'
+
 HCVData$`Ever Ab positive HCV` <- as.factor(HCVData$`Ever Ab positive HCV`)
+colnames(HCVData)[colnames(HCVData) == 'Ever Ab positive HCV'] <- 'EverAbPosHCV'
+
 HCVData$`Ever Treated`<- as.factor(HCVData$`Ever Treated`)
+colnames(HCVData)[colnames(HCVData) == 'Ever Treated'] <- 'EverTreated'
+
+
 HCVData$`SVR Achieved`<- as.factor(HCVData$`SVR Achieved`)
+colnames(HCVData)[colnames(HCVData) == 'SVR Achieved'] <- 'SVRAchieved'
+
+
 HCVData$`Treatment Definition` <- as.factor(HCVData$`Treatment Definition`)
+colnames(HCVData)[colnames(HCVData) == 'Treatment Definition'] <- 'TreatmentDefinition'
+
 
 HCVData$`DX_TYPE OR TEST_TYPE-Reason for inclusion` <- as.factor(HCVData$`DX_TYPE OR TEST_TYPE-Reason for inclusion`)
 colnames(HCVData)[colnames(HCVData) == 'DX_TYPE OR TEST_TYPE-Reason for inclusion'] <- 'inclusion.source'
@@ -44,8 +58,38 @@ colnames(HCVData)[colnames(HCVData) == 'SPECIMN TAKEN DATE of first positive'] <
 HCVData$RESULT <- as.factor(HCVData$RESULT)
 colnames(HCVData)[colnames(HCVData) == 'RESULT'] <- 'HCV.test.result'
 
+HCVData$'RNA EVER TESTED' <- as.factor(HCVData$'RNA EVER TESTED')
+colnames(HCVData)[colnames(HCVData) == 'RNA EVER TESTED'] <- 'RNAeverTested'
+
+colnames(HCVData)[colnames(HCVData) == 'FIRST POS (Or if no POS, "SEE TEXT") RNA TEST DATE'] <- 'Date.First.Pos.RNA'
+
+HCVData$'FIRST POS (Or if no POS, "SEE TEXT") RNA TEST RESULT' <- as.factor(HCVData$'FIRST POS (Or if no POS, "SEE TEXT") RNA TEST RESULT')
+colnames(HCVData)[colnames(HCVData) == 'FIRST POS (Or if no POS, "SEE TEXT") RNA TEST RESULT'] <- 'Result.First.Pos.RNA'
+
+colnames(HCVData)[colnames(HCVData) == 'MOST RECENT RNA POS'] <- 'Most.Recent.RNA.Pos'
+
+HCVData$XXX <- as.factor(HCVData$XXX)
+colnames(HCVData)[colnames(HCVData) == XXX] <- ''
+
 ```
 ## Description of our Dataset
+
+Define your variables}
+-We have not yet worked on defining specific target casual parameters of interested. However, thinking ahead, what variables are you interested in intervening on? What are your outcome variables? When were your variables measured? 
+-Go through first step of roadmap (i.e., specify the causal model representing real background knowledge)}.
+-Draw a DAG to represent how you believe the variables relate to each other based on background knowledge. Do this for two timepoints.
+-Using those relationships drawn in the previous step, define your structural equations generically; in other words, don't assuming distributions or functional forms yet. Do you have any prior knowledge on the functional forms?
+-Make histograms for continuous variables and tables for binary/categorical variables.}
+-What shapes do the distributions seem to take? Based on the shape, what known distribution do you think that variable's error term is drawn from?
+-If you've picked a distribution for an exogenous variable, how would you parameterize it?
+-Is there missingness in your dataset?
+-Which variables are subject to missingness? The covariates? treatment? outcome? 
+-Is there censoring? In other words, are there people who, at a certain timepoint, have missing values for the rest of the study?
+-Based on \textit{a priori} knowledge, do you expect missingness to depend on other variables? Which ones?
+-Come up with more specific structural equations that relate the endogenous variables based on the previous two questions.
+-Create a function to simulate your data and generate $n = 1000$ copies of your $O$.}
+-Check the histograms and summary statistics of the variables in your simulated data and see how they match up to your real data. Over the course of the class you can refine your data generating structure to match the data at hand. 
+
 
 ## Proposed Causal Question
 -Inclusion criteria
@@ -54,7 +98,32 @@ colnames(HCVData)[colnames(HCVData) == 'RESULT'] <- 'HCV.test.result'
 -Counterfactual outcomes of interest
 -Target Causal parameter
 
+
+### Defining your Causal Question}
+-What is the Causal Question (or questions) of interest for your dataset?
+-What is the ideal experiment that would answer your Causal Question?
+-Which of your variables variables would you intervene on to answer your Causal Question(s)? What values would you set them equal to?
+-What outcomes are you interested in? Measured when?
+-Target parameter and counterfactual outcomes
+-What are your counterfactual outcomes, and how would you explain them in words?
+-Come up with a target parameter that would answer your Causal Question.
+-What aspects of the counterfactual outcome distribution are you interested in contrasting?
+-What contrast are you interested in (e.g., absolute difference? relative difference? MSMs? conditional on subgroups?)?
+### Intervention on SCM}
+-How would you intervene on the SCM you came up with to evaluate the causal target parameter?
+-Implement this intervention computationally.
+-Evaluate $\Psi^F(P_{U,X})$
+-Using simulations, generate many counterfactual outcomes.
+-Evaluate $\Psi^F(P_{U,X})$.
+-Write a sentence interpreting your $\Psi^F(P_{U,X})$.
+
+
 ##Identification and Estimand
+1.  Under what assumptions is the target causal parameter you came up with in the previous lab identified as afunction of the observed data distribution?
+
+2.  What is your $\psi(P_0)$, the statistical estimand?
+
+3.  Optional:  confirm that in your simulation, the value of your estimand equals the value of your target causalparameter.
 
 ##Preliminary Feasibility assessment
 
