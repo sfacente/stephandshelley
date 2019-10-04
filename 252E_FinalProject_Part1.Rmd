@@ -1,5 +1,5 @@
 ---
-title: "252E Final Project Part 1 \n Relationship between Frequency of Care and Progression to Hepatocellular Carcinoma \n among Chronic Hepatitis C Patients"
+title: "252E Final Project Part 1: \nRelationship between Frequency of Care and Progression to Hepatocellular Carcinoma \namong Chronic Hepatitis C Patients"
 author: "Stephanie Holm and Shelley Facente"
 date: "10/3/2019"
 output: pdf_document
@@ -9,6 +9,7 @@ output: pdf_document
 library(tidyverse)
 library(readxl)
 library(skimr)
+library(knitr)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
@@ -124,6 +125,42 @@ colnames(HCVData)[colnames(HCVData) == 'DX_NAME'] <- 'Cancer.Diagnosis.Name'
 HCVData$ICD10 <- as.factor(HCVData$ICD10)
 colnames(HCVData)[colnames(HCVData) == 'ICD10'] <- 'Cancer.ICD10'
 ```
+
+```{r Code For the DAG}
+#DAGGity code- ie to use in the online Daggity tool...I don't love rDaggity
+#But am putting the code here so we have it. Reminder that you can command/control-shift-c to comment in or out a whole chunk.
+
+# C3 1 @-0.048,2.046
+# C4 1 @0.719,2.020
+# C5 1 @1.311,2.011
+# Delta3 1 @-0.030,1.162
+# Delta4 1 @0.719,1.135
+# FIB-4_Score_Y3 1 @-0.072,0.653
+# FIB-4_Score_Y4 1 @0.790,0.644
+# Gender 1 @-1.945,1.903
+# HCC%20Year%205 O @1.449,-0.615
+# HCC_Y3 1 @-0.108,-0.481
+# HCC_Y4 1 @0.659,-0.463
+# Race 1 @-2.228,0.483
+# SES 1 @-1.939,-1.213
+# Visits_Y3 E @-0.078,0.019
+# Visits_Y4 E @0.689,0.064
+# 
+# C3 C4 Delta3 @-0.066,1.743 HCC_Y3 @-1.933,0.848 Visits_Y3 @-1.616,0.729
+# C4 C5 Delta4 @0.683,1.671 HCC_Y4 @1.700,0.966 Visits_Y4 @1.533,0.510
+# C5 HCC%20Year%205
+# Delta3 FIB-4_Score_Y3
+# Delta4 FIB-4_Score_Y4
+# FIB-4_Score_Y3 FIB-4_Score_Y4 HCC_Y4 Visits_Y3 Visits_Y4
+# FIB-4_Score_Y4 HCC%20Year%205 Visits_Y4
+# Gender Delta3 Delta4 @-0.730,2.493 HCC%20Year%205 @1.694,1.823 HCC_Y3 @-1.467,-0.374 HCC_Y4 @-0.545,-1.642 Visits_Y3 @-1.311,0.421 Visits_Y4 @0.270,2.609
+# HCC_Y3 HCC_Y4 Visits_Y3 Visits_Y4
+# HCC_Y4 HCC%20Year%205 Visits_Y4
+# Race Delta3 @-1.740,1.126 Delta4 @-1.687,2.003 HCC%20Year%205 @-0.188,-1.761 HCC_Y3 HCC_Y4 @-1.734,-1.440 Visits_Y3 Visits_Y4 @0.240,1.841
+# SES Delta3 @-1.275,0.153 Delta4 @-1.999,0.600 FIB-4_Score_Y4 @1.569,-1.615 HCC%20Year%205 @1.676,-2.097 HCC_Y3 @-0.012,-1.731 HCC_Y4 @0.317,-1.195 Visits_Y3 @-1.910,-0.061 Visits_Y4 @1.389,-1.213
+# Visits_Y3 FIB-4_Score_Y4 HCC_Y4 Visits_Y4
+# Visits_Y4 HCC%20Year%205
+```
 ## Description of our Dataset
 
 We have access to a dataset of chronic Hepatitis C patients currently receiving care in the UCSF system. There are `r nrow(HCVData)` patients, who are seen in a variety of primary care clinics and the hepatology (liver) clinic. These data come from a query of Apex, the UCSF-specific build of the electronic medical record system Epic. 
@@ -131,14 +168,19 @@ We have a preliminary dataset resulting from the intial Apex query and will be g
 
 ### Defining Our Variables
 
-*Exposures*: We will have data on the annual number of clinical visits that each chronic HCV patient had in the UCSF system over the last five years.
+-**Exposures**: We will have data on the annual number of clinical visits that each chronic HCV patient had in the UCSF system over the last five years.
 
-*Outcome*: The outcome will be diagnosis of hepatocellular carcinoma (HCC), which occured in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. We do not currently have the dates of the HCC diagnoses for all patients, however, for the subset that had biopsies (n =`r nrow(HCVData)- as.numeric(summary(is.na(HCVData$BIOPSY_DATE))["TRUE"])`) `r round((as.numeric(summary(HCVData$BIOPSY_DATE < as.POSIXct(strptime("2015-01-01", "%Y-%m-%d")))["FALSE"])/(nrow(HCVData)- as.numeric(summary(is.na(HCVData$BIOPSY_DATE))["TRUE"])))*100,2)`% of them occured after 01/01/2015 suggesting that the large majority of the hepatocellular carcinoma diagnoses occured in the last 5 years. 
+-**Outcome**: The outcome will be diagnosis of hepatocellular carcinoma (HCC), which occured in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. We do not currently have the dates of the HCC diagnoses for all patients, however, for the subset that had biopsies (n =`r nrow(HCVData)- as.numeric(summary(is.na(HCVData$BIOPSY_DATE))["TRUE"])`) `r round((as.numeric(summary(HCVData$BIOPSY_DATE < as.POSIXct(strptime("2015-01-01", "%Y-%m-%d")))["FALSE"])/(nrow(HCVData)- as.numeric(summary(is.na(HCVData$BIOPSY_DATE))["TRUE"])))*100,2)`% of them occured after 01/01/2015 suggesting that the large majority of the hepatocellular carcinoma diagnoses occured in the last 5 years. 
 
-*Covariates*: Annual FIB-4 score (a validated measure used for prediction of cirrhosis, which uses age, platelet count and liver transaminases), gender, race, insurance type (mediCal vs private- a surrogate of socioeconomic status.)
+-**Covariates**: Annual FIB-4 score (a validated measure used for prediction of cirrhosis, which uses age, platelet count and liver transaminases), gender, race, insurance type (mediCal vs private- a surrogate of socioeconomic status.)
+
 
 ### Our DAG
--Draw a DAG to represent how you believe the variables relate to each other based on background knowledge. Do this for two timepoints.
+```{r DAG, include = TRUE, echo = FALSE, out.width= "65%"}
+knitr::include_graphics("dagitty-model.png")
+```
+
+We intend to do this analysis using 5 years worth of data, but in order to simplify the DAG, we present only the final 3 years (two of exposure data and a final year of outcome) here. This DAG includes both a delta variable indicating whether or not our covariate was measured and a C value at each time point indicating whether or not the patient has been censored from the dataset. 
 
 
 ### Our Structural Causal Model
