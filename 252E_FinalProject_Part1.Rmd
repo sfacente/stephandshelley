@@ -18,7 +18,7 @@ StephandShelleyDataLoad <- function(filename)
 {
   if(Sys.info()['sysname']=="Darwin"){
     
-     read_excel(as.character(filename), envir = globalenv())}
+     read_excel(as.character(filename))}
   else{
     windowsfilepath <- paste("~/GitHub/stephandshelley/", filename, sep = "")
      read_excel(as.character(windowsfilepath))
@@ -247,10 +247,6 @@ Patients can be censored from the dataset in one of two ways: either by no longe
   To run our simulation, we first create a dataframe $O$ which includes all of the exogenous and endogenous variables in our SCM. Each of our $U_{W}, U_{C(t)}, U_{Y(t)}, \ \text{and} \ U_{\Delta(t)}$ variables have a uniform distribution with a min of 0 and max of 1. Each of our $U_{L(t)}$ variables have a gamma distribution with a shape parameter of 1.5 and scale parameter of 2. Each of our $U_{L(t)}$ variables have a poisson distribution with a rate parameter ($\lambda$) of 3. 
   For our endogenous variable $W$ we create a nominal categorical variable for the 16 possible different combinations of race, gender, and SES that apply to our dataset. For the $\Delta(t)$ variables, if $U_{\Delta(t)}$
   
-########STEPHANIE, GOING TO NEED HELP HERE...DON'T REALLY UNDERSTAND HOW
-########YOU CAME UP WITH THESE BUT I'M HAPPY TO WRITE THE EXPLANATION IF
-########YOU CAN WALK ME THROUGH IT!#####################################
-  
   We then set a seed so our numbers could be replicated exactly, and generated data with n = 1000.
 
 ```{r simulation, include = FALSE}
@@ -298,64 +294,69 @@ generate_data <- function(n) {
                         ifelse(UW<15/16, 15, 16))))))))))))))),
            D1 = as.numeric(UD1<0.3),
            L1 = ifelse(D1 == 0, UL1, NA),
-           Y1 = as.numeric(UY1 < 0.06),
+           Y1 = as.numeric(UY1 < 0.03),
            A1 = ifelse(is.na(L1), round(as.numeric(UA1 + 2*Y1)), 
                                   round(as.numeric(UA1 + L1 + 2*Y1))),
-           C2 = ifelse(A1 == 0, as.numeric(UC2<0.6), 
-                                               as.numeric(UC2<0.05)),
+           C2 = ifelse(A1 == 0, as.numeric(UC2<0.8), 
+                                               as.numeric(UC2<0.08)),
            D2 = ifelse(C2 == 1, 1, 
                                 ifelse(D1 == 1, as.numeric(UD2<0.6), 
                                                 as.numeric(UD2<0.3))),
-           L2 = ifelse(D2 == 0, L1 + 0.1*UL2, NA),
+           L2 = ifelse(D2 == 0, 
+                                ifelse(is.na(L1), UL2, 
+                                                  L1 + 0.1*UL2), 
+                                NA),
            Y2 = ifelse(Y1 == 1, 1, 
                                 ifelse(C2 == 0, 
                                        ifelse(is.na(L1), 
-                                              as.numeric((UY2+0.01*A1)< 0.06), 
-                                              as.numeric((UY2+0.01*A1-0.05*L1)< 0.06)), 
+                                              as.numeric((UY2+0.01*A1)< 0.03), 
+                                              as.numeric((UY2+0.01*A1-0.05*L1)< 0.03)), 
                                                 NA)),
            A2 = ifelse(C2 == 0, ifelse(is.na(L2), round(as.numeric(UA2 + 2*Y2)), 
                                                   round(as.numeric(UA2 + L2+ 2*Y2))), 
                                        NA), 
            C3 = ifelse(C2 ==1, 1,
-                               ifelse(A2 == 0, as.numeric(UC3<0.6), 
-                                               as.numeric(UC3<0.05))),
+                               ifelse(A2 == 0, as.numeric(UC3<0.8), 
+                                               as.numeric(UC3<0.08))),
            D3 = ifelse(C3 == 1, 1, 
                                 ifelse(D2 == 1, as.numeric(UD3<0.6), 
                                                 as.numeric(UD3<0.3))),
-           L3 = ifelse(D3 == 0, L2 + 0.1*UL3, NA),
+           L3 = ifelse(D3 == 0, ifelse(is.na(L2), UL3, 
+                                                  L2 + 0.1*UL3), NA),
            Y3 = ifelse(Y2 == 1, 1, 
                                 ifelse(C3 == 0, 
                                        ifelse(is.na(L2), 
-                                              as.numeric((UY3+0.01*A2)< 0.06), 
-                                              as.numeric((UY3+0.01*A2-0.05*L2)< 0.06)), 
+                                              as.numeric((UY3+0.01*A2)< 0.03), 
+                                              as.numeric((UY3+0.01*A2-0.05*L2)< 0.03)), 
                                                 NA)),
            A3 = ifelse(C3 == 0, ifelse(is.na(L3), round(as.numeric(UA3 + 2*Y3)), 
                                                   round(as.numeric(UA3 + L3+ 2*Y3))), 
                                 NA),
            C4 = ifelse(C3 == 1, 1,
-                               ifelse(A3 == 0, as.numeric(UC4<0.6), 
-                                               as.numeric(UC4<0.05))),
+                               ifelse(A3 == 0, as.numeric(UC4<0.8), 
+                                               as.numeric(UC4<0.08))),
            D4 = ifelse(C4 == 1, 1, 
                                 ifelse(D3 == 1, as.numeric(UD4<0.6), 
                                                 as.numeric(UD4<0.3))),
-           L4 = ifelse(D4 == 0, L3 + 0.1*UL4, NA),
+           L4 = ifelse(D4 == 0, ifelse(is.na(L3), UL4,
+                                                  L3 + 0.1*UL4), NA),
            Y4 = ifelse(Y3 == 1, 1, 
                                 ifelse(C4 == 0, 
                                        ifelse(is.na(L3), 
-                                              as.numeric((UY4+0.01*A3)< 0.06), 
-                                              as.numeric((UY4+0.01*A3-0.05*L3)< 0.06)),
+                                              as.numeric((UY4+0.01*A3)< 0.03), 
+                                              as.numeric((UY4+0.01*A3-0.05*L3)< 0.03)),
                                                 NA)),
            A4 = ifelse(C4 == 0, ifelse(is.na(L4), round(as.numeric(UA4 + 2*Y4)), 
                                                   round(as.numeric(UA4 + L4+ 2*Y4))), 
                                 NA),       
            C5 = ifelse(C4 ==1, 1,
-                               ifelse(A4 == 0, as.numeric(UC5<0.6), 
-                                               as.numeric(UC5<0.05))),
+                               ifelse(A4 == 0, as.numeric(UC5<0.8), 
+                                               as.numeric(UC5<0.08))),
            Y5 = ifelse(Y4 == 1, 1, 
                                 ifelse(C5 == 0, 
                                        ifelse(is.na(L4), 
-                                              as.numeric((UY5+0.01*A4)< 0.06), 
-                                              as.numeric((UY5+0.01*A4-0.05*L4)< 0.06)),
+                                              as.numeric((UY5+0.01*A4)< 0.03), 
+                                              as.numeric((UY5+0.01*A4-0.05*L4)< 0.03)),
                                                 NA)))
   return(O)
 }
@@ -379,7 +380,7 @@ Patients Missing FIB-4 | `r sum(as.numeric(is.na(SimData$L1)))`| `r sum(as.numer
 #### Histograms of Visits and FIB-4 Scores in the Simulated Data
 Here are density plots demonstrating the distribution of FIB-4 scores over the 4 years they were measured. 
 
-```{r FIB4 Histograms, include = TRUE, echo = FALSE, out.width= '65%'}
+```{r FIB4 Histograms, include = TRUE, echo = FALSE, out.width= '50%'}
 #found at https://stackoverflow.com/questions/6957549/overlaying-histograms-with-ggplot2-in-r
 # plot_multi_histogram <- function(df, feature, label_column) {
 #     plt <- ggplot(df, aes(x=eval(parse(text=feature)), fill=eval(parse(text=label_column)))) +
