@@ -461,7 +461,7 @@ suppressWarnings(print(VisitsHist))
 
 **How would you intervene on the SCM you came up with to evaluate the causal target parameter?**
 
-*To mimic our ideal experiment, we will intervene on our SCM by first setting $\bar{A}(t) = 0$, then $A(1) = 1 \ \text{and] \ A(2) - A(5) = 0$, then $A(1) - A(2) = 0, A(3) = 1, \ \text{and} \ A(4) - A(5) = 0$, then setting $A(1) - A(4) = 1 \ \text{and} \ A(5) = 1$, then setting $\bar{A}(t) = 1$.*
+We will intervene to deterministically set $\bar{\Delta}(t) = 1$ and $\bar{C}(t) = 1$ and $\bar{A}(t) = \bar{a}(t)$. 
 
 **Implement this intervention computationally.**
 
@@ -480,35 +480,7 @@ colnames(abar_mat) <- c("A1", "A2", "A3", "A4", "A5")
 **Using simulation, generate many counterfactual outcomes, then evaluate $\Psi^F(P_{U,X})$.**
 
 ```{r}
-# 2.2.4 - evaluate Psi.F
 
-# make a matrix of every possible txt regime permutation
-#   Each column is an intervention at time t, or A(t).
-#   Each row is a possible instance of abar.
-
-
-# create an empty vector of NAs for the cum. abars and mean counterfactual outcomes
-n <- 10000
-sum_abar <- rep(NA, n)
-EY_abar <- rep(NA, n)
-
-# "for" loop to generate counterfactual outcomes.
-#   For every row of the dataframe of possible a(t)'s, apply the function
-#       generate_data2_intervene() to generate data that has been intervened 
-#       on with that abar regime.
-#   Take the mean of the Y's of interest.
-for (i in 1:n) {
-  X <- generate_data2b_intervene(n = n, t = 4, abar = as.numeric(abar_mat[i,]))
-  sum_abar[i] <- rowSums(abar_mat)[i]
-  EY_abar[i] <- mean(X$Y)
-}
-
-# use ordinary least squares regression to obtain beta coefficients.
-# the target parameter is the coefficient value that minimize the L2 risk function
-MSM <- glm(EY_abar ~ sum_abar)
-
-# beta 1 coefficient
-beta1 <- MSM$coefficients[2]; beta1
 ```
 
 *If we use the data we simulated with n = 1000, *
