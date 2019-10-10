@@ -244,6 +244,14 @@ Many of the variables that we intend to use will be coming in the next data pull
 Patients can be censored from the dataset in one of two ways: either by no longer seeking care within the UCSF system, or if they are deceased. 
 
 ### F. Simulation
+  To run our simulation, we first create a dataframe $O$ which includes all of the exogenous and endogenous variables in our SCM. Each of our $U_{W}, U_{C(t)}, U_{Y(t)}, \ \text{and} \ U_{\Delta(t)}$ variables have a uniform distribution with a min of 0 and max of 1. Each of our $U_{L(t)}$ variables have a gamma distribution with a shape parameter of 1.5 and scale parameter of 2. Each of our $U_{L(t)}$ variables have a poisson distribution with a rate parameter ($\lambda$) of 3. 
+  For our endogenous variable $W$ we create a nominal categorical variable for the 16 possible different combinations of race, gender, and SES that apply to our dataset. For the $\Delta(t)$ variables, if $U_{\Delta(t)}$
+  
+########STEPHANIE, GOING TO NEED HELP HERE...DON'T REALLY UNDERSTAND HOW
+########YOU CAME UP WITH THESE BUT I'M HAPPY TO WRITE THE EXPLANATION IF
+########YOU CAN WALK ME THROUGH IT!#####################################
+  
+  We then set a seed so our numbers could be replicated exactly, and generated data with n = 1000.
 
 ```{r simulation, include = FALSE}
 
@@ -453,13 +461,57 @@ suppressWarnings(print(VisitsHist))
 
 **How would you intervene on the SCM you came up with to evaluate the causal target parameter?**
 
+*To mimic our ideal experiment, we will intervene on our SCM by first setting $\bar{A}(t) = 0$, then $A(1) = 1 \ \text{and] \ A(2) - A(5) = 0$, then $A(1) - A(2) = 0, A(3) = 1, \ \text{and} \ A(4) - A(5) = 0$, then setting $A(1) - A(4) = 1 \ \text{and} \ A(5) = 1$, then setting $\bar{A}(t) = 1$.*
+
 **Implement this intervention computationally.**
+
+First we make a matrix of every possible treatment regime permutation, then use a "for" loop to generate counterfactual outcomes for each regime. Then we use this in a logistic regression using ordinary least squares, with $beta_1$ as the target parameter.
+
+```{r}
+PsiF <- abar_mat <- expand.grid(c(0,1), c(0,1), c(0,1), c(0,1), c(0,1))
+colnames(abar_mat) <- c("A1", "A2", "A3", "A4", "A5")
+```
+
 
 **Evaluate $\Psi^F(P_{U,X})$**
 
-**Using simulations, generate many counterfactual outcomes.**
+##############WILL NEED TO FILL THIS IN###################
 
-**Evaluate $\Psi^F(P_{U,X})$.**
+**Using simulation, generate many counterfactual outcomes, then evaluate $\Psi^F(P_{U,X})$.**
+
+```{r}
+# 2.2.4 - evaluate Psi.F
+
+# make a matrix of every possible txt regime permutation
+#   Each column is an intervention at time t, or A(t).
+#   Each row is a possible instance of abar.
+
+
+# create an empty vector of NAs for the cum. abars and mean counterfactual outcomes
+n <- 10000
+sum_abar <- rep(NA, n)
+EY_abar <- rep(NA, n)
+
+# "for" loop to generate counterfactual outcomes.
+#   For every row of the dataframe of possible a(t)'s, apply the function
+#       generate_data2_intervene() to generate data that has been intervened 
+#       on with that abar regime.
+#   Take the mean of the Y's of interest.
+for (i in 1:n) {
+  X <- generate_data2b_intervene(n = n, t = 4, abar = as.numeric(abar_mat[i,]))
+  sum_abar[i] <- rowSums(abar_mat)[i]
+  EY_abar[i] <- mean(X$Y)
+}
+
+# use ordinary least squares regression to obtain beta coefficients.
+# the target parameter is the coefficient value that minimize the L2 risk function
+MSM <- glm(EY_abar ~ sum_abar)
+
+# beta 1 coefficient
+beta1 <- MSM$coefficients[2]; beta1
+```
+
+*If we use the data we simulated with n = 1000, *
 
 **Write a sentence interpreting your $\Psi^F(P_{U,X})$.**
 
