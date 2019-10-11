@@ -594,31 +594,31 @@ This means that people with very frequent primary care or hepatology visits ($\b
 
 Our target causal parameter is identified as a function of the observed data distribution under the assumptions that there is independence between each of the exogenous variables (i.e. there are no shared unknown variables influencing each of the endogenous nodes in our SCM) and that there are no practical positivity violations (i.e. there is a >0 probability of HCC among all of the baseline covariate and treatment regime combinations). We also must rely on the sequential randomization assumption for our data generating process.
 
-\newpage
 
-###B. What is your $\Psi(P_0)$, the statistical estimand?**
+
+### B. What is your $\Psi(P_0)$, the statistical estimand?
 
 *Our statistical estimand is: $$\Psi(P_0) = m(\bar{a}|\beta) = E[Y_{\bar{a}}] = \beta_0 + \beta_1 \sum_{t=1}^4a(t)$$
 
-### C. Confirm that in your simulation, the value of your estimand equals the value of your target causal parameter.**
+<!--### C. Confirm that in your simulation, the value of your estimand equals the value of your target causal parameter.-->
 
 ```{r IPTW, include = FALSE}
-sum_a <- rowSums(SimData[c("A1", "A2", "A3", "A4")])
-
-g2A1 <- glm(A1 ~ L1, Y1, family = "poisson", data = SimData)
-g2A2 <- glm(A2 ~ L2, Y2, family = "poisson", data = SimData)
-g2A3 <- glm(A3 ~ L3, Y3, family = "poisson", data = SimData)
-g2A4 <- glm(A4 ~ L4, Y4, family = "poisson", data = SimData)
-
-gA1_1 <- predict(g2A1, type = 'response')
-gA2_1 <- predict(g2A2, type = 'response')
-gA3_1 <- predict(g2A3, type = 'response')
-gA4_1 <- predict(g2A4, type = 'response')
-
-gA1 <- mean(gA1_1)
-gA2 <- mean(gA2_1)
-gA3 <- mean(gA3_1)
-gA4 <- mean(gA4_1)
+# sum_a <- rowSums(SimData[c("A1", "A2", "A3", "A4")])
+# 
+# g2A1 <- glm(A1 ~ L1, Y1, family = "poisson", data = SimData)
+# g2A2 <- glm(A2 ~ L2, Y2, family = "poisson", data = SimData)
+# g2A3 <- glm(A3 ~ L3, Y3, family = "poisson", data = SimData)
+# g2A4 <- glm(A4 ~ L4, Y4, family = "poisson", data = SimData)
+# 
+# gA1_1 <- predict(g2A1, type = 'response')
+# gA2_1 <- predict(g2A2, type = 'response')
+# gA3_1 <- predict(g2A3, type = 'response')
+# gA4_1 <- predict(g2A4, type = 'response')
+# 
+# gA1 <- mean(gA1_1)
+# gA2 <- mean(gA2_1)
+# gA3 <- mean(gA3_1)
+# gA4 <- mean(gA4_1)
 
 # w <- 1/(gA1 * gA2 * gA3 * gA4)
 # 
@@ -626,7 +626,7 @@ gA4 <- mean(gA4_1)
 # beta1 <- coef(MSM)[2]
 ```
 
-*In our simulation, ###NEED TO FINISH THIS###
+<!--*In our simulation, ###NEED TO FINISH THIS###-->
 
 \vspace{24pt}
 
