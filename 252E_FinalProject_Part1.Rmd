@@ -222,7 +222,7 @@ A(t) &= f_{A(t)}(W, C(t), \bar{L}(t), \bar{A}(t-1), \bar{Y}(t), U_{A(1)}) \\
 \end{align*}
 
 ### D. Exploring Our Data
-Many of the variables that we intend to use will be coming in the next data pull from the EMR, so we can't present histograms or tables of counts yet. Instead we've listed below each of the variables that we will have after the next data query and their variable types. Below that we've presented the distribution of some of the related variables that we *do* have already.
+Many of the variables that we intend to use will be coming in the next data pull from the EMR, so we can't present histograms or tables of counts yet. Instead we've listed below each of the variables that we will have after the next data query and their variable types; we listed details for the  variables that we *do* have already.
 
 * Number of Visits (annually)- this will be a count variable, at each year
 * Diagnosed with HCC (annually)- this will be a binary yes/no
@@ -436,48 +436,45 @@ suppressWarnings(print(VisitsHist))
 
 ## 2. Proposed Causal Question
 
-**What is the Causal Question (or questions) of interest for your dataset?**
+### A. What is the Causal Question (or questions) of interest for your dataset?
 
-*For our project, we plan to ask whether frequency of primary care and hepatology visits at UCSF affect the likelihood of developing hepatocellular carcinoma (HCC) among patients diagnosed with chronic hepatitis C (HCV).* 
+For our project, we plan to ask whether frequency of primary care and hepatology visits at UCSF affect the likelihood of developing hepatocellular carcinoma (HCC) among patients diagnosed with chronic hepatitis C (HCV).
 
-**What is the ideal experiment that would answer your Causal Question?**
+### B. What is the ideal experiment that would answer your Causal Question?
 
-*The ideal experiment to answer our Causal Question would be to deny people access to primary care and hepatology visits, and see how many developed HCC, then roll back the clock and give them access to just one visit (primary care OR hepatology) in 5 years and see how many developed HCC, then roll back the clock and give them access to 5 visits in 5 years and see how many developed HCC, and so on.*
+The ideal experiment to answer our Causal Question would be to deny people access to primary care and hepatology visits, and see how many developed HCC, then roll back the clock and give them access to just one visit (primary care OR hepatology) in 5 years and see how many developed HCC, then roll back the clock and give them access to 5 visits in 5 years and see how many developed HCC, and so on.
 
-**Which of your variables would you intervene on to answer your Causal Question(s)? What values would you set them equal to?**
+### C. Which of your variables would you intervene on to answer your Causal Question(s)? What values would you set them equal to?
 
-*We would intervene on $\bar{A}(t)$ to answer our Causal Question, and set them all equal to zero, then just one of the A timepoints equal to 1 (ultimately we might be interested in the effect of only A(1)=1 compared to only A(2)=1, compared to only A(3)=1, etc.), then each of them equal to 1.*
+We would intervene on $\bar{A}(t)$ to answer our Causal Question, and set them all equal to zero, then just one of the A timepoints equal to 1 (ultimately we might be interested in the effect of only A(1)=1 compared to only A(2)=1, compared to only A(3)=1, etc.), then each of them equal to 1.
 
-**What outcomes are you interested in? Measured when?**
+### D. What outcomes are you interested in? Measured when?
 
-*We are interested in whether a patient is diagnosed with hepatocellular carcinoma, a liver cancer that commonly develops in people with liver cirrhosis (including as a result of chronic HCV infection) and has a very low survival rate. For our project, anyone diagnosed with HCC anytime before the final timepoint in the dataset (i.e. the date the data were pulled from the electronic medical record) will be counted as having the outcome.*
+We are interested in whether a patient is diagnosed with hepatocellular carcinoma, a liver cancer that commonly develops in people with liver cirrhosis (including as a result of chronic HCV infection) and has a very low survival rate. For our project, anyone diagnosed with HCC anytime before the final timepoint in the dataset (i.e. the date the data were pulled from the electronic medical record) will be counted as having the outcome.
 
-### *Target parameter and counterfactual outcomes*
+### E. Target parameter and counterfactual outcomes*
 
 **What are your counterfactual outcomes, and how would you explain them in words?**
 
-*Our counterfactual outcomes are the prevalence of HCC at the end of study follow-up if no one had any primary care or hepatology visits, the prevalence of HCC at the end of study follow-up if everyone had one primary care or hepatology visit over the 5 year study period, and the prevalence of HCC at the end of study follow-up if everyone had at least one primary care or hepatology visit over the 5 year study period.*
+  Our counterfactual outcomes are the prevalence of HCC at the end of study follow-up if no one had any primary care or hepatology visits, the prevalence of HCC at the end of study follow-up if everyone had one primary care or hepatology visit over the 5 year study period, and the prevalence of HCC at the end of study follow-up if everyone had at least one primary care or hepatology visit over the 5 year study period.
 
-**Come up with a target parameter that would answer your Causal Question.**
-
-**What aspects of the counterfactual outcome distribution are you interested in
-  contrasting?**
+**What aspects of the counterfactual outcome distribution are you interested in contrasting?**
   
-  *We are interested in contrasting the counterfactual outcome from a large number of primary care and/or hepatology visits with the counterfactual outcome from few or no visits, to see if there is some sort of dose-response relationship.*
+  We are interested in contrasting the counterfactual outcome from a large number of primary care and/or hepatology visits with the counterfactual outcome from few or no visits, to see if there is some sort of dose-response relationship.
 
 **What contrast are you interested in (e.g., absolute difference? relative difference? MSMs? conditional on subgroups?)?**
   
-  *We are interested in a MSM that helps us understand the relationship between frequency of primary care or hepatology visits and risk of HCC diagnosis, conditional on FIB-4 score and a variety of other demographics.*
+  We are interested in a MSM that helps us understand the relationship between frequency of primary care or hepatology visits and risk of HCC diagnosis, conditional on FIB-4 score and a variety of other demographics.
 
-### *Intervention on the SCM*
+### F. Intervention on the SCM
 
 **How would you intervene on the SCM you came up with to evaluate the causal target parameter?**
 
-*We will intervene to deterministically set $\bar{\Delta}(t) = 1$ and $\bar{C}(t) = 1$ and $\bar{A}(t) = \bar{a}(t)$.* 
+We will intervene to deterministically set $\bar{\Delta}(t) = 1$ and $\bar{C}(t) = 1$ and $\bar{A}(t) = \bar{a}(t)$.
 
 **Implement this intervention computationally.**
 
-*To do this, we use the simulation code written earlier, but adapt our function, replacing the structural equations for $\bar{\Delta}(t), \bar{C}(t), \ \text{and} \ \bar{A}(t)$ with flexible parameters allowing us to specify values for our intervention.*
+To do this, we use the simulation code written earlier, but adapt our function, replacing the structural equations for $\bar{\Delta}(t), \bar{C}(t), \ \text{and} \ \bar{A}(t)$ with flexible parameters allowing us to specify values for our intervention.
 
 ```{r intervene, include = FALSE}
 
@@ -573,7 +570,7 @@ generate_data_intervene <- function(n, c, d, a1, a2, a3, a4, a5) {
 
 ```
 
-**Using simulation, generate many counterfactual outcomes, then evaluate $\Psi^F(P_{U,X})$.**
+### G. Using simulation, generate many counterfactual outcomes, then evaluate $\Psi^F(P_{U,X})$.
 
 ```{r PsiF, include = FALSE}
 set.seed(8675309)
@@ -583,27 +580,27 @@ PsiF <- mean(SimData_none$Y5)/mean(SimData_max$Y5); PsiF
 PsiFpercent <- PsiF*100-100
 ```
 
-*For simplicity, we simulated counterfactual outcomes to try to determine $\Psi^F(P_{U,X})$ as the ratio between the proportion of patients diagnosed with HCC under the counterfactual scenario where $\bar{A}(t) = 6$ (all people had 6 visits per year, an extremely high number of visits), and $\bar{A} = 0$ (all people had no primary care or hepatology visits in any year). If we simulate data with n = 1000, then* $\Psi^F(P_{U,X})$ = `r round(PsiF, 3)`.
+For simplicity, we simulated counterfactual outcomes to try to determine $\Psi^F(P_{U,X})$ as the ratio between the proportion of patients diagnosed with HCC under the counterfactual scenario where $\bar{A}(t) = 6$ (all people had 6 visits per year, an extremely high number of visits), and $\bar{A} = 0$ (all people had no primary care or hepatology visits in any year). If we simulate data with n = 1000, then* $\Psi^F(P_{U,X})$ = `r round(PsiF, 3)`.
 
-**Write a sentence interpreting your $\Psi^F(P_{U,X})$.**
+### H. Write a sentence interpreting your $\Psi^F(P_{U,X})$.
 
-*This means that people with very frequent primary care or hepatology visits ($\bar{A} = 6$ used to represent that in this example) are `r round(PsiFpercent, 1)`% more likely to develop HCC than people who have no primary care or hepatology visits ($\bar{A} = 0$) in the five years under study.*
+This means that people with very frequent primary care or hepatology visits ($\bar{A} = 6$ used to represent that in this example) are `r round(PsiFpercent, 1)`% more likely to develop HCC than people who have no primary care or hepatology visits ($\bar{A} = 0$) in the five years under study.
 
 \vspace{24pt}
 
 ## 3. Identification and Estimand
 
-**Under what assumptions is the target causal parameter identified as a function of the observed data distribution?**
+### A. Under what assumptions is the target causal parameter identified as a function of the observed data distribution?
 
-*Our target causal parameter is identified as a function of the observed data distribution under the assumptions that there is independence between each of the exogenous variables (i.e. there are no shared unknown variables influencing each of the endogenous nodes in our SCM) and that there are no practical positivity violations (i.e. there is a >0 probability of HCC among all of the baseline covariate and treatment regime combinations). We also must rely on the sequential randomization assumption for our data generating process.*
+Our target causal parameter is identified as a function of the observed data distribution under the assumptions that there is independence between each of the exogenous variables (i.e. there are no shared unknown variables influencing each of the endogenous nodes in our SCM) and that there are no practical positivity violations (i.e. there is a >0 probability of HCC among all of the baseline covariate and treatment regime combinations). We also must rely on the sequential randomization assumption for our data generating process.
 
 \newpage
 
-**What is your $\Psi(P_0)$, the statistical estimand?**
+###B. What is your $\Psi(P_0)$, the statistical estimand?**
 
 *Our statistical estimand is: $$\Psi(P_0) = m(\bar{a}|\beta) = E[Y_{\bar{a}}] = \beta_0 + \beta_1 \sum_{t=1}^4a(t)$$
 
-**Confirm that in your simulation, the value of your estimand equals the value of your target causal parameter.**
+### C. Confirm that in your simulation, the value of your estimand equals the value of your target causal parameter.**
 
 ```{r IPTW, include = FALSE}
 sum_a <- rowSums(SimData[c("A1", "A2", "A3", "A4")])
