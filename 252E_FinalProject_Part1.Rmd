@@ -1,7 +1,7 @@
 ---
 title: "252E Final Project Part 1: \nRelationship between Frequency of Care and Progression to Hepatocellular Carcinoma \namong Chronic Hepatitis C Patients"
 author: "Stephanie Holm and Shelley Facente"
-date: "10/3/2019"
+date: "10/10/2019"
 output: pdf_document
 ---
 
@@ -592,9 +592,7 @@ This means that people with very frequent primary care or hepatology visits ($\b
 
 ### A. Under what assumptions is the target causal parameter identified as a function of the observed data distribution?
 
-Our target causal parameter is identified as a function of the observed data distribution under the assumptions that there is independence between each of the exogenous variables (i.e. there are no shared unknown variables influencing each of the endogenous nodes in our SCM) and that there are no practical positivity violations (i.e. there is a >0 probability of HCC among all of the baseline covariate and treatment regime combinations). We also must rely on the sequential randomization assumption for our data generating process.
-
-
+Our target causal parameter is identified as a function of the observed data distribution under the assumptions that there is independence between each of the exogenous variables (i.e. there are no shared unknown variables influencing each of the endogenous nodes in our SCM) and that there are no practical positivity violations (i.e. there is a >0 probability of HCC among all of the baseline covariate and treatment regime combinations). In addition to controlling for any baseline covariates ($W$s), we also must rely on the sequential randomization assumption for our data generating process.
 
 ### B. What is your $\Psi(P_0)$, the statistical estimand?
 
