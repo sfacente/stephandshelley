@@ -317,8 +317,8 @@ colnames(adds) <- c("Deidentified Pt Number", "AGE_2011", "AGE_2012", "AGE_2013"
 
 filename <- paste0("HCVadds", ".xlsx")
 write.xlsx(adds, filename)
+rm(adds)
 ```
-
 
 ```{r Code_for_the_DAG}
 #DAGGity code- ie to use in the online Daggity tool...I don't love rDaggity
