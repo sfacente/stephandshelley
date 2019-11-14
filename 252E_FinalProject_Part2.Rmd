@@ -1,7 +1,7 @@
 ---
 title: "252E Final Project Part 2: \nRelationship between Frequency of Care and Progression to Hepatocellular Carcinoma \namong Chronic Hepatitis C Patients"
 author: "Stephanie Holm and Shelley Facente"
-date: "11/3/2019"
+date: "11/14/2019"
 output: pdf_document
 ---
 
@@ -11,6 +11,7 @@ library(readxl)
 library(skimr)
 library(knitr)
 library(xlsx)
+library(lubridate)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
@@ -26,7 +27,7 @@ StephandShelleyDataLoad <- function(filename)
   }
 }
 
-HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-2-19.xlsx")
+HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-14-19.xlsx")
 
 ```
 
@@ -34,8 +35,8 @@ HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-2-19.xls
 #Let's do all Variable prep/Data cleaning in this chunk
 
 #first just making variables their proper type, and renaming so there's no spaces
-HCVData$'Deidentified Pt Number'<- as.factor(HCVData$'Deidentified Pt Number')
-colnames(HCVData)[colnames(HCVData) == 'Deidentified Pt Number'] <- 'PtID'
+HCVData$'Deidentified Pt Number (updated)'<- as.factor(HCVData$'Deidentified Pt Number (updated)')
+colnames(HCVData)[colnames(HCVData) == 'Deidentified Pt Number (updated)'] <- 'PtID'
 
 HCVData$'Hep Visit?'<- as.factor(HCVData$'Hep Visit?')
 colnames(HCVData)[colnames(HCVData) == 'Hep Visit?'] <- 'EverHepVisit'
@@ -269,6 +270,10 @@ age <- function(dob, curryear, units = "years", floor = TRUE) {
     return(as.integer(floor(calc.age)))
 }
 
+HCVData$AGE_2009 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2009-12-31'))
+
+HCVData$AGE_2010 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2010-12-31'))
+
 HCVData$AGE_2011 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2011-12-31'))
 
 HCVData$AGE_2012 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2012-12-31'))
@@ -290,6 +295,9 @@ HCVData$AGE_2019 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2019-12-31
 #drop DOB from dataset for privacy reasons
 HCVData <- subset(HCVData, select = -c(BIRTH_DATE))
 
+HCVData$FIB4_2009 <- HCVData$AGE_2009 * HCVData$AST_2009 / (HCVData$PLATELET_2009 * sqrt(HCVData$ALT_2009))
+
+HCVData$FIB4_2010 <- HCVData$AGE_2010 * HCVData$AST_2010 / (HCVData$PLATELET_2010 * sqrt(HCVData$ALT_2010))
   
 HCVData$FIB4_2011 <- HCVData$AGE_2011 * HCVData$AST_2011 / (HCVData$PLATELET_2011 * sqrt(HCVData$ALT_2011))
   
@@ -311,13 +319,13 @@ HCVData$FIB4_2019 <- HCVData$AGE_2011 * HCVData$AST_2019 / (HCVData$PLATELET_201
 ```
 
 ```{r Export_age_and_FIB4_for_Rena}
-
-adds <- data.frame(HCVData$PtID, HCVData$AGE_2011, HCVData$AGE_2012, HCVData$AGE_2013, HCVData$AGE_2014, HCVData$AGE_2015, HCVData$AGE_2016, HCVData$AGE_2017, HCVData$AGE_2018, HCVData$AGE_2019, HCVData$FIB4_2011, HCVData$FIB4_2012, HCVData$FIB4_2013, HCVData$FIB4_2014, HCVData$FIB4_2015, HCVData$FIB4_2016, HCVData$FIB4_2017, HCVData$FIB4_2018, HCVData$FIB4_2019)
-colnames(adds) <- c("Deidentified Pt Number", "AGE_2011", "AGE_2012", "AGE_2013", "AGE_2014", "AGE_2015", "AGE_2016", "AGE_2017", "AGE_2018", "AGE_2019", "FIB4_2011", "FIB4_2012", "FIB4_2013", "FIB4_2014", "FIB4_2015", "FIB4_2016", "FIB4_2017", "FIB4_2018", "FIB4_2019")
-
-filename <- paste0("HCVadds", ".xlsx")
-write.xlsx(adds, filename)
-rm(adds)
+#
+#adds <- data.frame(HCVData$PtID, HCVData$AGE_2009, HCVData$AGE_2010, HCVData$AGE_2011, HCVData$AGE_2012, HCVData$AGE_2013, HCVData$AGE_2014, HCVData$AGE_2015, HCVData$AGE_2016, HCVData$AGE_2017, HCVData$AGE_2018, HCVData$AGE_2019, HCVData$FIB4_2009, HCVData$FIB4_2010, HCVData$FIB4_2011, HCVData$FIB4_2012, HCVData$FIB4_2013, HCVData$FIB4_2014, HCVData$FIB4_2015, HCVData$FIB4_2016, HCVData$FIB4_2017, HCVData$FIB4_2018, HCVData$FIB4_2019)
+#colnames(adds) <- c("Deidentified Pt Number", "AGE_2009", "AGE_2010", "AGE_2011", "AGE_2012", "AGE_2013", "AGE_2014", "AGE_2015", "AGE_2016", "AGE_2017", "AGE_2018", "AGE_2019", "FIB4_2009", "FIB4_2010", "FIB4_2011", "FIB4_2012", "FIB4_2013", "FIB4_2014", "FIB4_2015", "FIB4_2016", "FIB4_2017", "FIB4_2018", "FIB4_2019")
+#
+#filename <- paste0("HCVadds", ".xlsx")
+#write.xlsx(adds, filename)
+#rm(adds)
 ```
 
 ```{r Code_for_the_DAG}
