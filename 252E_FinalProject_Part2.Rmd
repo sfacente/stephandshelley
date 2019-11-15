@@ -396,7 +396,7 @@ We have a preliminary dataset resulting from the intial Apex query and will be g
 ##a. Causal Model
 ### i. Defining Our Variables
 
-**Exposures**: We will have data on the annual number of clinical visits that each chronic HCV patient had in the UCSF system annually over the last five years.
+**Exposures**: We have data on the annual number of clinical visits that each chronic HCV patient had in the UCSF system annually from 2011 through 2018.
 
 **Outcome**: The outcome will be diagnosis of hepatocellular carcinoma (HCC), which occured in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. We do not currently have the dates of the HCC diagnoses for all patients, however, for the subset that had biopsies (n =`r nrow(HCVData)- as.numeric(summary(is.na(HCVData$BIOPSY_DATE))["TRUE"])`) `r round((as.numeric(summary(HCVData$BIOPSY_DATE < as.POSIXct(strptime("2015-01-01", "%Y-%m-%d")))["FALSE"])/(nrow(HCVData)- as.numeric(summary(is.na(HCVData$BIOPSY_DATE))["TRUE"])))*100,2)`% of them occured after 01/01/2015 suggesting that the large majority of the hepatocellular carcinoma diagnoses occured in the last 5 years. 
 
