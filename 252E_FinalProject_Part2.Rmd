@@ -275,6 +275,24 @@ HCVData$VISIT_COUNT_2018 <-rowSums(cbind(HCVData$PC_2018_VISIT_COUNT, HCVData$HE
 
 HCVData$TotalVisits<- HCVData$VISIT_COUNT_2011 + HCVData$VISIT_COUNT_2012 + HCVData$VISIT_COUNT_2013 + HCVData$VISIT_COUNT_2014 + HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
 
+#calculating a total fib4, NOT  because it's meaningful but to be ableto see how many had NO FIB4
+#weirdly this doesn't knit properly...since I calculated it just for exploration, I'm commenting out.
+# HCVData$totalFIB4 <-rowSums(cbind(HCVData$FIB4_2009,
+#                                   HCVData$FIB4_2010,
+#                                   HCVData$FIB4_2011,
+#                                   HCVData$FIB4_2012,
+#                                   HCVData$FIB4_2013,
+#                                   HCVData$FIB4_2014,
+#                                   HCVData$FIB4_2015,
+#                                   HCVData$FIB4_2016,
+#                                   HCVData$FIB4_2017,
+#                                   HCVData$FIB4_2018), na.rm=TRUE)
+# summary(HCVData$totalFIB4==0)
+# 
+# HCVData$totalFIB4BY2011 <-rowSums(cbind(HCVData$FIB4_2009,
+#                                   HCVData$FIB4_2010,
+#                                   HCVData$FIB4_2011), na.rm=TRUE)
+# summary(HCVData$totalFIB4BY2011==0)
 ```
 
 ```{r Age_and_FIB-4}
@@ -343,8 +361,9 @@ HCVData$FIB4_2019 <- HCVData$AGE_2011 * HCVData$AST_2019 / (HCVData$PLATELET_201
 ```
 
 
-```{r filter to those with visits}
-HCVData<- HCVData %>% filter(TotalVisits != 0)
+```{r filter to adults with visits}
+HCVData<- HCVData %>% filter(TotalVisits != 0) %>%
+                      filter(AGE_2011 >18)
 ```
 
 
@@ -352,6 +371,23 @@ HCVData<- HCVData %>% filter(TotalVisits != 0)
 #DAGGity code- ie to use in the online Daggity tool...I don't love rDaggity
 #But am putting the code here so we have it. Reminder that you can command/control-shift-c to comment in or out a whole chunk.
 
+###NEW DAG 11/15/19###
+# C_2019 1 @0.964,-0.558
+# HCC_2019 O @0.964,-0.471
+# L(2017) 1 @-1.411,-0.550
+# L(2018) 1 @-0.248,-0.553
+# Visits_2017 E @-1.416,-0.465
+# Visits_2018 E @-0.216,-0.468
+# Ws 1 @-2.247,-0.626
+# 
+# C_2019 HCC_2019
+# L(2017) L(2018) Visits_2017 Visits_2018
+# L(2018) C_2019 HCC_2019 Visits_2018
+# Visits_2017 L(2018) Visits_2018
+# Visits_2018 C_2019 HCC_2019
+# Ws C_2019 @0.348,-0.700 HCC_2019 @-2.361,-0.250 Visits_2017 @-1.733,-0.500 Visits_2018 @-1.943,-0.302
+
+#####OLD DAG#####
 # C2 1 @0.166,2.321
 # C3 1 @1.507,2.005
 # Delta1 1 @-0.292,1.289
@@ -385,12 +421,11 @@ HCVData<- HCVData %>% filter(TotalVisits != 0)
 # 1. Background
 ## a. Brief Introduction
 
-<!-- Need to fill this in -->
+<!-- armadillo! Need to fill this in -->
 
 ## b. Description of our Dataset
 
-We have access to a dataset of chronic Hepatitis C patients currently receiving care in the UCSF system. There are `r nrow(HCVData)` patients, who are seen in a variety of primary care clinics and the hepatology (liver) clinic. These data come from a query of Apex, the UCSF-specific build of the electronic medical record system Epic. 
-We have a preliminary dataset resulting from the intial Apex query and will be getting access to more data soon. This initial report has been completed with our intended causal question, describing the data that we currently have and indicating where we are waiting for more data.
+We have access to a dataset of chronic Hepatitis C patients currently receiving care in the UCSF system. There are `r nrow(HCVData)` patients, who were adults by the start of 2011 and have been seen in a variety of primary care clinics and the hepatology (liver) clinic between 2011 and 2018. These data come from a query of Apex, the UCSF-specific build of the electronic medical record system Epic. 
 
 # 2. Roadmap
 ##a. Causal Model
@@ -398,9 +433,9 @@ We have a preliminary dataset resulting from the intial Apex query and will be g
 
 **Exposures**: We have data on the annual number of clinical visits that each chronic HCV patient had in the UCSF system annually from 2011 through 2018.
 
-**Outcome**: The outcome will be diagnosis of hepatocellular carcinoma (HCC), which occured in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. We do not currently have the dates of the HCC diagnoses for all patients, however, for the subset that had biopsies (n =`r nrow(HCVData)- as.numeric(summary(is.na(HCVData$BIOPSY_DATE))["TRUE"])`) `r round((as.numeric(summary(HCVData$BIOPSY_DATE < as.POSIXct(strptime("2015-01-01", "%Y-%m-%d")))["FALSE"])/(nrow(HCVData)- as.numeric(summary(is.na(HCVData$BIOPSY_DATE))["TRUE"])))*100,2)`% of them occured after 01/01/2015 suggesting that the large majority of the hepatocellular carcinoma diagnoses occured in the last 5 years. 
+**Outcome**: The outcome is diagnosis of hepatocellular carcinoma (HCC), which occured in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. 
 
-**Covariates**: Annual FIB-4 score (a validated measure used for prediction of cirrhosis, which uses age, platelet count and liver transaminases), gender, race, insurance type (mediCal vs private- a surrogate of socioeconomic status.)
+**Covariates**: Annual FIB-4 score (a validated measure used for prediction of cirrhosis, which uses age, platelet count and liver transaminases), biologic sex, race, insurance type (mediCal vs private- a surrogate of socioeconomic status.)
 
 
 ### ii. Our DAG
@@ -408,50 +443,44 @@ We have a preliminary dataset resulting from the intial Apex query and will be g
 knitr::include_graphics("dagitty-model.png")
 ```
 
-We intend to do this analysis using 5 years worth of data, but in order to simplify the DAG, we present only the final 3 years (two of exposure data and a final year of outcome) here. This DAG includes both a $\Delta$ variable indicating whether or not our covariate was measured and a $C$ value at each time point indicating whether or not the patient has been censored from the dataset. 
+We intend to do this analysis using 9 years worth of data, but in order to simplify the DAG, we present only the final 3 years (two of exposure data and a final year of outcome) here. This DAG includes both a $C$ value indicating whether or not the patient had the outcome measured by the end of the study.
 
 
 ### iii. Our Structural Causal Model, $O= (W, C(t), \Delta(t), L(t), Y(t), A(t))$
 This is survival data with missingness and censoring, where:
 
-* W is the baseline covariates (race, gender and SES)
-* C(t) is an indicator of being censored at time t (1 means they were censored)
-* $\Delta(t)$ is an indicator of having missing covariate data at time t (1 indicates missing)
-* L(t) is the covariate (FIB-4 score) at time t
+* W is the baseline covariates (race, sex and SES)
+* L(t) is the set of covariates (most recent FIB-4 score, years since last FIB-4) at time t
 * A(t) is the exposure (number of visits)
+* C(t) is an indicator of being censored at the final timepoint (1 means they were censored)
 * Y(t) is the outcome (an indicator of HCC diagnosis)
 
-
-
-$U = (U_{C(t)}, U_{\Delta(t)}, U_{L(t)}, U_{Y(t)}, U_{A(t)}), t = 1,2,3,4,5$ ~ $P_U$
+$U = (U_{L(t)}, U_{A(t)}, U_{C(t)}, U_{Y(t)},), t = 1,2,3,4,5$ ~ $P_U$
 
 Structural Equations, F:
 \begin{align*}
-W &= f_{W(1)}(U_{W(1)}) \\
-\Delta(1) &= f_{\Delta(1)}(W, U_{\Delta(1)}) \\
-L(1) &= f_{L(1)}(\Delta(1), U_{L(1)}) \\
-Y(1) &= f_{Y(1)}(W, U_{Y(1)}) \\
-A(1) &= f_{A(1)}(W, L(1), Y(1), U_{A(1)}) \\
+W &= f_{W}(U_{W}) \\
+L(1) &= f_{L(1)}(U_{L(1)}) \\
+A(1) &= f_{A(1)}(W, L(1), U_{A(1)}) \\
+L(t) &= f_{L(t)}(\bar{L}(t-1), \bar{A}(t-1), U_{L(t)}) \\
+A(t) &= f_{A(t)}(W, \bar{L}(t), \bar{A}(t-1), U_{A(1)}) \\
 C(t) &= f_{C(t)}(W, \bar{A}(t-1), \bar{Y}(t-1)) \\
-\Delta(t) &= f_{\Delta(t)}(W, \bar{\Delta}(t-1), C(t), \bar{A}(t-1), \bar{Y}(t-1)) \\
-L(t) &= f_{L(t)}(\Delta(t),\bar{L}(t-1), \bar{A}(t-1), \bar{Y}(t-1), U_{L(t)}) \\
-Y(t) &= f_{Y(t)}(W, C(t), \bar{L}(t-1), \bar{A}(t-1), \bar{Y}(t-1), U_{Y(t)}) \\
-A(t) &= f_{A(t)}(W, C(t), \bar{L}(t), \bar{A}(t-1), \bar{Y}(t), U_{A(1)}) \\
+Y(t) &= f_{Y(t)}(W, C(t), \bar{L}(t-1), \bar{A}(t-1), U_{Y(t)}) \\
 \end{align*}
 
 ## b. Proposed causal question
 
 **What is the Causal Question (or questions) of interest for your dataset?**
 
-For our project, we plan to ask whether frequency of primary care and hepatology visits at UCSF affect the likelihood of developing hepatocellular carcinoma (HCC) among patients diagnosed with chronic hepatitis C (HCV).
+For our project, we plan to ask whether frequency of primary care and hepatology visits at UCSF affect the likelihood of developing hepatocellular carcinoma (HCC) by the end of the follow up period among patients diagnosed with chronic hepatitis C (HCV), who were HCC-free at the beginning of the follow up interval.
 
 **What is the ideal experiment that would answer your Causal Question?**
 
-The ideal experiment to answer our Causal Question would be to deny people access to primary care and hepatology visits, and see how many developed HCC, then roll back the clock and give them access to just one visit (primary care OR hepatology) in 5 years and see how many developed HCC, then roll back the clock and give them access to 5 visits in 5 years and see how many developed HCC, and so on.
+The ideal experiment to answer our Causal Question would be to deny people access to primary care and hepatology visits, and see how many developed HCC, then roll back the clock and give them access to just one visit annually (primary care OR hepatology) and see how many developed HCC, then roll back the clock and give them access to 5 visits annually and see how many developed HCC, and so on.
 
 **Which of your variables would you intervene on to answer your Causal Question(s)? What values would you set them equal to?**
 
-We would intervene on $\bar{A}(t)$ to answer our Causal Question, and set them all equal to zero, then just one of the A timepoints equal to 1 (ultimately we might be interested in the effect of only A(1)=1 compared to only A(2)=1, compared to only A(3)=1, etc.), then each of them equal to 1.
+We would intervene on $\bar{A}(t)$ to answer our Causal Question, and set them all equal to zero, then just one of the A timepoints equal to 1 (ultimately we might be interested in the effect of only A(1)=1 compared to only A(2)=1, compared to only A(3)=1, etc.), then each of them equal to 1. We also intervene on C(t) to ensure that all participants have outcome assessed at the end of the interval.
 
 **What outcomes are you interested in? Measured when?**
 
@@ -459,11 +488,11 @@ We are interested in whether a patient is diagnosed with hepatocellular carcinom
 
 **What are your counterfactual outcomes, and how would you explain them in words?**
 
-  Our counterfactual outcomes are the prevalence of HCC at the end of study follow-up if no one had any primary care or hepatology visits, the prevalence of HCC at the end of study follow-up if everyone had one primary care or hepatology visit over the 5 year study period, and the prevalence of HCC at the end of study follow-up if everyone had at least one primary care or hepatology visit over the 5 year study period.
+  Our counterfactual outcomes are the prevalence of HCC at the end of study follow-up if no one had any primary care or hepatology visits, the prevalence of HCC at the end of study follow-up if everyone had one primary care or hepatology visit over the study period, and the prevalence of HCC at the end of study follow-up if everyone had at least one primary care or hepatology visit over the 5 year study period.
 
 **What aspects of the counterfactual outcome distribution are you interested in contrasting?**
   
-  We are interested in contrasting the counterfactual outcome from a large number of primary care and/or hepatology visits with the counterfactual outcome from few or no visits, to see if there is some sort of dose-response relationship.
+  We are interested in contrasting the counterfactual outcome from various numbers of primary care and/or hepatology visits with the counterfactual outcome from fewer visits, to see if there is some sort of exposure-response relationship.
 
 **What contrast are you interested in (e.g., absolute difference? relative difference? MSMs? conditional on subgroups?)?**
   
@@ -471,9 +500,11 @@ We are interested in whether a patient is diagnosed with hepatocellular carcinom
 
 **How would you intervene on the SCM you came up with to evaluate the causal target parameter?**
 
-We will intervene to deterministically set $\bar{\Delta}(t) = 1$ and $\bar{C}(t) = 1$ and $\bar{A}(t) = \bar{a}(t)$.
+We will intervene to deterministically set $\bar{C}(t) = 1$ and $\bar{A}(t) = \bar{a}(t)$.
 
 ## c. Our Observed Data
+<!-- armadillo! This bit needs to be re-done now that we have data-->
+
 Many of the variables that we intend to use will be coming in the next data pull from the EMR, so we can't present histograms or tables of counts yet. Instead we've listed below each of the variables that we will have after the next data query and their variable types; we listed details for the  variables that we *do* have already.
 
 * Number of Visits (annually)- this will be a count variable, at each year
@@ -489,9 +520,9 @@ Many of the variables that we intend to use will be coming in the next data pull
 
 
 ### Missingness
-  There will be some patients that do not have a FIB-4 score in a given year because they did not have a laboratory assessment of their platelets or transaminases. We anticipate that missingness in FIB-4 may be related to baseline demographic factors, as well as the number of visits at the prior time point and prior diagnosis of HCC. 
+  There will be some patients that do not have a FIB-4 score in a given year because they did not have a laboratory assessment of their platelets or transaminases. At each year,  the FIB-4 used will be the most recent one calculated and there will also be a variable representing time since FIB-4 was measured. <!--armadillo! what are we doing with those missing at the start -->
   
-  There is not missingness expected in the exposure-since EMRs are designed for clinical billing, the data on whether or not visit(s) occurred are expected to be highly accurate. Because HCC is a common and severe complication of HCV, we are comfortable assuming that a patient who is still followed in the system and does not yet have a diagnosis of HCC, is truly negative for HCC, rather than simply missing that data.
+  There is not missingness expected in the exposure-since EMRs are designed for clinical billing, the data on whether or not visit(s) occurred are expected to be highly accurate. Because HCC is a common and severe complication of HCV, we are comfortable assuming that a patient who is still followed in the system and does not yet have a diagnosis of HCC, is truly negative for HCC, rather than simply missing that data.Further, we will intervene at the end to ensure everyone
 
 Patients can be censored from the dataset in one of two ways: either by no longer seeking care within the UCSF system, or if they are deceased. 
 
@@ -503,7 +534,7 @@ Our target causal parameter is identified as a function of the observed data dis
 
 **What is your $\Psi(P_0)$, the statistical estimand?**
 
-*Our statistical estimand is: $$\Psi(P_0) = m(\bar{a}|\beta) = E[Y_{\bar{a}}] = \beta_0 + \beta_1 \sum_{t=1}^4a(t)$$
+*Our statistical estimand is: $$\Psi(P_0) = m(\bar{a}|\beta) = E[Y_{\bar{a}}] = \beta_0 + \beta_1 \sum_{t=1}^8a(t)$$
 
 
 
@@ -514,19 +545,15 @@ Our target causal parameter is identified as a function of the observed data dis
 
 #4. Preliminary Results
 ## a. Simulation
-  To run our simulation, we first create a dataframe $O$ which includes all of the exogenous and endogenous variables in our SCM. Each of our $U_{W}, U_{C(t)}, U_{Y(t)}, \ \text{and} \ U_{\Delta(t)}$ variables have a uniform distribution with a min of 0 and max of 1. Each of our $U_{L(t)}$ variables have a gamma distribution with a shape parameter of 1.5 and scale parameter of 2. Each of our $U_{L(t)}$ variables have a poisson distribution with a rate parameter ($\lambda$) of 3. 
+  To run our simulation, we first create a dataframe $O$ which includes all of the exogenous and endogenous variables in our SCM. Each of our $U_{W}, U_{C(t)}, \ \text{and} \ U_{Y(t)}$ variables have a uniform distribution with a min of 0 and max of 1. Each of our $U_{L(t)}$ variables have a gamma distribution with a shape parameter of 1.5 and scale parameter of 2. Each of our $U_{A(t)}$ variables have a poisson distribution with a rate parameter ($\lambda$) of 3. 
   
   For our endogenous variables:
   
 * For $W$ we created a nominal categorical variable for the 16 possible different combinations of race, gender, and SES that apply to our dataset. 
-* For the $\Delta(t)$ variables, we set $\Delta(t)$ to 30% chance of FIB-4 missingness in Year 1, and in subsequent years set $\Delta(t)$ to 30% chance of missingness if the FIB-4 score was known in the prior year, or 60% chance of missingness if the FIB-4 score was missing in the prior year.
-* For the $L(t)$ variables, we set L(1) equal to the underlying $U_{L(1)}$ gamma distribution if FIB-4 score is known ($\Delta(1) = 0$), or set it to NA if $\Delta(1) = 1$. In subsequent years, if FIB-4 score is known ($\Delta(t) = 0$) we set $L(t)$ to the FIB-4 score from the prior year ($L(t-1)$) and add 10% of the value generated by the underlying gamma distribution for $U_{L(t)}$ - i.e. we expect FIB-4 score to increase slightly each year as people's liver disease slowly progresses. If FIB-4 score is not known in subsequent years ($L(2 through 4)$) we simply set $L(t)$ to the value from the underlying gamma distribution of $U_{L(t)}$.
+* For the $L(t)$ variables, we set L(1) equal to the underlying $U_{L(1)}$ gamma distribution and a linear combination of years since FIB-4 was measured. In subsequent years, we generated a variable for whether a new FIB-4 was measured that year. If so, we set $L(t)$ to the FIB-4 score from the prior year ($L(t-1)$) and add 10% of the value generated by the underlying gamma distribution for $U_{L(t)}$ - i.e. we expect FIB-4 score to increase slightly each year as people's liver disease slowly progresses. If FIB-4 score was not measured in subsequent years then we set FIB-4 equal to the prior FIB-4 score, with a variable for how many years since it was measured.
+* For $A(1)$, if there is no FIB-4 score known for that timepoint, we use the underlying poisson distribution for $U_{A(t)}$, plus two extra visits for people diagnosed with HCC at that timepoint ($Y(t) = 1$). When the FIB-4 score is known ($\Delta(t) = 0$) then $A(t)$ is calculated by using the underlying poisson distribution for $U_{A(t)}$ plus FIB-4 score (adding more visits for higher FIB-4 scores, indicating worsening cirrhosis) plus two extra visits for people diagnosed with HCC at that timepoint ($Y(t) = 1$).
 * For the $C(t)$ variables, if a subject had no primary care or hepatology visits in the prior year ($A(t-1) = 0$) we set $C(t)$ to a 80% chance of being censored; if they had at least one visit in the prior year then we set $C(t)$ to only an 8% chance of being censored.
-* For the $A(t)$ variables, if there is no FIB-4 score known for that timepoint, we use the underlying poisson distribution for $U_{A(t)}$, plus two extra visits for people diagnosed with HCC at that timepoint ($Y(t) = 1$). When the FIB-4 score is known ($\Delta(t) = 0$) then $A(t)$ is calculated by using the underlying poisson distribution for $U_{A(t)}$ plus FIB-4 score (adding more visits for higher FIB-4 scores, indicating worsening cirrhosis) plus two extra visits for people diagnosed with HCC at that timepoint ($Y(t) = 1$).
-* For $Y(1)$ we set it to a 3% chance of developing HCC for everyone; however, in subsequent years we determined $Y(t)$ as follows: 
-  + If $Y(t-1) = 1$ then $Y(t) = 1$, meaning that once a person was diagnosed with HCC they remained diagnosed in future years. 
-  + If $Y(t-1) = 0$ and the person is not censored ($C(t) = 0$) but has no FIB-4 score ($\Delta(t) = 1$) then we calculate $Y(t)$ as having a 3% chance of indicating HCC diagnosis if they had no visits in the prior year, and a decreasing chance of HCC with every visit the subject had in the prior year ($Y(t) = I(U_{Y(t)} + 0.01(A(t-1)) < 0.03)$.
-  + If $Y(t-1) = 0$ and the person is not censored ($C(t) = 0$) and the FIB-4 score is known ($\Delta(t) = 0$), then we calculate $Y(t)$ as having a 3% chance of indicating HCC diagnosis if they had no visits in the prior year, with a decreasing chance of HCC with every visit the subject had in the prior year and an increasing chance of HCC as the FIB-4 score rises, indicating worsening cirrhosis ($Y(t) = I(U_{Y(t)} + 0.01(A(t-1)) - 0.05(L(t-1))) < 0.03)$.
+* For $Y(t)$ we calculated it as having a 10% chance of indicating HCC diagnosis if they had no visits over the interval, with a decreasing chance of HCC with every visit the subject had in the prior year and an increasing chance of HCC as the FIB-4 score rises, indicating worsening cirrhosis ($Y(t) = I(U_{Y(t)} + 0.01(A(t-1)) - 0.05(L(t-1))) < 0.03)$.
 
 We then set a seed so our numbers could be replicated exactly, and generated data with n = 1000. The following table and plots describe the results of the simulation.
 
@@ -649,17 +676,15 @@ SimData <- generate_data(1000)
 
 \vspace{20pt}
 
-#### Table of Cases of HCC and missing data by Year in the Simulated Data
-|| Year 1 | Year 2 | Year 3 | Year 4 | Year 5
--------------- | --------- | --------- |  --------- | --------- | --------- | 
-Cases of HCC | `r sum(SimData$Y1)` |`r sum(SimData$Y2, na.rm = TRUE)`|`r sum(SimData$Y3, na.rm = TRUE)`|`r sum(SimData$Y4, na.rm = TRUE)`|`r sum(SimData$Y5, na.rm = TRUE)`
-Patients Censored | `r sum(SimData$C1)`| `r sum(SimData$C2)`| `r sum(SimData$C3)`| `r sum(SimData$C4)`| `r sum(SimData$C5)`
-Patients Missing FIB-4 | `r sum(as.numeric(is.na(SimData$L1)))`| `r sum(as.numeric(is.na(SimData$L2)))`| `r sum(as.numeric(is.na(SimData$L3)))`| `r sum(as.numeric(is.na(SimData$L4)))`| NA
+#### Cases of HCC in the Simulated Data
+
+In our simulated dataset, there were `r sum(SimData$Y9, na.rm = TRUE)` cases of hepatocellular carcinoma (HCC) by the end of the study interval.
+
 
 \vspace{20pt}
 
 #### Histograms of Visits and FIB-4 Scores in the Simulated Data
-Here are density plots demonstrating the distribution of FIB-4 scores over the 4 years they were measured. 
+Here are density plots demonstrating the distribution of FIB-4 scores over the years they were measured. 
 
 ```{r FIB4 Histograms, include = TRUE, echo = FALSE, out.width= '100%'}
 #found at https://stackoverflow.com/questions/6957549/overlaying-histograms-with-ggplot2-in-r
@@ -708,7 +733,7 @@ suppressWarnings(print(VisitsHist))
 
 **Implement our intervention computationally.**
 
-To do this, we use the simulation code written earlier, but adapt our function, replacing the structural equations for $\bar{\Delta}(t), \bar{C}(t), \ \text{and} \ \bar{A}(t)$ with flexible parameters allowing us to specify values for our intervention.
+To do this, we use the simulation code written earlier, but adapt our function, replacing the structural equations for $\bar{C}(t)$ and  $\bar{A}(t)$ with flexible parameters allowing us to specify values for our intervention.
 
 ```{r intervene, include = FALSE}
 
