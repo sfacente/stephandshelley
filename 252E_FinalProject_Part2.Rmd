@@ -275,24 +275,7 @@ HCVData$VISIT_COUNT_2018 <-rowSums(cbind(HCVData$PC_2018_VISIT_COUNT, HCVData$HE
 
 HCVData$TotalVisits<- HCVData$VISIT_COUNT_2011 + HCVData$VISIT_COUNT_2012 + HCVData$VISIT_COUNT_2013 + HCVData$VISIT_COUNT_2014 + HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
 
-#calculating a total fib4, NOT  because it's meaningful but to be ableto see how many had NO FIB4
-#weirdly this doesn't knit properly...since I calculated it just for exploration, I'm commenting out.
-# HCVData$totalFIB4 <-rowSums(cbind(HCVData$FIB4_2009,
-#                                   HCVData$FIB4_2010,
-#                                   HCVData$FIB4_2011,
-#                                   HCVData$FIB4_2012,
-#                                   HCVData$FIB4_2013,
-#                                   HCVData$FIB4_2014,
-#                                   HCVData$FIB4_2015,
-#                                   HCVData$FIB4_2016,
-#                                   HCVData$FIB4_2017,
-#                                   HCVData$FIB4_2018), na.rm=TRUE)
-# summary(HCVData$totalFIB4==0)
-# 
-# HCVData$totalFIB4BY2011 <-rowSums(cbind(HCVData$FIB4_2009,
-#                                   HCVData$FIB4_2010,
-#                                   HCVData$FIB4_2011), na.rm=TRUE)
-# summary(HCVData$totalFIB4BY2011==0)
+
 ```
 
 ```{r Age_and_FIB-4}
@@ -348,6 +331,8 @@ HCVData$FIB4_2017 <- HCVData$AGE_2011 * HCVData$AST_2017 / (HCVData$PLATELET_201
 HCVData$FIB4_2018 <- HCVData$AGE_2011 * HCVData$AST_2018 / (HCVData$PLATELET_2018 * sqrt(HCVData$ALT_2018))
 
 HCVData$FIB4_2019 <- HCVData$AGE_2011 * HCVData$AST_2019 / (HCVData$PLATELET_2019 * sqrt(HCVData$ALT_2019))
+
+
 ```
 
 ```{r Export_age_and_FIB4_for_Rena}
@@ -364,6 +349,90 @@ HCVData$FIB4_2019 <- HCVData$AGE_2011 * HCVData$AST_2019 / (HCVData$PLATELET_201
 ```{r filter to adults with visits}
 HCVData<- HCVData %>% filter(TotalVisits != 0) %>%
                       filter(AGE_2011 >18)
+
+#calculating a total fib4, NOT  because it's meaningful but to be ableto see how many had NO FIB4
+
+HCVData$totalFIB4 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014,
+                                  HCVData$FIB4_2015,
+                                  HCVData$FIB4_2016,
+                                  HCVData$FIB4_2017,
+                                  HCVData$FIB4_2018), na.rm=TRUE)
+summary(HCVData$totalFIB4==0)
+
+HCVData$totalFIB4BY2011 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2011==0)
+
+HCVData$totalFIB4BY2014 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2014==0)
+
+HCVData$totalFIB4BY2015 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014,
+                                  HCVData$FIB4_2015), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2015==0)
+#note- by 2015 72% of our sample has a FIB4.
+
+HCVData$totalFIB4BY2016 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014,
+                                  HCVData$FIB4_2015,
+                                  HCVData$FIB4_2016), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2016==0)
+
+HCVData$totalFIB4BY2017 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014,
+                                  HCVData$FIB4_2015,
+                                  HCVData$FIB4_2016,
+                                  HCVData$FIB4_2017), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2017==0)
+
+HCVData$totalFIB4BY2018 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014,
+                                  HCVData$FIB4_2015,
+                                  HCVData$FIB4_2016,
+                                  HCVData$FIB4_2017,
+                                  HCVData$FIB4_2018), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2018==0)
+
+HCVData$totalFIB4BY2019 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014,
+                                  HCVData$FIB4_2015,
+                                  HCVData$FIB4_2016,
+                                  HCVData$FIB4_2017,
+                                  HCVData$FIB4_2018,
+                                  HCVData$FIB4_2019), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2019==0)
+
 ```
 
 
