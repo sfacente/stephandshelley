@@ -545,7 +545,7 @@ Our target causal parameter is identified as a function of the observed data dis
 
 #4. Preliminary Results
 ## a. Simulation
-  To run our simulation, we first create a dataframe $O$ which includes all of the exogenous and endogenous variables in our SCM. Each of our $U_{W}, U_{C(t)}, \ \text{and} \ U_{Y(t)}$ variables have a uniform distribution with a min of 0 and max of 1. Each of our $U_{L(t)}$ variables have a gamma distribution with a shape parameter of 1.5 and scale parameter of 2. Each of our $U_{A(t)}$ variables have a poisson distribution with a rate parameter ($\lambda$) of 3. 
+  To run our simulation, we first create a dataframe $O$ which includes all of the exogenous and endogenous variables in our SCM. Each of our $U_{W}, U_{C(t)}, \ \text{and} \ U_{Y(t)}$ variables have a uniform distribution with a min of 0 and max of 1. Each of our $U_{L(t)}$ variables have a gamma distribution with a shape parameter of 0.6 and scale parameter of 2.6. Each of our $U_{A(t)}$ variables have a gamma distribution with a shape parameter of 0.7 and scale parameter of 3.5. The shape and scale parameters for these distributions were chosen by having them reflect the distribution of variables in our observed data.
   
   For our endogenous variables:
   
@@ -873,9 +873,11 @@ This means that people with very frequent primary care or hepatology visits ($\b
 # beta1 <- coef(MSM)[2]
 ```
 
-<!--*In our simulation, ###NEED TO FINISH THIS###-->
+<!--*In our simulation, armadillo! ###NEED TO FINISH THIS###-->
 
 ## b. Data example
+
+<!-- armadillo! ###NEED TO DO THIS###-->
 
 ## 5. References
 
