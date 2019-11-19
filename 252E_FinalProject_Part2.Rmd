@@ -564,8 +564,7 @@ We are using a dataset of chronic hepatitis C patients receiving care in the UCS
 knitr::include_graphics("dagitty-model.png")
 ```
 
-We intend to do this analysis using 5 years worth of data (4 of exposure and 1 of outcome), but in order to simplify the DAG, we present only the final 3 years (two of exposure data and the final year of outcome) here. This DAG includes a $C$ value indicating whether or not the patient had the outcome measured by the end of the study.
-
+This analysis includes 5 years worth of data (4 of exposure and 1 of outcome), but in order to simplify the DAG we present only the final 3 years (two of exposure data and the final year of outcome) here. This DAG includes a $C$ value indicating whether or not the patient had the outcome measured by the end of the study.
 
 ### iii. Our Structural Causal Model, $O= (W, C(t), \Delta(t), L(t), Y(t), A(t))$
 This is survival data with missingness and censoring, where:
