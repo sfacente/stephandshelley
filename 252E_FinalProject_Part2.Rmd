@@ -860,7 +860,7 @@ generate_data_intervene <- function(n, c, a1, a2, a3, a4) {
            A4 = ifelse(Y3==1, NA, a4), 
            Y4 = ifelse(Y3==1, 1, as.numeric((UY4+0.01*A3-0.05*L3)< 0.03)),
            A5 = ifelse(Y4==1, NA, a5), 
-           C5 = ifelse(A5 == 0, 1, 0),
+           C5 = 0,
            Y5 = ifelse(Y4==1, 1, as.numeric((UY5+0.01*A4-0.05*L4)< 0.03)))
   return(O)
 }
