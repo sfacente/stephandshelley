@@ -12,6 +12,7 @@ library(skimr)
 library(knitr)
 library(xlsx)
 library(lubridate)
+library(Hmisc)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
@@ -256,6 +257,7 @@ colnames(HCVData)[colnames(HCVData) == 'Liver Disease'] <- 'Liver.Disease'
 
 HCVData$PAYOR_NAME <- as.factor(HCVData$PAYOR_NAME)
 colnames(HCVData)[colnames(HCVData) == 'PAYOR_NAME'] <- 'PAYOR'
+HCVData <- HCVData %>% mutate(PayorType = ifelse())
 
 HCVData$'FIRST PC APPT DEPT' <- as.factor(HCVData$'FIRST PC APPT DEPT')
 colnames(HCVData)[colnames(HCVData) == 'FIRST PC APPT DEPT'] <- 'FIRST_PC_APPT_DEPT'
@@ -350,88 +352,138 @@ HCVData$FIB4_2019 <- HCVData$AGE_2011 * HCVData$AST_2019 / (HCVData$PLATELET_201
 HCVData<- HCVData %>% filter(TotalVisits != 0) %>%
                       filter(AGE_2011 >18)
 
-#calculating a total fib4, NOT  because it's meaningful but to be ableto see how many had NO FIB4
+# #calculating a total fib4, NOT  because it's meaningful but to be ableto see how many had NO FIB4
+# #commenting out for now bc just used this to explore
+# HCVData$totalFIB4 <-rowSums(cbind(HCVData$FIB4_2009,
+#                                   HCVData$FIB4_2010,
+#                                   HCVData$FIB4_2011,
+#                                   HCVData$FIB4_2012,
+#                                   HCVData$FIB4_2013,
+#                                   HCVData$FIB4_2014,
+#                                   HCVData$FIB4_2015,
+#                                   HCVData$FIB4_2016,
+#                                   HCVData$FIB4_2017,
+#                                   HCVData$FIB4_2018), na.rm=TRUE)
+# summary(HCVData$totalFIB4==0)
+# 
+# HCVData$totalFIB4BY2011 <-rowSums(cbind(HCVData$FIB4_2009,
+#                                   HCVData$FIB4_2010,
+#                                   HCVData$FIB4_2011), na.rm=TRUE)
+# summary(HCVData$totalFIB4BY2011==0)
+# 
+# HCVData$totalFIB4BY2014 <-rowSums(cbind(HCVData$FIB4_2009,
+#                                   HCVData$FIB4_2010,
+#                                   HCVData$FIB4_2011,
+#                                   HCVData$FIB4_2012,
+#                                   HCVData$FIB4_2013,
+#                                   HCVData$FIB4_2014), na.rm=TRUE)
+# summary(HCVData$totalFIB4BY2014==0)
+# 
+# HCVData$totalFIB4BY2015 <-rowSums(cbind(HCVData$FIB4_2009,
+#                                   HCVData$FIB4_2010,
+#                                   HCVData$FIB4_2011,
+#                                   HCVData$FIB4_2012,
+#                                   HCVData$FIB4_2013,
+#                                   HCVData$FIB4_2014,
+#                                   HCVData$FIB4_2015), na.rm=TRUE)
+# summary(HCVData$totalFIB4BY2015==0)
+# #note- by 2015 72% of our sample has a FIB4.
+# 
+# HCVData$totalFIB4BY2016 <-rowSums(cbind(HCVData$FIB4_2009,
+#                                   HCVData$FIB4_2010,
+#                                   HCVData$FIB4_2011,
+#                                   HCVData$FIB4_2012,
+#                                   HCVData$FIB4_2013,
+#                                   HCVData$FIB4_2014,
+#                                   HCVData$FIB4_2015,
+#                                   HCVData$FIB4_2016), na.rm=TRUE)
+# summary(HCVData$totalFIB4BY2016==0)
+# 
+# HCVData$totalFIB4BY2017 <-rowSums(cbind(HCVData$FIB4_2009,
+#                                   HCVData$FIB4_2010,
+#                                   HCVData$FIB4_2011,
+#                                   HCVData$FIB4_2012,
+#                                   HCVData$FIB4_2013,
+#                                   HCVData$FIB4_2014,
+#                                   HCVData$FIB4_2015,
+#                                   HCVData$FIB4_2016,
+#                                   HCVData$FIB4_2017), na.rm=TRUE)
+# summary(HCVData$totalFIB4BY2017==0)
+# 
+# HCVData$totalFIB4BY2018 <-rowSums(cbind(HCVData$FIB4_2009,
+#                                   HCVData$FIB4_2010,
+#                                   HCVData$FIB4_2011,
+#                                   HCVData$FIB4_2012,
+#                                   HCVData$FIB4_2013,
+#                                   HCVData$FIB4_2014,
+#                                   HCVData$FIB4_2015,
+#                                   HCVData$FIB4_2016,
+#                                   HCVData$FIB4_2017,
+#                                   HCVData$FIB4_2018), na.rm=TRUE)
+# summary(HCVData$totalFIB4BY2018==0)
+# 
+# HCVData$totalFIB4BY2019 <-rowSums(cbind(HCVData$FIB4_2009,
+#                                   HCVData$FIB4_2010,
+#                                   HCVData$FIB4_2011,
+#                                   HCVData$FIB4_2012,
+#                                   HCVData$FIB4_2013,
+#                                   HCVData$FIB4_2014,
+#                                   HCVData$FIB4_2015,
+#                                   HCVData$FIB4_2016,
+#                                   HCVData$FIB4_2017,
+#                                   HCVData$FIB4_2018,
+#                                   HCVData$FIB4_2019), na.rm=TRUE)
+# summary(HCVData$totalFIB4BY2019==0)
 
-HCVData$totalFIB4 <-rowSums(cbind(HCVData$FIB4_2009,
-                                  HCVData$FIB4_2010,
-                                  HCVData$FIB4_2011,
-                                  HCVData$FIB4_2012,
-                                  HCVData$FIB4_2013,
-                                  HCVData$FIB4_2014,
-                                  HCVData$FIB4_2015,
-                                  HCVData$FIB4_2016,
-                                  HCVData$FIB4_2017,
-                                  HCVData$FIB4_2018), na.rm=TRUE)
-summary(HCVData$totalFIB4==0)
 
-HCVData$totalFIB4BY2011 <-rowSums(cbind(HCVData$FIB4_2009,
-                                  HCVData$FIB4_2010,
-                                  HCVData$FIB4_2011), na.rm=TRUE)
-summary(HCVData$totalFIB4BY2011==0)
 
-HCVData$totalFIB4BY2014 <-rowSums(cbind(HCVData$FIB4_2009,
-                                  HCVData$FIB4_2010,
-                                  HCVData$FIB4_2011,
-                                  HCVData$FIB4_2012,
-                                  HCVData$FIB4_2013,
-                                  HCVData$FIB4_2014), na.rm=TRUE)
-summary(HCVData$totalFIB4BY2014==0)
 
-HCVData$totalFIB4BY2015 <-rowSums(cbind(HCVData$FIB4_2009,
-                                  HCVData$FIB4_2010,
-                                  HCVData$FIB4_2011,
-                                  HCVData$FIB4_2012,
-                                  HCVData$FIB4_2013,
-                                  HCVData$FIB4_2014,
-                                  HCVData$FIB4_2015), na.rm=TRUE)
-summary(HCVData$totalFIB4BY2015==0)
-#note- by 2015 72% of our sample has a FIB4.
+#creating the FIB4 scores that  pull forward past scores
+HCVData <-  HCVData %>% mutate(FIB4_by2010 = FIB4_2010, YearsSinceFib4_2010 = 0)
+HCVData <- HCVData %>% mutate(FIB4_by2010 = ifelse(is.na(FIB4_2010)== "TRUE", FIB4_2009, FIB4_by2010),
+                               YearsSinceFib4_2010 = ifelse(is.na(FIB4_2010)== "TRUE", 1, 0))
+ 
 
-HCVData$totalFIB4BY2016 <-rowSums(cbind(HCVData$FIB4_2009,
-                                  HCVData$FIB4_2010,
-                                  HCVData$FIB4_2011,
-                                  HCVData$FIB4_2012,
-                                  HCVData$FIB4_2013,
-                                  HCVData$FIB4_2014,
-                                  HCVData$FIB4_2015,
-                                  HCVData$FIB4_2016), na.rm=TRUE)
-summary(HCVData$totalFIB4BY2016==0)
+HCVData <-  HCVData %>% mutate(FIB4_by2011 = FIB4_2011, YearsSinceFib4_2011 = 0)
+HCVData <-  HCVData %>% mutate(FIB4_by2011 = ifelse(is.na(FIB4_2011)== "TRUE", FIB4_by2010, FIB4_by2011),
+                               YearsSinceFib4_2011 = ifelse(is.na(FIB4_2011)== "TRUE", YearsSinceFib4_2010 + 1, 0))
 
-HCVData$totalFIB4BY2017 <-rowSums(cbind(HCVData$FIB4_2009,
-                                  HCVData$FIB4_2010,
-                                  HCVData$FIB4_2011,
-                                  HCVData$FIB4_2012,
-                                  HCVData$FIB4_2013,
-                                  HCVData$FIB4_2014,
-                                  HCVData$FIB4_2015,
-                                  HCVData$FIB4_2016,
-                                  HCVData$FIB4_2017), na.rm=TRUE)
-summary(HCVData$totalFIB4BY2017==0)
+HCVData <-  HCVData %>% mutate(FIB4_by2012 = FIB4_2012, YearsSinceFib4_2012 = 0)
+HCVData <-  HCVData %>% mutate(FIB4_by2012 = ifelse(is.na(FIB4_2012)== "TRUE", FIB4_by2011, FIB4_by2012),
+                               YearsSinceFib4_2012 = ifelse(is.na(FIB4_2012)== "TRUE", YearsSinceFib4_2011 + 1, 0))
 
-HCVData$totalFIB4BY2018 <-rowSums(cbind(HCVData$FIB4_2009,
-                                  HCVData$FIB4_2010,
-                                  HCVData$FIB4_2011,
-                                  HCVData$FIB4_2012,
-                                  HCVData$FIB4_2013,
-                                  HCVData$FIB4_2014,
-                                  HCVData$FIB4_2015,
-                                  HCVData$FIB4_2016,
-                                  HCVData$FIB4_2017,
-                                  HCVData$FIB4_2018), na.rm=TRUE)
-summary(HCVData$totalFIB4BY2018==0)
+HCVData <-  HCVData %>% mutate(FIB4_by2013 = FIB4_2013, YearsSinceFib4_2013 = 0)
+HCVData <-  HCVData %>%  mutate(FIB4_by2013 = ifelse(is.na(FIB4_2013)== "TRUE", FIB4_by2012, FIB4_by2013),
+                               YearsSinceFib4_2013 = ifelse(is.na(FIB4_2013)== "TRUE", YearsSinceFib4_2012 + 1, 0))
 
-HCVData$totalFIB4BY2019 <-rowSums(cbind(HCVData$FIB4_2009,
-                                  HCVData$FIB4_2010,
-                                  HCVData$FIB4_2011,
-                                  HCVData$FIB4_2012,
-                                  HCVData$FIB4_2013,
-                                  HCVData$FIB4_2014,
-                                  HCVData$FIB4_2015,
-                                  HCVData$FIB4_2016,
-                                  HCVData$FIB4_2017,
-                                  HCVData$FIB4_2018,
-                                  HCVData$FIB4_2019), na.rm=TRUE)
-summary(HCVData$totalFIB4BY2019==0)
+HCVData <-  HCVData %>% mutate(FIB4_by2014 = FIB4_2014, YearsSinceFib4_2014 = 0)
+HCVData <-  HCVData %>% mutate(FIB4_by2014 = ifelse(is.na(FIB4_2014)== "TRUE", FIB4_by2013, FIB4_by2014),
+                               YearsSinceFib4_2014 = ifelse(is.na(FIB4_2014)== "TRUE", YearsSinceFib4_2013 + 1, 0))
+
+HCVData <-  HCVData %>% mutate(FIB4_by2015 = FIB4_2015, YearsSinceFib4_2015 = 0)
+HCVData <-  HCVData %>% mutate(FIB4_by2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, FIB4_by2015),
+                               YearsSinceFib4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", YearsSinceFib4_2014 + 1, 0))
+
+HCVData <-  HCVData %>% mutate(FIB4_by2016 = FIB4_2016, YearsSinceFib4_2016 = 0)
+HCVData <-  HCVData %>% mutate(FIB4_by2016 = ifelse(is.na(FIB4_2016)== "TRUE", FIB4_by2015, FIB4_by2016),
+                               YearsSinceFib4_2016 = ifelse(is.na(FIB4_2016)== "TRUE", YearsSinceFib4_2015 + 1, 0))
+
+HCVData <-  HCVData %>% mutate(FIB4_by2017 = FIB4_2017, YearsSinceFib4_2017 = 0)
+HCVData <-  HCVData %>% mutate(FIB4_by2017 = ifelse(is.na(FIB4_2017)== "TRUE", FIB4_by2016, FIB4_by2017),
+                               YearsSinceFib4_2017 = ifelse(is.na(FIB4_2017)== "TRUE", YearsSinceFib4_2016 + 1, 0))
+
+HCVData <-  HCVData %>% mutate(FIB4_by2018 = FIB4_2018, YearsSinceFib4_2018 = 0)
+HCVData <-  HCVData %>% mutate(FIB4_by2018 = ifelse(is.na(FIB4_2018)== "TRUE", FIB4_by2017, FIB4_by2018),
+                               YearsSinceFib4_2018 = ifelse(is.na(FIB4_2018)== "TRUE", YearsSinceFib4_2017 + 1, 0))
+
+HCVData <-  HCVData %>% mutate(FIB4_by2019 = FIB4_2019, YearsSinceFib4_2019 = 0)
+HCVData <-  HCVData %>% mutate(FIB4_by2019 = ifelse(is.na(FIB4_2019)== "TRUE", FIB4_by2018, FIB4_by2019),
+                               YearsSinceFib4_2019 = ifelse(is.na(FIB4_2019)== "TRUE", YearsSinceFib4_2018 + 1, 0))
+
+#Armadillo- multiple imputation not working
+HCVDataForImputation <- HCVData %>% select(date.first.pos.HCV.test, Race, Sex, ZIP,  ED.Visits, Hospital.Admissions, FIB4_by2015)
+imputed_Data <- mice(HCVDataForImputation, m=5, maxit = 50, method = 'pmm', seed = 500)
+summary(imputed_Data)
 
 ```
 
@@ -494,17 +546,17 @@ summary(HCVData$totalFIB4BY2019==0)
 
 ## b. Description of our Dataset
 
-We have access to a dataset of chronic Hepatitis C patients currently receiving care in the UCSF system. There are `r nrow(HCVData)` patients, who were adults by the start of 2011 and have been seen in a variety of primary care clinics and the hepatology (liver) clinic between 2011 and 2018. These data come from a query of Apex, the UCSF-specific build of the electronic medical record system Epic. 
+We have access to a dataset of chronic Hepatitis C patients currently receiving care in the UCSF system. There are `r nrow(HCVData)` patients, who were adults by the start of 2015 and have been seen in a variety of primary care clinics and the hepatology (liver) clinic between 2015 and 2019. These data come from a query of Apex, the UCSF-specific build of the electronic medical record system Epic. 
 
 # 2. Roadmap
 ##a. Causal Model
 ### i. Defining Our Variables
 
-**Exposures**: We have data on the annual number of clinical visits that each chronic HCV patient had in the UCSF system annually from 2011 through 2018.
+**Exposures**: We have data on the annual number of clinical visits that each chronic HCV patient had in the UCSF system annually from 2015 through 2018.
 
-**Outcome**: The outcome is diagnosis of hepatocellular carcinoma (HCC), which occured in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. 
+**Outcome**: The outcome is diagnosis of hepatocellular carcinoma (HCC), by the final year (2019) which occured in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. 
 
-**Covariates**: Annual FIB-4 score (a validated measure used for prediction of cirrhosis, which uses age, platelet count and liver transaminases), biologic sex, race, insurance type (mediCal vs private- a surrogate of socioeconomic status.)
+**Covariates**: FIB-4 score (a validated measure used for prediction of cirrhosis, which uses age, platelet count and liver transaminases), years since FIB-4 score last measured, biologic sex, race, insurance type (mediCal vs private- a surrogate of socioeconomic status.)
 
 
 ### ii. Our DAG
@@ -512,7 +564,7 @@ We have access to a dataset of chronic Hepatitis C patients currently receiving 
 knitr::include_graphics("dagitty-model.png")
 ```
 
-We intend to do this analysis using 9 years worth of data, but in order to simplify the DAG, we present only the final 3 years (two of exposure data and a final year of outcome) here. This DAG includes both a $C$ value indicating whether or not the patient had the outcome measured by the end of the study.
+We intend to do this analysis using 5 years worth of data (4 of exposure and 1 of outcome), but in order to simplify the DAG, we present only the final 3 years (two of exposure data and the final year of outcome) here. This DAG includes a $C$ value indicating whether or not the patient had the outcome measured by the end of the study.
 
 
 ### iii. Our Structural Causal Model, $O= (W, C(t), \Delta(t), L(t), Y(t), A(t))$
@@ -526,7 +578,7 @@ This is survival data with missingness and censoring, where:
 
 $U = (U_{L(t)}, U_{A(t)}, U_{C(t)}, U_{Y(t)},), t = 1,2,3,4,5$ ~ $P_U$
 
-Structural Equations, F:
+Structural Equations, F,  for t from 1 to 5:
 \begin{align*}
 W &= f_{W}(U_{W}) \\
 L(1) &= f_{L(1)}(U_{L(1)}) \\
@@ -545,7 +597,7 @@ For our project, we plan to ask whether frequency of primary care and hepatology
 
 **What is the ideal experiment that would answer your Causal Question?**
 
-The ideal experiment to answer our Causal Question would be to deny people access to primary care and hepatology visits, and see how many developed HCC, then roll back the clock and give them access to just one visit annually (primary care OR hepatology) and see how many developed HCC, then roll back the clock and give them access to 5 visits annually and see how many developed HCC, and so on.
+The ideal experiment to answer our Causal Question would be to deny people access to primary care and hepatology visits, and see how many developed HCC, then roll back the clock and give them access to just one visit annually (primary care OR hepatology) and see how many developed HCC, then roll back the clock and give them access to 1 visits annually and see how many developed HCC, then roll back the clock and give them access to 1 visits annually and see how many developed HCC, and so on.
 
 **Which of your variables would you intervene on to answer your Causal Question(s)? What values would you set them equal to?**
 
@@ -557,7 +609,7 @@ We are interested in whether a patient is diagnosed with hepatocellular carcinom
 
 **What are your counterfactual outcomes, and how would you explain them in words?**
 
-  Our counterfactual outcomes are the prevalence of HCC at the end of study follow-up if no one had any primary care or hepatology visits, the prevalence of HCC at the end of study follow-up if everyone had one primary care or hepatology visit over the study period, and the prevalence of HCC at the end of study follow-up if everyone had at least one primary care or hepatology visit over the 5 year study period.
+  Our counterfactual outcomes are the prevalence of HCC at the end of study follow-up if no one had any primary care or hepatology visits, and the difference in prevalence of HCC at the end of study follow-up for every additional annual primary care or hepatology visit over the study period.
 
 **What aspects of the counterfactual outcome distribution are you interested in contrasting?**
   
@@ -589,7 +641,7 @@ Many of the variables that we intend to use will be coming in the next data pull
 
 
 ### Missingness
-  There will be some patients that do not have a FIB-4 score in a given year because they did not have a laboratory assessment of their platelets or transaminases. At each year,  the FIB-4 used will be the most recent one calculated and there will also be a variable representing time since FIB-4 was measured. <!--armadillo! what are we doing with those missing at the start -->
+  Note that we have FIB-4 scores calculated annually (when the appropriate components are available) from 2009 forward. Thus, we have a FIB-4 score available for `r as.numeric(summary(HCVData$totalFIB4BY2015==0)[2])/nrow(HCVData)` % of participants at the start of the study interval (calculated somewhere in 2009-2015). For the rest of the participants, we used multiple imputation to impute a 2015 FIB-4 score. For all participants, the FIB-4 score and years since measured are updated every year that all the requisite labs were measured. Thus, by the end of interval, `r as.numeric(summary(HCVData$totalFIB4BY2019==0)[2])/nrow(HCVData)` % of participants had a measured FIB-4 score rather than an imputed value.
   
   There is not missingness expected in the exposure-since EMRs are designed for clinical billing, the data on whether or not visit(s) occurred are expected to be highly accurate. Because HCC is a common and severe complication of HCV, we are comfortable assuming that a patient who is still followed in the system and does not yet have a diagnosis of HCC, is truly negative for HCC, rather than simply missing that data.Further, we will intervene at the end to ensure everyone
 
@@ -610,7 +662,11 @@ Our target causal parameter is identified as a function of the observed data dis
 #3. Estimation
 ## a. What estimators will you use?
 
+-g comp and ltmle?
+
 ## b. How will you implement these estimators?
+
+ltmle package?
 
 #4. Preliminary Results
 ## a. Simulation
