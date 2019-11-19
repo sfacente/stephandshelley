@@ -12,7 +12,7 @@ library(skimr)
 library(knitr)
 library(xlsx)
 library(lubridate)
-library(Hmisc)
+#library(Hmisc)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
@@ -696,7 +696,7 @@ ltmle package?
 
 We then set a seed so our numbers could be replicated exactly, and generated data with n = 3000. The following table and plots describe the results of the simulation.
 
-```{r simulation, include = FALSE}
+```{r simulation, include = TRUE}
 
 generate_data <- function(n) {
   U <- data.frame(UW = runif(n = n, min = 0, max = 1),
@@ -881,6 +881,8 @@ x <- list(0:6)
 TreatmentLevels<- expand.grid(rep(x, 5))
 
 k <- nrow(TreatmentLevels)
+sum_abar <- rep(NA, k)
+EY_abar <- rep(NA, k)
 
 for (i in 1:k){
   temporary <- as.vector(TreatmentLevels[i,])
@@ -894,46 +896,46 @@ df <- generate_data_intervene(
                           a5 = as.numeric(temporary[5])
 )
 
-sum_abar <- rep(NA, k)
-EY_abar <- rep(NA, k)
 sum_abar[i] <- sum(as.numeric(temporary[1]) + as.numeric(temporary[2]) + as.numeric(temporary[3]) + as.numeric(temporary[4]) + as.numeric(temporary[5]))
 EY_abar[i] <- mean(df$Y5)
 }
 
+
+
+#checking linearity
+PlottingData <-as.data.frame(cbind(sum_abar, EY_abar))
+Plot2 <- ggplot(PlottingData, aes(x = sum_abar, y = EY_abar)) +
+geom_point() +
+geom_smooth(method = "lm") +
+ggtitle("Expected Probability of HCC dependant on number of visits")  +
+xlab("Total Number of Visits 2015-2018")+ 
+ylab("Expected Probability of HCC")
+
+Plot2
+
+#Regressing to get beta value
+TrueParameterRegression <-lm(EY_abar ~ sum_abar)
+summary(TrueParameterRegression)
+
+#PsiF
+PsiF <- as.numeric(TrueParameterRegression$coefficients[2])
+PsiF
 ```
 
-For simplicity, we simulated counterfactual outcomes to try to determine $\Psi^F(P_{U,X})$ as the ratio between the proportion of patients diagnosed with HCC under the counterfactual scenario where $\bar{A}(t) = 6$ (all people had 6 visits per year, an extremely high number of visits), and $\bar{A} = 0$ (all people had no primary care or hepatology visits in any year). If we simulate data with n = 1000, then* $\Psi^F(P_{U,X})$ = `r round(PsiF, 3)`.
+We simulated counterfactual outcomes with all possible combinations of 0-6 visits per year to try to determine $\Psi^F(P_{U,X})$ as the coefficient on the total number of visits in the marginal structural model $\Psi^F(P_{U,X})$ = `r round(PsiF, 3)`.
+
+Note that a few individuals had more than 6  visits per year,  but for ease we limited our simulation to six,as this still results in 16,807 possible  treatment combinations. 
 
 **Write a sentence interpreting your $\Psi^F(P_{U,X})$**
 
-This means that people with very frequent primary care or hepatology visits ($\bar{A} = 6$ used to represent that in this example) are `r round(PsiFpercent, 1)`% more likely to develop HCC than people who have no primary care or hepatology visits ($\bar{A} = 0$) in the five years under study.
+This means that for every additional primary care or hepatology visit, patients are are `r round(PsiFpercent, 1)`% less likely to develop HCC than people who have one fewer primary care or hepatology visits in the five years under study.
 
 \vspace{24pt}
 
 <!--### C. Confirm that in your simulation, the value of your estimand equals the value of your target causal parameter.-->
 
-```{r IPTW, include = FALSE}
-# sum_a <- rowSums(SimData[c("A1", "A2", "A3", "A4")])
-# 
-# g2A1 <- glm(A1 ~ L1, Y1, family = "poisson", data = SimData)
-# g2A2 <- glm(A2 ~ L2, Y2, family = "poisson", data = SimData)
-# g2A3 <- glm(A3 ~ L3, Y3, family = "poisson", data = SimData)
-# g2A4 <- glm(A4 ~ L4, Y4, family = "poisson", data = SimData)
-# 
-# gA1_1 <- predict(g2A1, type = 'response')
-# gA2_1 <- predict(g2A2, type = 'response')
-# gA3_1 <- predict(g2A3, type = 'response')
-# gA4_1 <- predict(g2A4, type = 'response')
-# 
-# gA1 <- mean(gA1_1)
-# gA2 <- mean(gA2_1)
-# gA3 <- mean(gA3_1)
-# gA4 <- mean(gA4_1)
+```{r Estimand, include = FALSE}
 
-# w <- 1/(gA1 * gA2 * gA3 * gA4)
-# 
-# MSM <- glm(Y5 ~ sum_a, weights = w, data = SimData)
-# beta1 <- coef(MSM)[2]
 ```
 
 <!--*In our simulation, armadillo! ###NEED TO FINISH THIS###-->
