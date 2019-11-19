@@ -481,9 +481,9 @@ HCVData <-  HCVData %>% mutate(FIB4_by2019 = ifelse(is.na(FIB4_2019)== "TRUE", F
                                YearsSinceFib4_2019 = ifelse(is.na(FIB4_2019)== "TRUE", YearsSinceFib4_2018 + 1, 0))
 
 #Armadillo- multiple imputation not working
-HCVDataForImputation <- HCVData %>% select(date.first.pos.HCV.test, Race, Sex, ZIP,  ED.Visits, Hospital.Admissions, FIB4_by2015)
-imputed_Data <- mice(HCVDataForImputation, m=5, maxit = 50, method = 'pmm', seed = 500)
-summary(imputed_Data)
+#HCVDataForImputation <- HCVData %>% select(date.first.pos.HCV.test, Race, Sex, ZIP,  ED.Visits, Hospital.Admissions, FIB4_by2015)
+#imputed_Data <- mice(HCVDataForImputation, m=5, maxit = 50, method = 'pmm', seed = 500)
+#summary(imputed_Data)
 
 ```
 
@@ -541,12 +541,13 @@ summary(imputed_Data)
 
 # 1. Background
 ## a. Brief Introduction
+Hepatocellular carcinoma (HCC), a type of liver cancer, is the second most common cause of liver-related death throughout the world (Bosetti et al 2014). HCC is a major complication of infection with hepatitis C (HCV) virus, occuring in 1%-4% of people with liver cirrhosis each year (Omland et al 2010). HCV becomes chronic infection for about 80% of adults, and if left untreated can cause increasing cirrhosis over a period of 20-30 years of often asymptomatic disease, until damage is severe and major complications are irreversable (El-Serag 2012). Certain HCV viral genotypes (particularly genotype 3) are associated with higher risk of HCC, as is continued smoking (Chuang et al 2010) and alcohol use (Donato et al 2002), as well as concurrent diabetes or obesity (Huang et al 2017, Calle et al 2003). 
 
-<!-- armadillo! Need to fill this in -->
+Since 2014, direct-acting antiviral (DAA) therapy has dramatically improved prognosis for people living with HCV; 8-12 weeks of well-tolerated oral therapy leads to cure in more than 90% of patients (Burstow et al 2017), halting cirrhosis progression and apparently reducing the elevated risk of HCC (Axley et al 2017). Patients whose HCV has already caused some cirrhosis continue to be at some increased risk of HCC even post-cure, and given the high mortality risk it is critical that people with HCV infection receive systematic monitoring with liver ultrasound (the European Association for Study of the Liver currently recommends screening twice per year) (EASL 2015). Therefore, we hypothesize that regular visits to a primary care physician or hepatologist who can provide screening and ongoing disease management (including curative treatment for HCV infection in most cases) is preventive for development of HCC among people with known chronic HCV infection.
 
 ## b. Description of our Dataset
 
-We have access to a dataset of chronic Hepatitis C patients currently receiving care in the UCSF system. There are `r nrow(HCVData)` patients, who were adults by the start of 2015 and have been seen in a variety of primary care clinics and the hepatology (liver) clinic between 2015 and 2019. These data come from a query of Apex, the UCSF-specific build of the electronic medical record system Epic. 
+We are using a dataset of chronic hepatitis C patients receiving care in the UCSF system since 2009. There are `r nrow(HCVData)` patients, who were adults by the start of 2015 and have been seen in a variety of primary care clinics and the hepatology (liver) clinic between 2015 and 2019. These data come from a query of Apex, the UCSF-specific build of the electronic medical record system Epic. 
 
 # 2. Roadmap
 ##a. Causal Model
@@ -1006,6 +1007,28 @@ This means that people with very frequent primary care or hepatology visits ($\b
 
 ## 5. References
 
+Axley P, Ahmed Z, Ravi S, Singal AK. Hepatitis C Virus and Hepatocellular Carcinoma: A Narrative Review. J Clin Transl Hepatol. 2018 Mar 28; 6(1): 79-84.
+
+Bosetti C, Turati F, La Vecchia C. Hepatocellular carcinoma epidemiology.Best Pract Res Clin Gastroenterol. 2014 Oct; 28(5):753-70.
+
 Burman BE, Bacchetti P, Khalili M. Moderate Alcohol Use and Insulin Action in Chronic Hepatitis C Infection. Dig Dis Sci. 2016;61(8):2417-2425. doi:10.1007/s10620-016-4119-0
+
+Burstow NJ, Mohamed Z, Gomaa AI, et al. Hepatitis C treatment: where are we now? Int J Gen Med 2017; 10:39-52.
+
+Calle EE, Rodriguez C, Walker-Thurmond K, Thun MJ. Overweight, obesity, and mortality from cancer in a prospectively studied cohort of U.S. adults. N Engl J Med. 2003 Apr 24; 348(17):1625-38.
+
+Chuang SC, Lee YC, Hashibe M, Dai M, Zheng T, Boffetta P. Interaction between cigarette smoking and hepatitis B and C virus infection on the risk of liver cancer: a meta-analysis. Cancer Epidemiol Biomarkers Prev. 2010 May; 19(5):1261-8.
+
+Donato F, Tagger A, Gelatti U, Parrinello G, Boffetta P, Albertini A, Decarli A, Trevisi P, Ribero ML, Martelli C, Porru S, Nardi G. Alcohol and hepatocellular carcinoma: the effect of lifetime intake and hepatitis virus infections in men and women. Am J Epidemiol. 2002 Feb 15; 155(4):323-31.
+
+El-Serag HB. Epidemiology of viral hepatitis and hepatocellular carcinoma. Gastroenterology. 2012 May; 142(6):1264-1273.e1.
+
+European Association for Study of Liver. EASL Recommendations on Treatment of Hepatitis C 2015. 
+J Hepatol. 2015 Jul; 63(1):199-236.
+
+Huang TS, Lin CL, Lu MJ, Yeh CT, Liang KH, Sun CC, Shyu YC, Chien RN. Diabetes, hepatocellular carcinoma, and mortality in hepatitis C-infected patients: A population-based cohort study.
+J Gastroenterol Hepatol. 2017 Jul; 32(7):1355-1362.
+
+Omland LH, Krarup H, Jepsen P, Georgsen J, Harritshøj LH, Riisom K, Jacobsen SE, Schouenborg P, Christensen PB, Sørensen HT, Obel N, DANVIR Cohort Study. Mortality in patients with chronic and cleared hepatitis C viral infection: a nationwide cohort study. J Hepatol. 2010 Jul; 53(1):36-42.
 
 Sterling, R. K., Lissen, E. , Clumeck, N. , Sola, R. , Correa, M. C., Montaner, J. , S. Sulkowski, M. , Torriani, F. J., Dieterich, D. T., Thomas, D. L., Messinger, D. and Nelson, M. (2006), Development of a simple noninvasive index to predict significant fibrosis in patients with HIV/HCV coinfection. Hepatology, 43: 1317-1325. doi:10.1002/hep.21178
