@@ -557,8 +557,7 @@ We are using a dataset of chronic hepatitis C patients receiving care in the UCS
 
 **Outcome**: The outcome is diagnosis of hepatocellular carcinoma (HCC), by the final year (2019) which occured in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. 
 
-**Covariates**: FIB-4 score (a validated measure used for prediction of cirrhosis, which uses age, platelet count and liver transaminases), years since FIB-4 score last measured, biologic sex, race, insurance type (mediCal vs private- a surrogate of socioeconomic status.)
-
+**Covariates**: FIB-4 score (a validated measure used for prediction of cirrhosis (Khan et al 2017), which uses age, platelet count and liver transaminases), years since FIB-4 score last measured, biologic sex, race, insurance type (Medi-Cal vs private- a surrogate of socioeconomic status.)
 
 ### ii. Our DAG
 ```{r DAG, include = TRUE, echo = FALSE, out.width= "60%"}
@@ -1028,6 +1027,8 @@ J Hepatol. 2015 Jul; 63(1):199-236.
 
 Huang TS, Lin CL, Lu MJ, Yeh CT, Liang KH, Sun CC, Shyu YC, Chien RN. Diabetes, hepatocellular carcinoma, and mortality in hepatitis C-infected patients: A population-based cohort study.
 J Gastroenterol Hepatol. 2017 Jul; 32(7):1355-1362.
+
+Khan MQ, Anand V, Hessefort N, Hassan A, Ahsan A, Sonnenberg A, Fimmel CJ. Utility of Electronic Medical record-based Fibrosis Scores in Predicting Advanced Cirrhosis in Patients with Hepatitic C Virus Infection. J Transl Int Med. 2017 Mar; 5(1): 43-48.
 
 Omland LH, Krarup H, Jepsen P, Georgsen J, Harritshøj LH, Riisom K, Jacobsen SE, Schouenborg P, Christensen PB, Sørensen HT, Obel N, DANVIR Cohort Study. Mortality in patients with chronic and cleared hepatitis C viral infection: a nationwide cohort study. J Hepatol. 2010 Jul; 53(1):36-42.
 
