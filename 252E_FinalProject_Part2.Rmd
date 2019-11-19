@@ -872,7 +872,6 @@ generate_data_intervene <- function(n, c, a1, a2, a3, a4, a5) {
 ```
 
 **Generate many counterfactual outcomes, then evaluate $\Psi^F(P_{U,X})$**
-#armadillo  need better counterfacyuals here
 ```{r PsiF, include = FALSE}
 set.seed(8675309)
 n<-3000
@@ -881,20 +880,25 @@ n<-3000
 x <- list(0:6)
 TreatmentLevels<- expand.grid(rep(x, 5))
 
-for (i in 1:2){
+k <- nrow(TreatmentLevels)
+
+for (i in 1:k){
   temporary <- as.vector(TreatmentLevels[i,])
 df <- generate_data_intervene(
                           n = 3000,
                           c = 0,
-                          a1 = temporary[1],
-                          a2 = temporary[2],
-                          a3 = temporary[3],
-                          a4 = temporary[4],
-                          a5 = temporary[5]
+                          a1 = as.numeric(temporary[1]),
+                          a2 = as.numeric(temporary[2]),
+                          a3 = as.numeric(temporary[3]),
+                          a4 = as.numeric(temporary[4]),
+                          a5 = as.numeric(temporary[5])
 )
-assign( paste("SimData", i, sep=""), df )
-}
 
+sum_abar <- rep(NA, k)
+EY_abar <- rep(NA, k)
+sum_abar[i] <- sum(as.numeric(temporary[1]) + as.numeric(temporary[2]) + as.numeric(temporary[3]) + as.numeric(temporary[4]) + as.numeric(temporary[5]))
+EY_abar[i] <- mean(df$Y5)
+}
 
 ```
 
