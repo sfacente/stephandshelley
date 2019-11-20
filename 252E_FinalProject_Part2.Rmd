@@ -881,7 +881,7 @@ set.seed(8675309)
 n<-3000
 
 
-x <- list(0:6)
+x <- list(0:8)
 TreatmentLevels<- expand.grid(rep(x, 4))
 
 k <- nrow(TreatmentLevels)
@@ -897,7 +897,7 @@ df <- generate_data_intervene(
                           a2 = as.numeric(temporary[2]),
                           a3 = as.numeric(temporary[3]),
                           a4 = as.numeric(temporary[4]),
-                          a5 = as.numeric(temporary[5])
+                          a5 = 1
 )
 
 sum_abar[i] <- sum(as.numeric(temporary[1]) + as.numeric(temporary[2]) + as.numeric(temporary[3]) + as.numeric(temporary[4]), na.rm = TRUE)
@@ -938,49 +938,6 @@ This means that for every additional primary care or hepatology visit, patients 
 
 <!--### C. Confirm that in your simulation, the value of your estimand equals the value of your target causal parameter.-->
 
-```{r IPTW, include = FALSE}
-# Analysis.IPTW <- function(df){
-#   df2 <-df
-#   
-#   #IPTW
-#   
-#   #Creating probabilities
-# g2A1 <- glm.nb(A1 ~ L1, data = df2)
-# g2A2 <- glm.nb(A2 ~ L1 + A1 + L2, data = df2)
-# g2A3 <- glm.nb(A3 ~ L1 + A1 + L2 + A2 + L3, data = df2)
-# g2A4 <- glm.nb(A4 ~ L1 + A1 + L2 + A2 + L3 + A3 + L4, data = df2)
-# 
-# gA1_2 <-round(predict(g2A1, type="response", newdata= df2),0)
-# gA2_2 <- round(predict(g2A2, type="response", newdata= df2),0)
-# gA3_2 <- round(predict(g2A3, type="response", newdata= df2),0)
-# gA4_2 <- round(predict(g2A4, type="response", newdata= df2),0)
-# 
-# df3 <- cbind(df2, gA1_2, gA2_2, gA3_2, gA4_2)
-# 
-# #Checking for Practical Positivity violations.
-# summary(df3)
-# 
-# #probabilities of observed exposure status- armadillo!these are for binomial...not sure how to getthese probabilities for counts
-# gA1 <- (df3$A1 == 1) * gA1_2 + (df3$A1 == 0) * (1 - gA1_2)
-# gA2 <- (df3$A2 == 1) * gA2_2 + (df3$A2 == 0) * (1 - gA2_2)
-# gA3 <- (df3$A3 == 1) * gA3_2 + (df3$A3 == 0) * (1 - gA3_2)
-# gA4 <- (df3$A4 == 1) * gA4_2 + (df3$A4 == 0) * (1 - gA4_2)
-# 
-# #Creating IPTW Weights
-# Weight <-ifelse(is.na(gA1), 0, 
-#                 (ifelse(is.na(gA2), 0, 
-#                        (ifelse(is.na(gA3), 0, 
-#                               (ifelse(is.na(gA4), 0, (1/gA1)*(1/gA2)*(1/gA3)*(1/gA4))))))))
-# 
-# df4 <- df3 %>% dplyr::select(A1,A2, A3,A4)
-# sum_a <- rowSums(df4, na.rm = TRUE)
-# 
-# MSM <- glm(df3$Y5~sum_a, weights = Weight)
-# MSMbeta1<-as.numeric(MSM$coefficients[2])
-# return(MSMbeta1)
-# }
-
-```
 
 
 ```{r checking estimator performance with ltmle}
@@ -1022,39 +979,153 @@ df <-generate_data(3000)
 #define working.msm = character formula for working MSM
 working.msm = "Y ~ sumA"
 
-#Turning As into sets of binary indicators
-df$A11 <- ifelse(df$A1 <= 1, 1, 0)
-df$A12 <- ifelse(df$A1 <= 2 & df$A1 >1, 1, 0)
-df$A13 <- ifelse(df$A1 <= 3 & df$A1 >2, 1, 0)
-df$A14 <- ifelse(df$A1 <= 4 & df$A1 >3, 1, 0)
 
-df$A21 <- ifelse(df$A2 <= 1, 1, 0)
-df$A22 <- ifelse(df$A2 <= 2 & df$A2 >1, 1, 0)
-df$A23 <- ifelse(df$A2 <= 3 & df$A2 >2, 1, 0)
-df$A24 <- ifelse(df$A2 <= 4 & df$A2 >3, 1, 0)
+#Turning As into sets of binary indicators-armadillo
+#A1 first
+df$A11 <- ifelse(df$A1 == 1, 1, NA)
+df$A12 <- ifelse(df$A1 == 1, 0, NA)
+df$A13 <- ifelse(df$A1 == 1, 0, NA)
 
-df$A31 <- ifelse(df$A3 == 1, 1, 0)
-df$A32 <- ifelse(df$A3 <= 2 & df$A3 >1, 1, 0)
-df$A33 <- ifelse(df$A3 <= 3 & df$A3 >2, 1, 0)
-df$A34 <- ifelse(df$A3 <= 4 & df$A3 >3, 1, 0)
+df$A11 <- ifelse(df$A1 == 2, 1, df$A11)
+df$A12 <- ifelse(df$A1 == 2, 1, df$A12)
+df$A13 <- ifelse(df$A1 == 2, 0, df$A13)
 
-df$A41 <- ifelse(df$A4 == 1, 1, 0)
-df$A42 <- ifelse(df$A4 <= 2 & df$A4 >1, 1, 0)
-df$A43 <- ifelse(df$A4 <= 3 & df$A4 >2, 1, 0)
-df$A44 <- ifelse(df$A4 <= 4 & df$A4 >3, 1, 0)
+df$A11 <- ifelse(df$A1 == 3, 1, df$A11)
+df$A12 <- ifelse(df$A1 == 3, 0, df$A12)
+df$A13 <- ifelse(df$A1 == 3, 1, df$A13)
 
-df <- df %>% dplyr::select(L1, A11, A12, A13, A14, 
-                           L2, A21, A22, A23, A24, Y2,
-                           L3, A31, A32, A33, A34, Y3, 
-                           L4, A41, A42, A43, A44, Y4, 
+df$A11 <- ifelse(df$A1 == 4, 1, df$A11)
+df$A12 <- ifelse(df$A1 == 4, 1, df$A12)
+df$A13 <- ifelse(df$A1 == 4, 1, df$A13)
+
+df$A11 <- ifelse(df$A1 == 5, 0, df$A11)
+df$A12 <- ifelse(df$A1 == 5, 0, df$A12)
+df$A13 <- ifelse(df$A1 == 5, 0, df$A13)
+
+df$A11 <- ifelse(df$A1 == 6, 0, df$A11)
+df$A12 <- ifelse(df$A1 == 6, 1, df$A12)
+df$A13 <- ifelse(df$A1 == 6, 0, df$A13)
+
+df$A11 <- ifelse(df$A1 >= 7, 0, df$A11)
+df$A12 <- ifelse(df$A1 >= 7, 0, df$A12)
+df$A13 <- ifelse(df$A1 >= 7, 1, df$A13)
+
+df$A11 <- ifelse(df$A1 == 0, 0, df$A11)
+df$A12 <- ifelse(df$A1 == 0, 1, df$A12)
+df$A13 <- ifelse(df$A1 == 0, 1, df$A13)
+
+#creating the A2 indicators
+df$A21 <- ifelse(df$A2 == 1, 1, NA)
+df$A22 <- ifelse(df$A2 == 1, 0, NA)
+df$A23 <- ifelse(df$A2 == 1, 0,  NA)
+
+df$A21 <- ifelse(df$A2 == 2, 1, df$A21)
+df$A22 <- ifelse(df$A2 == 2, 1, df$A22)
+df$A23 <- ifelse(df$A2 == 2, 0, df$A23)
+
+df$A21 <- ifelse(df$A2 == 3, 1, df$A21)
+df$A22 <- ifelse(df$A2 == 3, 0, df$A22)
+df$A23 <- ifelse(df$A2 == 3, 1, df$A23)
+
+df$A21 <- ifelse(df$A2 == 4, 1, df$A21)
+df$A22 <- ifelse(df$A2 == 4, 1, df$A22)
+df$A23 <- ifelse(df$A2 == 4, 1, df$A23)
+
+df$A21 <- ifelse(df$A2 == 5, 0, df$A21)
+df$A22 <- ifelse(df$A2 == 5, 0, df$A22)
+df$A23 <- ifelse(df$A2 == 5, 0, df$A23)
+
+df$A21 <- ifelse(df$A2 == 6, 0, df$A21)
+df$A22 <- ifelse(df$A2 == 6, 1, df$A22)
+df$A23 <- ifelse(df$A2 == 6, 0, df$A23)
+
+df$A21 <- ifelse(df$A2 >= 7, 0, df$A21)
+df$A22 <- ifelse(df$A2 >= 7, 0, df$A22)
+df$A23 <- ifelse(df$A2 >= 7, 1, df$A23)
+
+df$A21 <- ifelse(df$A2 == 0, 0, df$A21)
+df$A22 <- ifelse(df$A2 == 0, 1, df$A22)
+df$A23 <- ifelse(df$A2 == 0, 1, df$A23)
+
+#creating the A3 indicators
+df$A31 <- ifelse(df$A3 == 1, 1, NA)
+df$A32 <- ifelse(df$A3 == 1, 0, NA)
+df$A33 <- ifelse(df$A3 == 1, 0, NA)
+
+df$A31 <- ifelse(df$A3 == 2, 1, df$A31)
+df$A32 <- ifelse(df$A3 == 2, 1, df$A32)
+df$A33 <- ifelse(df$A3 == 2, 0, df$A33)
+
+df$A31 <- ifelse(df$A3 == 3, 1, df$A31)
+df$A32 <- ifelse(df$A3 == 3, 0, df$A32)
+df$A33 <- ifelse(df$A3 == 3, 1, df$A33)
+
+df$A31 <- ifelse(df$A3 == 4, 1, df$A31)
+df$A32 <- ifelse(df$A3 == 4, 1, df$A32)
+df$A33 <- ifelse(df$A3 == 4, 1, df$A33)
+
+df$A31 <- ifelse(df$A3 == 5, 0, df$A31)
+df$A32 <- ifelse(df$A3 == 5, 0, df$A32)
+df$A33 <- ifelse(df$A3 == 5, 0, df$A33)
+
+df$A31 <- ifelse(df$A3 == 6, 0, df$A31)
+df$A32 <- ifelse(df$A3 == 6, 1, df$A32)
+df$A33 <- ifelse(df$A3 == 6, 0, df$A33)
+
+df$A31 <- ifelse(df$A3 >= 7, 0, df$A31)
+df$A32 <- ifelse(df$A3 >= 7, 0, df$A32)
+df$A33 <- ifelse(df$A3 >= 7, 1, df$A33)
+
+df$A31 <- ifelse(df$A3 == 0, 0, df$A31)
+df$A32 <- ifelse(df$A3 == 0, 1, df$A32)
+df$A33 <- ifelse(df$A3 == 0, 1, df$A33)
+
+#creating the A4 indicators
+df$A41 <- ifelse(df$A4 == 1, 1, NA)
+df$A42 <- ifelse(df$A4 == 1, 0, NA)
+df$A43 <- ifelse(df$A4 == 1, 0, NA)
+
+df$A41 <- ifelse(df$A4 == 2, 1, df$A41)
+df$A42 <- ifelse(df$A4 == 2, 1, df$A42)
+df$A43 <- ifelse(df$A4 == 2, 0, df$A43)
+
+df$A41 <- ifelse(df$A4 == 3, 1, df$A41)
+df$A42 <- ifelse(df$A4 == 3, 0, df$A42)
+df$A43 <- ifelse(df$A4 == 3, 1, df$A43)
+
+df$A41 <- ifelse(df$A4 == 4, 1, df$A41)
+df$A42 <- ifelse(df$A4 == 4, 1, df$A42)
+df$A43 <- ifelse(df$A4 == 4, 1, df$A43)
+
+df$A41 <- ifelse(df$A4 == 5, 0, df$A41)
+df$A42 <- ifelse(df$A4 == 5, 0, df$A42)
+df$A43 <- ifelse(df$A4 == 5, 0, df$A43)
+
+df$A41 <- ifelse(df$A4 == 6, 0, df$A41)
+df$A42 <- ifelse(df$A4 == 6, 1, df$A42)
+df$A43 <- ifelse(df$A4 == 6, 0, df$A43)
+
+df$A41 <- ifelse(df$A4 >= 7, 0, df$A41)
+df$A42 <- ifelse(df$A4 >= 7, 0, df$A42)
+df$A43 <- ifelse(df$A4 >= 7, 1, df$A43)
+
+df$A41 <- ifelse(df$A4 == 0, 0, df$A41)
+df$A42 <- ifelse(df$A4 == 0, 1, df$A42)
+df$A43 <- ifelse(df$A4 == 0, 1, df$A43)
+
+
+df <- df %>% dplyr::select(L1, A11, A12, A13, 
+                           L2, A21, A22, A23,  Y2,
+                           L3, A31, A32, A33,  Y3, 
+                           L4, A41, A42, A43,  Y4, 
                            C5,Y5)
 
-#estimate parameter using ltmleMSM function-armadillo-errors
+#estimate parameter using ltmleMSM function-
 results2.MSM <- ltmle::ltmleMSM(df,
-                     Anodes= c("A11", "A12", "A13", "A14",
-                               "A21", "A22", "A23", "A24",
-                               "A31", "A32", "A33", "A34",
-                               "A41", "A42", "A43", "A44" ),
+                     Anodes= c("A11", "A12", "A13", 
+                               "A21", "A22", "A23", 
+                               "A31", "A32", "A33", 
+                               "A41", "A42", "A43" ),
                      Lnodes = c("L1", "L2", "L3", "L4"),
                      Ynodes = c("Y2", "Y3", "Y4", "Y5"),
                      Cnodes = "C5",
@@ -1071,7 +1142,10 @@ sum.results2.MSM.iptw= summary(results2.MSM, "iptw")
 sum.results2.MSM.iptw
 
 results2.MSM.g <- ltmle::ltmleMSM(df,
-                     Anodes= c("A1", "A2", "A3", "A4"),
+                     Anodes= c("A11", "A12", "A13", 
+                               "A21", "A22", "A23", 
+                               "A31", "A32", "A33", 
+                               "A41", "A42", "A43" ),
                      Lnodes = c("L1", "L2", "L3", "L4"),
                      Ynodes = c("Y2", "Y3", "Y4", "Y5"),
                      Cnodes = "C5",
@@ -1090,9 +1164,17 @@ estimates_data2[b,] <- c(sum.results2.MSM.g, sum.results2.MSM.iptw, sum.results2
 }
 
 #armadillo,need to fix once tmle working
-Bias.MSMbeta1 <- mean(estimates_data2[,1]) - PsiF
-Variance.MSMbeta1 <- var(estimates_data2[,1])
-MSE.MSMbeta1 <- mean((estimates_data2[,]- PsiF)^2)
+Bias.g <- mean(estimates_data2[,1]) - PsiF
+Variance.g <- var(estimates_data2[,1])
+MSE.g <- mean((estimates_data2[,1]- PsiF)^2)
+
+Bias.iptw <- mean(estimates_data2[,2]) - PsiF
+Variance.iptw <- var(estimates_data2[,2])
+MSE.iptw <- mean((estimates_data2[,2]- PsiF)^2)
+
+Bias.tmle <- mean(estimates_data2[,3]) - PsiF
+Variance.tmle <- var(estimates_data2[,3])
+MSE.tmle <- mean((estimates_data2[,3]- PsiF)^2)
 ```
 
 <!--*In our simulation, armadillo! ###NEED TO FINISH THIS###-->
