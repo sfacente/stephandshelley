@@ -581,37 +581,40 @@ knitr::include_graphics("dagitty-model.png")
 
 This analysis includes 5 years worth of data (4 of exposure and 1 of outcome), but in order to simplify the DAG we present only the final 3 years (two of exposure data and the final year of outcome) here. This DAG includes a $C$ value indicating whether or not the patient had the outcome measured by the end of the study.
 
-### iii. Our Structural Causal Model, $O= (W, C(t), \Delta(t), L(t), Y(t), A(t))$
+### iii. Our Structural Causal Model, $O= (W, C(K), L(t), Y(t), A(t))$
 This is survival data with missingness and censoring, where:
 
 * W is the baseline covariates (race, sex and SES)
 * L(t) is the set of covariates (most recent FIB-4 score, years since last FIB-4) at time t
 * A(t) is the exposure (number of visits)
-* C(t) is an indicator of being censored at the final timepoint (1 means they were censored)
+* C(K) is an indicator of being censored at the final timepoint (1 means they were censored)
 * Y(t) is the outcome (an indicator of HCC diagnosis)
 
 $U = (U_{L(t)}, U_{A(t)}, U_{C(t)}, U_{Y(t)},), t = 1,2,3,4,5$ ~ $P_U$
 
-Structural Equations, F,  for t from 1 to 5:
+Structural Equations, $\mathcal{M^F}$, for $t$ from 1 to 5:
 \begin{align*}
 W &= f_{W}(U_{W}) \\
 L(1) &= f_{L(1)}(U_{L(1)}) \\
 A(1) &= f_{A(1)}(W, L(1), U_{A(1)}) \\
 L(t) &= f_{L(t)}(\bar{L}(t-1), \bar{A}(t-1), U_{L(t)}) \\
-A(t) &= f_{A(t)}(W, \bar{L}(t), \bar{A}(t-1), U_{A(1)}) \\
+A(t) &= f_{A(t)}(W, \bar{L}(t), \bar{A}(t-1), U_{A(t)}) \\
 C(t) &= f_{C(t)}(W, \bar{A}(t-1), \bar{Y}(t-1)) \\
-Y(t) &= f_{Y(t)}(W, C(t), \bar{L}(t-1), \bar{A}(t-1), Y(t-1), U_{Y(t)}) \\
+Y(t) &= f_{Y(t)}(W, \bar{L}(t-1), \bar{A}(t-1), Y(t-1), U_{Y(t)}) \\
+Y(K) &= f_{Y(K)}(W, C(K), \bar{L}(K-1), \bar{A}(K-1), Y(K-1), U_{Y(K)}) \\
 \end{align*}
+
+%%%SHELLEY TO FIX THE EXCLUSION RESTRICTION SITUATION%%% armadillo
 
 ## b. Proposed causal question
 
 **What is the Causal Question (or questions) of interest for your dataset?**
 
-For our project, we plan to ask whether frequency of primary care and hepatology visits at UCSF affect the likelihood of developing hepatocellular carcinoma (HCC) by the end of the follow up period among patients diagnosed with chronic hepatitis C (HCV), who were HCC-free at the beginning of the follow up interval.
+For our project, we ask whether frequency of primary care and hepatology visits at UCSF affect the likelihood of developing hepatocellular carcinoma (HCC) by the end of the follow up period among patients diagnosed with chronic hepatitis C (HCV), who were HCC-free at the beginning of the follow up interval.
 
 **What is the ideal experiment that would answer your Causal Question?**
 
-The ideal experiment to answer our Causal Question would be to deny people access to primary care and hepatology visits, and see how many developed HCC, then roll back the clock and give them access to just one visit annually (primary care OR hepatology) and see how many developed HCC, then roll back the clock and give them access to 1 visits annually and see how many developed HCC, then roll back the clock and give them access to 1 visits annually and see how many developed HCC, and so on.
+The ideal experiment to answer our Causal Question would be to deny people access to primary care and hepatology visits, and see how many developed HCC, then roll back the clock and give them access to just one visit annually (primary care OR hepatology) and see how many developed HCC, then roll back the clock and give them access to 1 additional visit annually and see how many developed HCC, then roll back the clock and give them access to 1 additional visit annually and see how many developed HCC, and so on.
 
 **Which of your variables would you intervene on to answer your Causal Question(s)? What values would you set them equal to?**
 
