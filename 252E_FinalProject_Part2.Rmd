@@ -1049,7 +1049,7 @@ df <- df %>% dplyr::select(L1, A11, A12, A13, A14,
                            L4, A41, A42, A43, A44, Y4, 
                            C5,Y5)
 
-#estimate parameter using ltmleMSM function
+#estimate parameter using ltmleMSM function-armadillo-errors
 results2.MSM <- ltmle::ltmleMSM(df,
                      Anodes= c("A11", "A12", "A13", "A14",
                                "A21", "A22", "A23", "A24",
