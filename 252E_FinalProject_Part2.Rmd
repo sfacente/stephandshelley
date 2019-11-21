@@ -287,7 +287,7 @@ HCVData$TotalVisits<- HCVData$VISIT_COUNT_2011 + HCVData$VISIT_COUNT_2012 + HCVD
 
 HCVData$TotalVisits15to18 <- HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
 
-
+save(HCVData, file="HCVData.RData")
 ```
 
 ```{r Age_and_FIB-4}
@@ -940,12 +940,7 @@ df <- generate_data_intervene(
                           a5 = 1
 )
 
-df$a1[df$a1 >3]<-4
-df$a2[df$a2 >3]<-4
-df$a3[df$a3 >3]<-4
-df$a4[df$a4 >3]<-4
-
-sum_abar[i] <- sum(df$a1 + df$a2 + df$a3 + df$a4, na.rm = TRUE)
+sum_abar[i] <- sum(as.numeric(temporary[1])+ as.numeric(temporary[2]) + as.numeric(temporary[3]) + as.numeric(temporary[4]), na.rm = TRUE)
 EY_abar[i] <- mean(df$Y5)
 }
 
