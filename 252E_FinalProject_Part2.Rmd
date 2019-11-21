@@ -215,7 +215,7 @@ StephandShelleyDataLoad2 <- function(filename)
 # 
 # ##removing extra variables with the same column names, unneeded for our analysis as far as I can tell
 # HCVData <- subset(HCVData, select = -c(DX_NAME..70,
-#            CURRENT_ICD10_LIST..71, 
+#            CURRENT_ICD10_LIST..71,
 #            DX_NAME..73,
 #            CURRENT_ICD10_LIST..74,
 #            DX_NAME..76,
@@ -235,8 +235,8 @@ StephandShelleyDataLoad2 <- function(filename)
 #            DX_NAME..97,
 #            CURRENT_ICD10_LIST..98,
 #            DX_NAME..100,
-#            CURRENT_ICD10_LIST..101, 
-#            CURRENT_ICD10_LIST..103, 
+#            CURRENT_ICD10_LIST..101,
+#            CURRENT_ICD10_LIST..103,
 #            DX_NAME..104,
 #            CURRENT_ICD10_LIST..106,
 #            DX_NAME..107,
@@ -335,7 +335,7 @@ HCVData$AGE_2018 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2018-12-31
 HCVData$AGE_2019 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2019-12-31'))
 
 #drop DOB from dataset for privacy reasons
-HCVData <- subset(HCVData, select = -c(BIRTH_DATE))
+#HCVData <- subset(HCVData, select = -c(BIRTH_DATE))
 
 HCVData$FIB4_2009 <- HCVData$AGE_2009 * HCVData$AST_2009 / (HCVData$PLATELET_2009 * sqrt(HCVData$ALT_2009))
 
