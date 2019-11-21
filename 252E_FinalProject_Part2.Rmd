@@ -31,7 +31,7 @@ StephandShelleyDataLoad <- function(filename)
   }
 }
 
-HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-14-19.xlsx")
+#HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-14-19.xlsx")
 
 ```
 
@@ -779,6 +779,8 @@ We will estimate MSMs using G-computation, IPTW, and LTMLE estimators.
 
 All estimators are implemented via the ltmleMSM function in the \textit{ltmle} R package.
 
+<!--
+
 #4. Preliminary Results
 ## a. Simulation
   To run our simulation, we first create a dataframe $O$ which includes all of the exogenous and endogenous variables in our SCM. Each of our $U_{W}, U_{C(t)}, \ \text{and} \ U_{Y(t)}$ variables have a uniform distribution with a min of 0 and max of 1. Each of our $U_{L(t)}$ variables have a gamma distribution with a shape parameter of 0.6 and scale parameter of 2.6. Each of our $U_{A(t)}$ variables have a negative binomial distribution with a dispersion parameter of 4 and a probability of 0.6. The shape and scale parameters for these distributions were chosen by having them reflect the distribution of variables in our observed data.
@@ -1328,6 +1330,8 @@ MSE.tmle <- mean((estimates_data2[,3]- PsiF)^2)
 ## b. Data example
 
 <!-- armadillo! ###NEED TO DO THIS###-->
+
+
 
 ## 5. References
 
