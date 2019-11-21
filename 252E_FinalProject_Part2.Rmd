@@ -643,8 +643,8 @@ We are interested in whether a patient is diagnosed with HCC, measured at each t
 
 **What are your counterfactual outcomes, and how would you explain them in words?**
 
-Our counterfactual outcomes are the prevalence of HCC by the end of study follow-up if no one had any primary care or hepatology visits, and the difference in prevalence of HCC at the end of study follow-up for every additional annual primary care or hepatology visit (up to a maximum of four annually) over the study period (i.e. the association between the number of primary care or hepatology visits each year and the hazard of developing HCC. <!--%%%ARMADILLO CHECK WITH STEPH%%%-->
-<!--%%%STEPH AGREES WITH ONE MINOR EDIT MADE ABOVE%%%-->
+Our counterfactual outcomes are the prevalence of HCC by the end of study follow-up if no one had any primary care or hepatology visits, and the difference in prevalence of HCC at the end of study follow-up for every additional annual primary care or hepatology visit (up to a maximum of four annually) over the study period (i.e. the association between the number of primary care or hepatology visits each year and the hazard of developing HCC. 
+
 **What aspects of the counterfactual outcome distribution are you interested in contrasting?**
   
 We are interested in contrasting the counterfactual outcome from various numbers of primary care and/or hepatology visits with the counterfactual outcome from fewer visits, to see if there is some sort of exposure-response relationship.
@@ -655,10 +655,9 @@ We are interested in a MSM that helps us understand the relationship between fre
 
 **How would you intervene on the SCM you came up with to evaluate the causal target parameter?**
 
-We will intervene to deterministically set $\bar{C}(K) = 0$ and $\bar{A}(t) = \bar{a}(t)$.  <!--%%%ARMADILLO CHECK WITH STEPH%%%-->
-<!--%%%STEPH AGREES%%%-->
+We will intervene to deterministically set $\bar{C}(K) = 0$ and $\bar{A}(t) = \bar{a}(t)$.  
+
 ## c. Our Observed Data
-<!-- armadillo! This bit needs to be re-done now that we have data  SHELLEY IS WORKING ON THIS-->
 
 **Number of Visits (annually)**
 
