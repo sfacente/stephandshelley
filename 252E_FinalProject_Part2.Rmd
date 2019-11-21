@@ -719,12 +719,39 @@ FIBplots <- annotate_figure(Visitplots, top = "FIB-4 Score Distribution (Annuall
 suppressWarnings(print(FIBplots))
 ```
 
-* Gender- this will be a categorical variable, likely with three categories (man, woman and non-binary). Based on a prior (small) study of HCV patients at UCSF (Burman et al 2016), it is expected that the cohort will be approximately 70% men.
+**Gender, Race, and SES (baseline covariates)**
+
+```{r table, include=FALSE}
+n <- nrow(HCVData)
+males <- length(which(HCVData$Sex=="Male"))
+females <- length(which(HCVData$Sex=="Female"))
+black <- length(which(HCVData$Race=="Black or African American" & HCVData$Ethnicity=="Not Hispanic or Latino"))
+latinx <- length(which(HCVData$Ethnicity=="Hispanic or Latino"))
+white <- length(which(HCVData$Race=="White or Caucasian" & HCVData$Ethnicity=="Not Hispanic or Latino"))
+asian <- length(which(HCVData$Race=="Asian"))
+other <- n - black - latinx - white - asian
+private <- length(which(HCVData$PayorType=="Commerical"))
+medical <- length(which(HCVData$PayorType=="MediCal"))
+medicare <- length(which(HCVData$PayorType=="Medicare"))
+```
 
 
-* Race- this will be a categorical variable. Based on a prior (small) study of HCV patients at UCSF (Burman et al 2016), it is expected that the cohort will be approximately 40% White, 20% Latinx, 30% Black and 10% other races.
-* SES- we are using insurance type (MediCal or private) as a marker of SES status, which will be a categorical variable.
- 
+The following table shows the gender, race, and SES breakdown for patients in this dataset.
+
+Category | Value | n | % | 
+----------- | ------------- | ----- | ----- | 
+Gender | Male | `r males` | `r round(males/n*100, 1)`% |
+ | Female | `r females` | `r round(females/n*100, 1)`% |
+----------- | ------------- | ----- | ----- | 
+ | Black/African American | `r black` | `r round(black/n*100, 1)`% |
+ | Latinx/Hispanic | `r latinx` | `r round(latinx/n*100, 1)`% |
+Race | Non-Hispanic White | `r white` | `r round(white/n*100, 1)`% |
+ | Asian | `r asian` | `r round(asian/n*100, 1)`% |
+ | Other/Declined | `r other` | `r round(other/n*100, 1)`% |
+ ----------- | ------------- | ----- | ----- | 
+  | Medi-Cal | `r medical` | `r round(medical/n*100, 1)`% |
+Payor (SES proxy) | Medicare | `medicare` | `r round(medicare/n*100, 1)`% |
+ | Commercial/Private | `r private` | `r round(private/n*100, 1)`% |
 
 ### Missingness
   Note that we have FIB-4 scores calculated annually (when the appropriate components are available) from 2009 forward. Thus, we have a FIB-4 score available for `r as.numeric(summary(HCVData$totalFIB4BY2015==0)[2])/nrow(HCVData)` % of participants at the start of the study interval (calculated somewhere in 2009-2015). For the rest of the participants, we used multiple imputation to impute a 2015 FIB-4 score. For all participants, the FIB-4 score and years since measured are updated every year that all the requisite labs were measured. Thus, by the end of interval, `r as.numeric(summary(HCVData$totalFIB4BY2019==0)[2])/nrow(HCVData)` % of participants had a measured FIB-4 score rather than an imputed value.
