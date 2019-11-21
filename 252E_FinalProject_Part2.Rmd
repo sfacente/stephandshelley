@@ -820,10 +820,10 @@ generate_data <- function(n) {
            Y5 = ifelse(Y4==1, 1, as.numeric((UY5+0.01*A4-0.05*L4)< 0.03)))
   
   #bound visits to 4 max per year
-  O$A1[O$A1>3]<-4
-  O$A2[O$A2>3]<-4
-  O$A3[O$A3>3]<-4
-  O$A4[O$A4>3]<-4
+  O$A1[O$A1>2]<-3
+  O$A2[O$A2>2]<-3
+  O$A3[O$A3>2]<-3
+  O$A4[O$A4>2]<-3
   
   return(O)
 }
@@ -931,10 +931,10 @@ generate_data_intervene <- function(n, c, a1, a2, a3, a4, a5) {
            Y5 = ifelse(Y4==1, 1, as.numeric((UY5+0.01*A4-0.05*L4)< 0.03)))
   
   #bound visits to 4 max per year
-  O$A1[O$A1>3]<-4
-  O$A2[O$A2>3]<-4
-  O$A3[O$A3>3]<-4
-  O$A4[O$A4>3]<-4
+  O$A1[O$A1>2]<-3
+  O$A2[O$A2>2]<-3
+  O$A3[O$A3>2]<-3
+  O$A4[O$A4>2]<-3
   
   return(O)
 }
@@ -947,7 +947,7 @@ set.seed(8675309)
 n<-1000
 
 
-x <- list(0:5)
+x <- list(0:3)
 TreatmentLevels<- expand.grid(rep(x, 4))
 
 k <- nrow(TreatmentLevels)
@@ -1049,25 +1049,14 @@ This means that for every additional primary care or hepatology visit, patients 
 
 
 ```{r checking estimator performance with ltmle}
-B = 5
+B = 1
 estimates_data2 <- matrix(nrow = B, ncol = 3)
 colnames(estimates_data2) <- c("Gcomp", "IPTW",  "TMLE") 
 
-# #version with 8 levels for each A
-# x <- list(0:1)
-# abar<- expand.grid(rep(x, 12))
+#version with 4 levels for each A
+x <- list(0:1)
+abar<- expand.grid(rep(x, 8))
 
-#To make 5 levels for each A
-test <-expand.grid(rep(list(0:1),2))
-test<-cbind(test, Var3 = c(1,1,1,1))
-test<-rbind(test, c(0,0,0))
-
-expand.grid(rep(test,4))
-permutations  <-5*5*5*5
-abar<-matrix(nrow=permutations, ncol=12)
-for (i in 1:permutations){
-  
-}
 
 #set n equal to number of rows
 n = as.numeric(nrow(df))
@@ -1080,7 +1069,7 @@ n2 <- as.numeric(nrow(abar))
 sumA= rep(NA, n2)
 
 # initialize regimes with dim n X num Anodes = 4 X num regimes 
-regimes = array(NA, dim=c(n,12,n2))
+regimes = array(NA, dim=c(n,8,n2))
 
 #fill in regimes and sumA
 for(i in 1:n2){
@@ -1095,7 +1084,7 @@ summary.measures[,,1]=as.matrix(sumA)
 
 
 for(b in 1:B){
-df <-generate_data(3000)
+df <-generate_data(1000)
 
 #define working.msm = character formula for working MSM
 working.msm = "Y ~ sumA"
@@ -1103,150 +1092,83 @@ working.msm = "Y ~ sumA"
 
 #Turning As into sets of binary indicators-armadillo
 #A1 first
-df$A11 <- ifelse(df$A1 == 1, 1, NA)
-df$A12 <- ifelse(df$A1 == 1, 0, NA)
-df$A13 <- ifelse(df$A1 == 1, 0, NA)
+df$A11 <- ifelse(df$A1 == 0, 0, NA)
+df$A12 <- ifelse(df$A1 == 0, 0, NA)
 
-df$A11 <- ifelse(df$A1 == 2, 1, df$A11)
+df$A11 <- ifelse(df$A1 == 1, 1, df$A11)
+df$A12 <- ifelse(df$A1 == 1, 0, df$A12)
+
+df$A11 <- ifelse(df$A1 == 2, 0, df$A11)
 df$A12 <- ifelse(df$A1 == 2, 1, df$A12)
-df$A13 <- ifelse(df$A1 == 2, 0, df$A13)
 
 df$A11 <- ifelse(df$A1 == 3, 1, df$A11)
-df$A12 <- ifelse(df$A1 == 3, 0, df$A12)
-df$A13 <- ifelse(df$A1 == 3, 1, df$A13)
-
-df$A11 <- ifelse(df$A1 == 4, 1, df$A11)
-df$A12 <- ifelse(df$A1 == 4, 1, df$A12)
-df$A13 <- ifelse(df$A1 == 4, 1, df$A13)
-
-df$A11 <- ifelse(df$A1 == 5, 0, df$A11)
-df$A12 <- ifelse(df$A1 == 5, 0, df$A12)
-df$A13 <- ifelse(df$A1 == 5, 0, df$A13)
-
-df$A11 <- ifelse(df$A1 == 6, 0, df$A11)
-df$A12 <- ifelse(df$A1 == 6, 1, df$A12)
-df$A13 <- ifelse(df$A1 == 6, 0, df$A13)
-
-df$A11 <- ifelse(df$A1 >= 7, 0, df$A11)
-df$A12 <- ifelse(df$A1 >= 7, 0, df$A12)
-df$A13 <- ifelse(df$A1 >= 7, 1, df$A13)
-
-df$A11 <- ifelse(df$A1 == 0, 0, df$A11)
-df$A12 <- ifelse(df$A1 == 0, 1, df$A12)
-df$A13 <- ifelse(df$A1 == 0, 1, df$A13)
+df$A12 <- ifelse(df$A1 == 3, 1, df$A12)
 
 #creating the A2 indicators
-df$A21 <- ifelse(df$A2 == 1, 1, NA)
-df$A22 <- ifelse(df$A2 == 1, 0, NA)
-df$A23 <- ifelse(df$A2 == 1, 0,  NA)
+df$A21 <- ifelse(df$A2 == 0, 0, NA)
+df$A22 <- ifelse(df$A2 == 0, 0, NA)
 
-df$A21 <- ifelse(df$A2 == 2, 1, df$A21)
+df$A21 <- ifelse(df$A2 == 1, 1, df$A21)
+df$A22 <- ifelse(df$A2 == 1, 0, df$A22)
+
+df$A21 <- ifelse(df$A2 == 2, 0, df$A21)
 df$A22 <- ifelse(df$A2 == 2, 1, df$A22)
-df$A23 <- ifelse(df$A2 == 2, 0, df$A23)
 
 df$A21 <- ifelse(df$A2 == 3, 1, df$A21)
-df$A22 <- ifelse(df$A2 == 3, 0, df$A22)
-df$A23 <- ifelse(df$A2 == 3, 1, df$A23)
-
-df$A21 <- ifelse(df$A2 == 4, 1, df$A21)
-df$A22 <- ifelse(df$A2 == 4, 1, df$A22)
-df$A23 <- ifelse(df$A2 == 4, 1, df$A23)
-
-df$A21 <- ifelse(df$A2 == 5, 0, df$A21)
-df$A22 <- ifelse(df$A2 == 5, 0, df$A22)
-df$A23 <- ifelse(df$A2 == 5, 0, df$A23)
-
-df$A21 <- ifelse(df$A2 == 6, 0, df$A21)
-df$A22 <- ifelse(df$A2 == 6, 1, df$A22)
-df$A23 <- ifelse(df$A2 == 6, 0, df$A23)
-
-df$A21 <- ifelse(df$A2 >= 7, 0, df$A21)
-df$A22 <- ifelse(df$A2 >= 7, 0, df$A22)
-df$A23 <- ifelse(df$A2 >= 7, 1, df$A23)
-
-df$A21 <- ifelse(df$A2 == 0, 0, df$A21)
-df$A22 <- ifelse(df$A2 == 0, 1, df$A22)
-df$A23 <- ifelse(df$A2 == 0, 1, df$A23)
+df$A22 <- ifelse(df$A2 == 3, 1, df$A22)
 
 #creating the A3 indicators
-df$A31 <- ifelse(df$A3 == 1, 1, NA)
-df$A32 <- ifelse(df$A3 == 1, 0, NA)
-df$A33 <- ifelse(df$A3 == 1, 0, NA)
+df$A31 <- ifelse(df$A3 == 0, 0, NA)
+df$A32 <- ifelse(df$A3 == 0, 0, NA)
 
-df$A31 <- ifelse(df$A3 == 2, 1, df$A31)
+df$A31 <- ifelse(df$A3 == 1, 1, df$A31)
+df$A32 <- ifelse(df$A3 == 1, 0, df$A32)
+
+df$A31 <- ifelse(df$A3 == 2, 0, df$A31)
 df$A32 <- ifelse(df$A3 == 2, 1, df$A32)
-df$A33 <- ifelse(df$A3 == 2, 0, df$A33)
 
 df$A31 <- ifelse(df$A3 == 3, 1, df$A31)
-df$A32 <- ifelse(df$A3 == 3, 0, df$A32)
-df$A33 <- ifelse(df$A3 == 3, 1, df$A33)
-
-df$A31 <- ifelse(df$A3 == 4, 1, df$A31)
-df$A32 <- ifelse(df$A3 == 4, 1, df$A32)
-df$A33 <- ifelse(df$A3 == 4, 1, df$A33)
-
-df$A31 <- ifelse(df$A3 == 5, 0, df$A31)
-df$A32 <- ifelse(df$A3 == 5, 0, df$A32)
-df$A33 <- ifelse(df$A3 == 5, 0, df$A33)
-
-df$A31 <- ifelse(df$A3 == 6, 0, df$A31)
-df$A32 <- ifelse(df$A3 == 6, 1, df$A32)
-df$A33 <- ifelse(df$A3 == 6, 0, df$A33)
-
-df$A31 <- ifelse(df$A3 >= 7, 0, df$A31)
-df$A32 <- ifelse(df$A3 >= 7, 0, df$A32)
-df$A33 <- ifelse(df$A3 >= 7, 1, df$A33)
-
-df$A31 <- ifelse(df$A3 == 0, 0, df$A31)
-df$A32 <- ifelse(df$A3 == 0, 1, df$A32)
-df$A33 <- ifelse(df$A3 == 0, 1, df$A33)
+df$A32 <- ifelse(df$A3 == 3, 1, df$A32)
 
 #creating the A4 indicators
-df$A41 <- ifelse(df$A4 == 1, 1, NA)
-df$A42 <- ifelse(df$A4 == 1, 0, NA)
-df$A43 <- ifelse(df$A4 == 1, 0, NA)
+df$A41 <- ifelse(df$A4 == 0, 0, NA)
+df$A42 <- ifelse(df$A4 == 0, 0, NA)
 
-df$A41 <- ifelse(df$A4 == 2, 1, df$A41)
+df$A41 <- ifelse(df$A4 == 1, 1, df$A41)
+df$A42 <- ifelse(df$A4 == 1, 0, df$A42)
+
+df$A41 <- ifelse(df$A4 == 2, 0, df$A41)
 df$A42 <- ifelse(df$A4 == 2, 1, df$A42)
-df$A43 <- ifelse(df$A4 == 2, 0, df$A43)
 
 df$A41 <- ifelse(df$A4 == 3, 1, df$A41)
-df$A42 <- ifelse(df$A4 == 3, 0, df$A42)
-df$A43 <- ifelse(df$A4 == 3, 1, df$A43)
-
-df$A41 <- ifelse(df$A4 == 4, 1, df$A41)
-df$A42 <- ifelse(df$A4 == 4, 1, df$A42)
-df$A43 <- ifelse(df$A4 == 4, 1, df$A43)
-
-df$A41 <- ifelse(df$A4 == 5, 0, df$A41)
-df$A42 <- ifelse(df$A4 == 5, 0, df$A42)
-df$A43 <- ifelse(df$A4 == 5, 0, df$A43)
-
-df$A41 <- ifelse(df$A4 == 6, 0, df$A41)
-df$A42 <- ifelse(df$A4 == 6, 1, df$A42)
-df$A43 <- ifelse(df$A4 == 6, 0, df$A43)
-
-df$A41 <- ifelse(df$A4 >= 7, 0, df$A41)
-df$A42 <- ifelse(df$A4 >= 7, 0, df$A42)
-df$A43 <- ifelse(df$A4 >= 7, 1, df$A43)
-
-df$A41 <- ifelse(df$A4 == 0, 0, df$A41)
-df$A42 <- ifelse(df$A4 == 0, 1, df$A42)
-df$A43 <- ifelse(df$A4 == 0, 1, df$A43)
+df$A42 <- ifelse(df$A4 == 3, 1, df$A42)
 
 
-df <- df %>% dplyr::select(L1, A11, A12, A13, 
-                           L2, A21, A22, A23,  Y2,
-                           L3, A31, A32, A33,  Y3, 
-                           L4, A41, A42, A43,  Y4, 
+df <- df %>% dplyr::select(L1, A11, A12,  
+                           L2, A21, A22, Y2,
+                           L3, A31, A32, Y3, 
+                           L4, A41, A42,Y4, 
                            C5,Y5)
+
+#Rescale Ls
+maxL1 <-max(df$L1)
+df$L1<-ifelse(is.na(df$L1), NA, (maxL1-df$L1)/maxL1)
+
+maxL2 <-max(df$L2)
+df$L2<-ifelse(is.na(df$L2), NA,(maxL2-df$L2)/maxL2)
+
+maxL3 <-max(df$L3,na.rm = T)
+df$L3<-ifelse(is.na(df$L3), NA, (maxL3-df$L3)/maxL3)
+
+maxL4 <-max(df$L4, na.rm = T)
+df$L4<-ifelse(is.na(df$L4), NA,(maxL4-df$L4)/maxL4)
 
 #estimate parameter using ltmleMSM function-
 results2.MSM <- ltmle::ltmleMSM(df,
-                     Anodes= c("A11", "A12", "A13", 
-                               "A21", "A22", "A23", 
-                               "A31", "A32", "A33", 
-                               "A41", "A42", "A43" ),
+                     Anodes= c("A11", "A12",  
+                               "A21", "A22", 
+                               "A31", "A32", 
+                               "A41", "A42" ),
                      Lnodes = c("L1", "L2", "L3", "L4"),
                      Ynodes = c("Y2", "Y3", "Y4", "Y5"),
                      Cnodes = "C5",
@@ -1263,10 +1185,10 @@ sum.results2.MSM.iptw= summary(results2.MSM, "iptw")
 sum.results2.MSM.iptw
 
 results2.MSM.g <- ltmle::ltmleMSM(df,
-                     Anodes= c("A11", "A12", "A13", 
-                               "A21", "A22", "A23", 
-                               "A31", "A32", "A33", 
-                               "A41", "A42", "A43" ),
+                     Anodes= c("A11", "A12", 
+                               "A21", "A22", 
+                               "A31", "A32",
+                               "A41", "A42"),
                      Lnodes = c("L1", "L2", "L3", "L4"),
                      Ynodes = c("Y2", "Y3", "Y4", "Y5"),
                      Cnodes = "C5",
@@ -1277,7 +1199,7 @@ results2.MSM.g <- ltmle::ltmleMSM(df,
                      survivalOutcome = TRUE,
                      gcomp = TRUE)
 
-sum.results2.MSM.g = summary(results2.MSM, "gcomp")
+sum.results2.MSM.g = summary(results2.MSM.g, "gcomp")
 sum.results2.MSM.g
 
 estimates_data2[b,] <- c(sum.results2.MSM.g, sum.results2.MSM.iptw, sum.results2.MSM.tmle)
