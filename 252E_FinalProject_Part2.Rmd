@@ -31,7 +31,18 @@ StephandShelleyDataLoad <- function(filename)
   }
 }
 
-HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-14-19.xlsx")
+StephandShelleyDataLoad2 <- function(filename) 
+{
+  if(Sys.info()['sysname']=="Darwin"){
+    
+     load(as.character(filename), envir = globalenv())}
+  else{
+    windowsfilepath <- paste("~/GitHub/stephandshelley/", filename, sep = "")
+     load(as.character(windowsfilepath), envir = globalenv())
+  }
+}
+
+#HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-14-19.xlsx")
 
 ```
 
@@ -204,7 +215,7 @@ HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-14-19.xl
 # 
 # ##removing extra variables with the same column names, unneeded for our analysis as far as I can tell
 # HCVData <- subset(HCVData, select = -c(DX_NAME..70,
-#            CURRENT_ICD10_LIST..71, 
+#            CURRENT_ICD10_LIST..71,
 #            DX_NAME..73,
 #            CURRENT_ICD10_LIST..74,
 #            DX_NAME..76,
@@ -224,8 +235,8 @@ HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-14-19.xl
 #            DX_NAME..97,
 #            CURRENT_ICD10_LIST..98,
 #            DX_NAME..100,
-#            CURRENT_ICD10_LIST..101, 
-#            CURRENT_ICD10_LIST..103, 
+#            CURRENT_ICD10_LIST..101,
+#            CURRENT_ICD10_LIST..103,
 #            DX_NAME..104,
 #            CURRENT_ICD10_LIST..106,
 #            DX_NAME..107,
@@ -287,67 +298,64 @@ HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-14-19.xl
 # HCVData$TotalVisits<- HCVData$VISIT_COUNT_2011 + HCVData$VISIT_COUNT_2012 + HCVData$VISIT_COUNT_2013 + HCVData$VISIT_COUNT_2014 + HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
 # 
 # HCVData$TotalVisits15to18 <- HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
-# 
-# save(HCVData, file="HCVData.Rdata")
 
 ```
 
 ```{r Age_and_FIB-4}
 
-HCVData <- StephandShelleyDataLoad("HCVData.Rdata")
-
-age <- function(dob, curryear, units = "years", floor = TRUE) {
-    calc.age = interval(dob, curryear) / duration(num = 1, units = units)
-    return(as.integer(floor(calc.age)))
-}
-
-HCVData$AGE_2009 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2009-12-31'))
-
-HCVData$AGE_2010 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2010-12-31'))
-
-HCVData$AGE_2011 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2011-12-31'))
-
-HCVData$AGE_2012 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2012-12-31'))
-
-HCVData$AGE_2013 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2013-12-31'))
-
-HCVData$AGE_2014 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2014-12-31'))
-
-HCVData$AGE_2015 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2015-12-31'))
-
-HCVData$AGE_2016 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2016-12-31'))
-
-HCVData$AGE_2017 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2017-12-31'))
-
-HCVData$AGE_2018 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2018-12-31'))
-
-HCVData$AGE_2019 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2019-12-31'))
-
-#drop DOB from dataset for privacy reasons
-HCVData <- subset(HCVData, select = -c(BIRTH_DATE))
-
-HCVData$FIB4_2009 <- HCVData$AGE_2009 * HCVData$AST_2009 / (HCVData$PLATELET_2009 * sqrt(HCVData$ALT_2009))
-
-HCVData$FIB4_2010 <- HCVData$AGE_2010 * HCVData$AST_2010 / (HCVData$PLATELET_2010 * sqrt(HCVData$ALT_2010))
-  
-HCVData$FIB4_2011 <- HCVData$AGE_2011 * HCVData$AST_2011 / (HCVData$PLATELET_2011 * sqrt(HCVData$ALT_2011))
-  
-HCVData$FIB4_2012 <- HCVData$AGE_2012 * HCVData$AST_2012 / (HCVData$PLATELET_2012 * sqrt(HCVData$ALT_2012))
-
-HCVData$FIB4_2013 <- HCVData$AGE_2013 * HCVData$AST_2013 / (HCVData$PLATELET_2013 * sqrt(HCVData$ALT_2013))
-
-HCVData$FIB4_2014 <- HCVData$AGE_2011 * HCVData$AST_2014 / (HCVData$PLATELET_2014 * sqrt(HCVData$ALT_2014))
-
-HCVData$FIB4_2015 <- HCVData$AGE_2011 * HCVData$AST_2015 / (HCVData$PLATELET_2015 * sqrt(HCVData$ALT_2015))
-
-HCVData$FIB4_2016 <- HCVData$AGE_2011 * HCVData$AST_2016 / (HCVData$PLATELET_2016 * sqrt(HCVData$ALT_2016))
-
-HCVData$FIB4_2017 <- HCVData$AGE_2011 * HCVData$AST_2017 / (HCVData$PLATELET_2017 * sqrt(HCVData$ALT_2017))
-
-HCVData$FIB4_2018 <- HCVData$AGE_2011 * HCVData$AST_2018 / (HCVData$PLATELET_2018 * sqrt(HCVData$ALT_2018))
-
-HCVData$FIB4_2019 <- HCVData$AGE_2011 * HCVData$AST_2019 / (HCVData$PLATELET_2019 * sqrt(HCVData$ALT_2019))
-
+# age <- function(dob, curryear, units = "years", floor = TRUE) {
+#     calc.age = interval(dob, curryear) / duration(num = 1, units = units)
+#     return(as.integer(floor(calc.age)))
+# }
+# 
+# HCVData$AGE_2009 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2009-12-31'))
+# 
+# HCVData$AGE_2010 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2010-12-31'))
+# 
+# HCVData$AGE_2011 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2011-12-31'))
+# 
+# HCVData$AGE_2012 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2012-12-31'))
+# 
+# HCVData$AGE_2013 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2013-12-31'))
+# 
+# HCVData$AGE_2014 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2014-12-31'))
+# 
+# HCVData$AGE_2015 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2015-12-31'))
+# 
+# HCVData$AGE_2016 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2016-12-31'))
+# 
+# HCVData$AGE_2017 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2017-12-31'))
+# 
+# HCVData$AGE_2018 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2018-12-31'))
+# 
+# HCVData$AGE_2019 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2019-12-31'))
+# 
+# #drop DOB from dataset for privacy reasons
+# HCVData <- subset(HCVData, select = -c(BIRTH_DATE))
+# 
+# HCVData$FIB4_2009 <- HCVData$AGE_2009 * HCVData$AST_2009 / (HCVData$PLATELET_2009 * sqrt(HCVData$ALT_2009))
+# 
+# HCVData$FIB4_2010 <- HCVData$AGE_2010 * HCVData$AST_2010 / (HCVData$PLATELET_2010 * sqrt(HCVData$ALT_2010))
+#   
+# HCVData$FIB4_2011 <- HCVData$AGE_2011 * HCVData$AST_2011 / (HCVData$PLATELET_2011 * sqrt(HCVData$ALT_2011))
+#   
+# HCVData$FIB4_2012 <- HCVData$AGE_2012 * HCVData$AST_2012 / (HCVData$PLATELET_2012 * sqrt(HCVData$ALT_2012))
+# 
+# HCVData$FIB4_2013 <- HCVData$AGE_2013 * HCVData$AST_2013 / (HCVData$PLATELET_2013 * sqrt(HCVData$ALT_2013))
+# 
+# HCVData$FIB4_2014 <- HCVData$AGE_2011 * HCVData$AST_2014 / (HCVData$PLATELET_2014 * sqrt(HCVData$ALT_2014))
+# 
+# HCVData$FIB4_2015 <- HCVData$AGE_2011 * HCVData$AST_2015 / (HCVData$PLATELET_2015 * sqrt(HCVData$ALT_2015))
+# 
+# HCVData$FIB4_2016 <- HCVData$AGE_2011 * HCVData$AST_2016 / (HCVData$PLATELET_2016 * sqrt(HCVData$ALT_2016))
+# 
+# HCVData$FIB4_2017 <- HCVData$AGE_2011 * HCVData$AST_2017 / (HCVData$PLATELET_2017 * sqrt(HCVData$ALT_2017))
+# 
+# HCVData$FIB4_2018 <- HCVData$AGE_2011 * HCVData$AST_2018 / (HCVData$PLATELET_2018 * sqrt(HCVData$ALT_2018))
+# 
+# HCVData$FIB4_2019 <- HCVData$AGE_2011 * HCVData$AST_2019 / (HCVData$PLATELET_2019 * sqrt(HCVData$ALT_2019))
+# 
+# save(HCVData, file="HCVData.Rdata")
 
 ```
 
@@ -363,6 +371,9 @@ HCVData$FIB4_2019 <- HCVData$AGE_2011 * HCVData$AST_2019 / (HCVData$PLATELET_201
 
 
 ```{r filter to adults with visits, historical FIB4s}
+HCVData <- StephandShelleyDataLoad2("HCVData.Rdata")
+#load("~/GitHub/stephandshelley/HCVData.Rdata") #SHELLEY
+
 HCVData<- HCVData %>% filter(TotalVisits != 0) %>%
                       filter(AGE_2011 >18)
 
@@ -610,7 +621,7 @@ Y(t) &= f_{Y(t)}(W, \bar{L}(t-1), \bar{A}(t-1), Y(t-1), U_{Y(t)}) \\
 Y(K) &= f_{Y(K)}(W, C(K), \bar{L}(K-1), \bar{A}(K-1), Y(K-1), U_{Y(K)}) \\
 \end{align*}
 
-We are also operating with one key exclusion restriction: once someone develops the outcome [$Y(t) = 1$] then we set their $A(t+1...K)$ and $L(t+1,...,K)$ to NA for the remainder of the analysis, and set $C(K) = 1$ for that subject. %%%ARMADILLO CHECK WITH STEPH%%%
+We are also operating with one key exclusion restriction: once someone develops the outcome [$Y(t) = 1$], we then set their $A(t+1...K)$ and $L(t+1,...,K)$ to NA for the remainder of the analysis, and set $C(K) = 1$ for that subject. <!--%%%ARMADILLO CHECK WITH STEPH%%%-->
 
 ## b. Proposed causal question
 
@@ -632,8 +643,8 @@ We are interested in whether a patient is diagnosed with HCC, measured at each t
 
 **What are your counterfactual outcomes, and how would you explain them in words?**
 
-Our counterfactual outcomes are the prevalence of HCC by the end of study follow-up if no one had any primary care or hepatology visits, and the difference in prevalence of HCC at the end of study follow-up for every additional annual primary care or hepatology visit (up to a maximum of four annually) over the study period (i.e. the association between the number of primary care or hepatology visits each year and the hazard of developing HCC. <!--%%%ARMADILLO CHECK WITH STEPH%%%-->
-<!--%%%STEPH AGREES WITH ONE MINOR EDIT MADE ABOVE%%%-->
+Our counterfactual outcomes are the prevalence of HCC by the end of study follow-up if no one had any primary care or hepatology visits, and the difference in prevalence of HCC at the end of study follow-up for every additional annual primary care or hepatology visit (up to a maximum of four annually) over the study period (i.e. the association between the number of primary care or hepatology visits each year and the hazard of developing HCC. 
+
 **What aspects of the counterfactual outcome distribution are you interested in contrasting?**
   
 We are interested in contrasting the counterfactual outcome from various numbers of primary care and/or hepatology visits with the counterfactual outcome from fewer visits, to see if there is some sort of exposure-response relationship.
@@ -644,16 +655,15 @@ We are interested in a MSM that helps us understand the relationship between fre
 
 **How would you intervene on the SCM you came up with to evaluate the causal target parameter?**
 
-We will intervene to deterministically set $\bar{C}(K) = 0$ and $\bar{A}(t) = \bar{a}(t)$.  <!--%%%ARMADILLO CHECK WITH STEPH%%%-->
-<!--%%%STEPH AGREES%%%-->
+We will intervene to deterministically set $\bar{C}(K) = 0$ and $\bar{A}(t) = \bar{a}(t)$.  
+
 ## c. Our Observed Data
-<!-- armadillo! This bit needs to be re-done now that we have data  SHELLEY IS WORKING ON THIS-->
 
 **Number of Visits (annually)**
 
 The number of visits per patient ranges from 0 to 44 in any given year, with a median of 1 visit per year overall. The figure below presents number of visits per patient in each year, truncated at 25 visits.
 
-```{r numvisits, include = FALSE, cache = TRUE}
+```{r numvisits, include = FALSE, eval = TRUE, cache = TRUE}
 
 plot_multi_histonly <- function(df, feature, label_column) {
     plt <- ggplot(df, aes(x=eval(parse(text=feature)), fill=eval(parse(text=label_column)))) +
@@ -688,13 +698,19 @@ suppressWarnings(print(Visitplots))
 
 **Diagnosed with HCC (annually)**
 
-```{r HCC, include=FALSE}
+```{r HCC, include=FALSE, eval=TRUE}
 HCVData$HCC <- ifelse(is.na(HCVData$Cancer.Diagnosis.Name), 0, 1)
+percentHCC <- mean(HCVData$HCC)*100
 ```
 
-`r sum(HCVData$HCC)` people (`r round(mean(HCVData$HCC)*100), 1)`%) developed the outcome (were diagnosed with HCC during the course of the study). At this time we are still waitingon an updated dataset that includes the year of diagnosis for each patient. <!--armadillo remember to update this in the final version! -->
+`r sum(HCVData$HCC)` people (`r round(percentHCC, 1)`%) developed the outcome (were diagnosed with HCC during the course of the study). At this time we are still waitingon an updated dataset that includes the year of diagnosis for each patient. <!--armadillo remember to update this in the final version! -->
 
 **FIB-4 Score (annually)**
+
+```{r fiblong, include = FALSE, eval = TRUE}
+FIBscores <- HCVData %>% dplyr::select(FIB4_2011, FIB4_2012, FIB4_2013, FIB4_2014, FIB4_2015, FIB4_2016, FIB4_2017, FIB4_2018)
+FIBLong <- FIBscores %>% gather
+```
 
 FIB-4 scores are calculated with inputs of age, platelet count, AST, and ALT. Scores of <1.45 are considered to be strongly suggestive of no liver fibrosis, and scores >3.25 are indicative of advanced fibrosis and/or cirrhosis. 
 
@@ -702,10 +718,8 @@ FIB-4 scores in this dataset range of 0.181 to 45.956 , with an IQR of 1.198-2.8
 
 The figure below presents the distribution of FIB-4 scores in each year.
 
-```{r fibplots, include = FALSE, cache=TRUE}
+```{r fibplots, include = FALSE, eval = TRUE, cache=TRUE}
 
-FIBscores <- HCVData %>% dplyr::select(FIB4_2011, FIB4_2012, FIB4_2013, FIB4_2014, FIB4_2015, FIB4_2016, FIB4_2017, FIB4_2018)
-FIBLong <- FIBscores %>% gather
 fib2011 <- ggplot(data = subset(FIBLong, key=="FIB4_2011"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2011") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
 fib2012 <- ggplot(data = subset(FIBLong, key=="FIB4_2012"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2012") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
 fib2013 <- ggplot(data = subset(FIBLong, key=="FIB4_2013"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2013") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
@@ -719,19 +733,46 @@ FIBplots <- annotate_figure(Visitplots, top = "FIB-4 Score Distribution (Annuall
 suppressWarnings(print(FIBplots))
 ```
 
-* Gender- this will be a categorical variable, likely with three categories (man, woman and non-binary). Based on a prior (small) study of HCV patients at UCSF (Burman et al 2016), it is expected that the cohort will be approximately 70% men.
+**Gender, Race, and SES (baseline covariates)**
+
+```{r table, include=FALSE}
+n <- nrow(HCVData)
+males <- length(which(HCVData$Sex=="Male"))
+females <- length(which(HCVData$Sex=="Female"))
+black <- length(which(HCVData$Race=="Black or African American" & HCVData$Ethnicity=="Not Hispanic or Latino"))
+latinx <- length(which(HCVData$Ethnicity=="Hispanic or Latino"))
+white <- length(which(HCVData$Race=="White or Caucasian" & HCVData$Ethnicity=="Not Hispanic or Latino"))
+asian <- length(which(HCVData$Race=="Asian"))
+other <- n - black - latinx - white - asian
+private <- length(which(HCVData$PayorType=="Commerical"))
+medical <- length(which(HCVData$PayorType=="MediCal"))
+medicare <- length(which(HCVData$PayorType=="Medicare"))
+```
 
 
-* Race- this will be a categorical variable. Based on a prior (small) study of HCV patients at UCSF (Burman et al 2016), it is expected that the cohort will be approximately 40% White, 20% Latinx, 30% Black and 10% other races.
-* SES- we are using insurance type (MediCal or private) as a marker of SES status, which will be a categorical variable.
- 
+The following table shows the gender, race, and SES breakdown for patients in this dataset.
+
+Category | Value | n | % | 
+----------- | ------------- | ----- | ----- | 
+Gender | Male | `r males` | `r round(males/n*100, 1)`% |
+ | Female | `r females` | `r round(females/n*100, 1)`% |
+----------- | ------------- | ----- | ----- | 
+ | Black/African American | `r black` | `r round(black/n*100, 1)`% |
+ | Latinx/Hispanic | `r latinx` | `r round(latinx/n*100, 1)`% |
+Race | Non-Hispanic White | `r white` | `r round(white/n*100, 1)`% |
+ | Asian | `r asian` | `r round(asian/n*100, 1)`% |
+ | Other/Declined | `r other` | `r round(other/n*100, 1)`% |
+ ----------- | ------------- | ----- | ----- | 
+  | Medi-Cal | `r medical` | `r round(medical/n*100, 1)`% |
+Payor (SES proxy) | Medicare | `medicare` | `r round(medicare/n*100, 1)`% |
+ | Commercial/Private | `r private` | `r round(private/n*100, 1)`% |
 
 ### Missingness
-  Note that we have FIB-4 scores calculated annually (when the appropriate components are available) from 2009 forward. Thus, we have a FIB-4 score available for `r as.numeric(summary(HCVData$totalFIB4BY2015==0)[2])/nrow(HCVData)` % of participants at the start of the study interval (calculated somewhere in 2009-2015). For the rest of the participants, we used multiple imputation to impute a 2015 FIB-4 score. For all participants, the FIB-4 score and years since measured are updated every year that all the requisite labs were measured. Thus, by the end of interval, `r as.numeric(summary(HCVData$totalFIB4BY2019==0)[2])/nrow(HCVData)` % of participants had a measured FIB-4 score rather than an imputed value.
+Note that we have FIB-4 scores calculated annually from 2009 forward. Thus, we have a FIB-4 score available for `r as.numeric(summary(HCVData$totalFIB4BY2015==0)[2])/nrow(HCVData)` % of participants at the start of the study interval (calculated at least once during 2009-2015). For the rest of the participants, we used multiple imputation to impute a 2015 FIB-4 score. For all participants, the FIB-4 score and years since FIB-4 was measured (i.e. years since the required laboratory results were available for a direct calculation) are updated every year. Thus, by the end of interval, `r as.numeric(summary(HCVData$totalFIB4BY2019==0)[2])/nrow(HCVData)` % of participants had a measured FIB-4 score rather than an imputed value.
   
-  There is not missingness expected in the exposure-since EMRs are designed for clinical billing, the data on whether or not visit(s) occurred are expected to be highly accurate. Because HCC is a common and severe complication of HCV, we are comfortable assuming that a patient who is still followed in the system and does not yet have a diagnosis of HCC, is truly negative for HCC, rather than simply missing that data. Further, we will intervene at the end to ensure everyone has outcome measured.
+There is not missingness expected in the exposure. Since EMRs are designed for clinical billing, the data on whether or not visit(s) occurred are expected to be highly accurate. Because HCC is a common and severe complication of HCV, we are comfortable assuming that a patient who is still followed in the system and does not yet have a diagnosis of HCC is truly negative for HCC, rather than simply missing that data. Further, we intervene at the end of the study period to ensure everyone has outcome measured.
 
-Patients can be censored from the dataset in one of two ways: either by no longer seeking care within the UCSF system, or if they are deceased. 
+Patients can be censored from the dataset in one of two ways: either by no longer seeking care within the UCSF system, or by becoming deceased. 
 
 ## d. Identification Result and Estimand
 
@@ -743,16 +784,15 @@ Our target causal parameter is identified as a function of the observed data dis
 
 *Our statistical estimand is: $$\Psi(P_0) = m(\bar{a}|\beta) = E[Y_{\bar{a}}] = \beta_0 + \beta_1 \sum_{t=1}^8a(t)$$
 
-
-
 #3. Estimation
 ## a. What estimators will you use?
 
--g comp,iptw and ltmle MSMs?
+We will estimate MSMs using G-computation, IPTW, and LTMLE estimators.
 
 ## b. How will you implement these estimators?
 
-ltmleMSM  in ltmle package?
+All estimators are implemented via the ltmleMSM function in the \textit{ltmle} R package.
+
 
 #4. Preliminary Results
 ## a. Simulation
@@ -1225,6 +1265,8 @@ MSE.tmle <- mean((estimates_data2[,3]- PsiF)^2)
 ## b. Data example
 
 <!-- armadillo! ###NEED TO DO THIS###-->
+
+
 
 ## 5. References
 
