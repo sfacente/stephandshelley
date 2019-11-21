@@ -754,11 +754,11 @@ Payor (SES proxy) | Medicare | `medicare` | `r round(medicare/n*100, 1)`% |
  | Commercial/Private | `r private` | `r round(private/n*100, 1)`% |
 
 ### Missingness
-  Note that we have FIB-4 scores calculated annually (when the appropriate components are available) from 2009 forward. Thus, we have a FIB-4 score available for `r as.numeric(summary(HCVData$totalFIB4BY2015==0)[2])/nrow(HCVData)` % of participants at the start of the study interval (calculated somewhere in 2009-2015). For the rest of the participants, we used multiple imputation to impute a 2015 FIB-4 score. For all participants, the FIB-4 score and years since measured are updated every year that all the requisite labs were measured. Thus, by the end of interval, `r as.numeric(summary(HCVData$totalFIB4BY2019==0)[2])/nrow(HCVData)` % of participants had a measured FIB-4 score rather than an imputed value.
+Note that we have FIB-4 scores calculated annually from 2009 forward. Thus, we have a FIB-4 score available for `r as.numeric(summary(HCVData$totalFIB4BY2015==0)[2])/nrow(HCVData)` % of participants at the start of the study interval (calculated at least once during 2009-2015). For the rest of the participants, we used multiple imputation to impute a 2015 FIB-4 score. For all participants, the FIB-4 score and years since FIB-4 was measured (i.e. years since the required laboratory results were available for a direct calculation) are updated every year. Thus, by the end of interval, `r as.numeric(summary(HCVData$totalFIB4BY2019==0)[2])/nrow(HCVData)` % of participants had a measured FIB-4 score rather than an imputed value.
   
-  There is not missingness expected in the exposure-since EMRs are designed for clinical billing, the data on whether or not visit(s) occurred are expected to be highly accurate. Because HCC is a common and severe complication of HCV, we are comfortable assuming that a patient who is still followed in the system and does not yet have a diagnosis of HCC, is truly negative for HCC, rather than simply missing that data. Further, we will intervene at the end to ensure everyone has outcome measured.
+There is not missingness expected in the exposure. Since EMRs are designed for clinical billing, the data on whether or not visit(s) occurred are expected to be highly accurate. Because HCC is a common and severe complication of HCV, we are comfortable assuming that a patient who is still followed in the system and does not yet have a diagnosis of HCC is truly negative for HCC, rather than simply missing that data. Further, we intervene at the end of the study period to ensure everyone has outcome measured.
 
-Patients can be censored from the dataset in one of two ways: either by no longer seeking care within the UCSF system, or if they are deceased. 
+Patients can be censored from the dataset in one of two ways: either by no longer seeking care within the UCSF system, or by becoming deceased. 
 
 ## d. Identification Result and Estimand
 
