@@ -35,7 +35,7 @@ StephandShelleyDataLoad <- function(filename)
 
 ```
 
-```{r Data_Cleaning}
+```{r Data_Cleaning, include = FALSE}
 # # Let's do all Variable prep/Data cleaning in this chunk
 # 
 # #first just making variables their proper type, and renaming so there's no spaces
@@ -292,7 +292,7 @@ StephandShelleyDataLoad <- function(filename)
 
 ```
 
-```{r Age_and_FIB-4}
+```{r Age_and_FIB-4, include = FALSE}
 
 # 
 # age <- function(dob, curryear, units = "years", floor = TRUE) {
@@ -350,7 +350,7 @@ StephandShelleyDataLoad <- function(filename)
 
 ```
 
-```{r Export_age_and_FIB4_for_Rena}
+```{r Export_age_and_FIB4_for_Rena, include = FALSE}
 #
 #adds <- data.frame(HCVData$PtID, HCVData$AGE_2009, HCVData$AGE_2010, HCVData$AGE_2011, HCVData$AGE_2012, HCVData$AGE_2013, HCVData$AGE_2014, HCVData$AGE_2015, HCVData$AGE_2016, HCVData$AGE_2017, HCVData$AGE_2018, HCVData$AGE_2019, HCVData$FIB4_2009, HCVData$FIB4_2010, HCVData$FIB4_2011, HCVData$FIB4_2012, HCVData$FIB4_2013, HCVData$FIB4_2014, HCVData$FIB4_2015, HCVData$FIB4_2016, HCVData$FIB4_2017, HCVData$FIB4_2018, HCVData$FIB4_2019)
 #colnames(adds) <- c("Deidentified Pt Number", "AGE_2009", "AGE_2010", "AGE_2011", "AGE_2012", "AGE_2013", "AGE_2014", "AGE_2015", "AGE_2016", "AGE_2017", "AGE_2018", "AGE_2019", "FIB4_2009", "FIB4_2010", "FIB4_2011", "FIB4_2012", "FIB4_2013", "FIB4_2014", "FIB4_2015", "FIB4_2016", "FIB4_2017", "FIB4_2018", "FIB4_2019")
@@ -361,7 +361,7 @@ StephandShelleyDataLoad <- function(filename)
 ```
 
 
-```{r filter to adults with visits, historical FIB4s}
+```{r filter_to_adults_with_visits_and_historical_FIB4s, include = FALSE, eval = TRUE}
 load("HCVData.Rdata")
 
 HCVData<- HCVData %>% filter(TotalVisits != 0) %>%
@@ -510,7 +510,7 @@ HCVData <-  HCVData %>% mutate(FIB4_by2019 = ifelse(is.na(FIB4_2019)== "TRUE", F
 ```
 
 
-```{r Code_for_the_DAG}
+```{r Code_for_the_DAG, include = FALSE}
 #DAGGity code- ie to use in the online Daggity tool...I don't love rDaggity
 #But am putting the code here so we have it. Reminder that you can command/control-shift-c to comment in or out a whole chunk.
 
@@ -633,8 +633,8 @@ We are interested in whether a patient is diagnosed with HCC, measured at each t
 
 **What are your counterfactual outcomes, and how would you explain them in words?**
 
-Our counterfactual outcomes are the prevalence of HCC by the end of study follow-up if no one had any primary care or hepatology visits, and the difference in prevalence of HCC at the end of study follow-up for every additional annual primary care or hepatology visit (up to a maximum of four annually) over the study period (i.e. the association between the number of primary care or hepatology visits each year and the hazard of developing HCC. <!--%%%ARMADILLO CHECK WITH STEPH%%%-->
-<!--%%%STEPH AGREES WITH ONE MINOR EDIT MADE ABOVE%%%-->
+Our counterfactual outcomes are the prevalence of HCC by the end of study follow-up if no one had any primary care or hepatology visits, and the difference in prevalence of HCC at the end of study follow-up for every additional annual primary care or hepatology visit (up to a maximum of four annually) over the study period (i.e. the association between the number of primary care or hepatology visits each year and the hazard of developing HCC.
+
 **What aspects of the counterfactual outcome distribution are you interested in contrasting?**
   
 We are interested in contrasting the counterfactual outcome from various numbers of primary care and/or hepatology visits with the counterfactual outcome from fewer visits, to see if there is some sort of exposure-response relationship.
@@ -645,8 +645,8 @@ We are interested in a MSM that helps us understand the relationship between fre
 
 **How would you intervene on the SCM you came up with to evaluate the causal target parameter?**
 
-We will intervene to deterministically set $\bar{C}(K) = 0$ and $\bar{A}(t) = \bar{a}(t)$.  <!--%%%ARMADILLO CHECK WITH STEPH%%%-->
-<!--%%%STEPH AGREES%%%-->
+We will intervene to deterministically set $\bar{C}(K) = 0$ and $\bar{A}(t) = \bar{a}(t)$.  
+
 ## c. Our Observed Data
 <!-- armadillo! This bit needs to be re-done now that we have data  SHELLEY IS WORKING ON THIS-->
 
@@ -726,7 +726,6 @@ suppressWarnings(print(FIBplots))
 * Race- this will be a categorical variable. Based on a prior (small) study of HCV patients at UCSF (Burman et al 2016), it is expected that the cohort will be approximately 40% White, 20% Latinx, 30% Black and 10% other races.
 * SES- we are using insurance type (MediCal or private) as a marker of SES status, which will be a categorical variable.
  
-
 ### Missingness
   Note that we have FIB-4 scores calculated annually (when the appropriate components are available) from 2009 forward. Thus, we have a FIB-4 score available for `r as.numeric(summary(HCVData$totalFIB4BY2015==0)[2])/nrow(HCVData)` % of participants at the start of the study interval (calculated somewhere in 2009-2015). For the rest of the participants, we used multiple imputation to impute a 2015 FIB-4 score. For all participants, the FIB-4 score and years since measured are updated every year that all the requisite labs were measured. Thus, by the end of interval, `r as.numeric(summary(HCVData$totalFIB4BY2019==0)[2])/nrow(HCVData)` % of participants had a measured FIB-4 score rather than an imputed value.
   
@@ -744,16 +743,14 @@ Our target causal parameter is identified as a function of the observed data dis
 
 *Our statistical estimand is: $$\Psi(P_0) = m(\bar{a}|\beta) = E[Y_{\bar{a}}] = \beta_0 + \beta_1 \sum_{t=1}^8a(t)$$
 
-
-
 #3. Estimation
 ## a. What estimators will you use?
 
--g comp,iptw and ltmle MSMs?
+We will estimate our target causal parameter using MSMs estimated with G-computation, IPTW, and LTMLE estimators. 
 
 ## b. How will you implement these estimators?
 
-ltmleMSM  in ltmle package?
+We will implement each of these estimators using the \tt{ltmleMSM} function in the \textit{ltmle} R package. 
 
 #4. Preliminary Results
 ## a. Simulation
@@ -875,7 +872,7 @@ suppressWarnings(print(VisitsHist))
 
 
 
-**Implement our intervention computationally.**
+## b. Implement our intervention computationally.
 
 To do this, we use the simulation code written earlier, but adapt our function, replacing the structural equations for $\bar{C}(t)$ and  $\bar{A}(t)$ with flexible parameters allowing us to specify values for our intervention.
 
@@ -942,7 +939,7 @@ generate_data_intervene <- function(n, c, a1, a2, a3, a4, a5) {
 
 ```
 
-**Generate many counterfactual outcomes, then evaluate $\Psi^F(P_{U,X})$**
+### i. Generate many counterfactual outcomes, then evaluate $\Psi^F(P_{U,X})$
 ```{r PsiF, include = FALSE}
 set.seed(8675309)
 n<-1000
@@ -997,13 +994,13 @@ We simulated counterfactual outcomes with all possible combinations of 0-6 visit
 
 Note that a few individuals had more than 6  visits per year, but for ease we limited our simulation to ten, as this still results in ` r nrow(TreatmentLevels)` possible  treatment combinations. 
 
-**Write a sentence interpreting your $\Psi^F(P_{U,X})$**
+### ii. Write a sentence interpreting your $\Psi^F(P_{U,X})$
 
 This means that for every additional primary care or hepatology visit, patients are are `r round(PsiFpercent, 1)`% less likely to develop HCC than people who have one fewer primary care or hepatology visits in the five years under study.
 
 \vspace{24pt}
 
-<!--### C. Confirm that in your simulation, the value of your estimand equals the value of your target causal parameter.-->
+### c. Confirm that in your simulation, the value of your estimand equals the value of your target causal parameter.
 
 ```{r IPTW back in}
 # Analysis.IPTW <- function(df){
@@ -1225,11 +1222,19 @@ MSE.tmle <- mean((estimates_data2[,3]- PsiF)^2)
 
 <!--*In our simulation, armadillo! ###NEED TO FINISH THIS###-->
 
-## b. Data example
+## d. Data example
 
 <!-- armadillo! ###NEED TO DO THIS###-->
 
-## 5. References
+## e. "None of the options are good", and other life lessons from Causal
+
+Despite our efforts to simply our analysis to limit the number of possible treatment regimes (i.e. examining the effect of 0, 1, 2, and 3 or more visits, instead of the full distribution of visit counts), this analysis isquite competationally demanding; \textit{ltmle} is quite slow, with 1 iteration of the simulation taking more than an hour to complete and 50 iterations running for more than half a day. We will continue to proceed and plan time for R to run analyses as needed, but any suggestions for how to streamline would be welcome. 
+
+## f. Next steps
+
+Unfortunately our contact at UCSF who provided the data inadvertantly left 'date of HCC diagnosis' off of the last de-identified dataset we were provided, and is having difficulty appending that variable at this point. Once we receive those diagnosis dates (hopefully by Monday at the latest) we will tune our simlation to be closer to our real data, re-run the estimaors on our simulation data, then implement the iestimators using our actual dataset. 
+
+# 5. References
 
 Axley P, Ahmed Z, Ravi S, Singal AK. Hepatitis C Virus and Hepatocellular Carcinoma: A Narrative Review. J Clin Transl Hepatol. 2018 Mar 28; 6(1): 79-84.
 
