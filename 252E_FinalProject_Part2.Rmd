@@ -298,67 +298,64 @@ StephandShelleyDataLoad2 <- function(filename)
 # HCVData$TotalVisits<- HCVData$VISIT_COUNT_2011 + HCVData$VISIT_COUNT_2012 + HCVData$VISIT_COUNT_2013 + HCVData$VISIT_COUNT_2014 + HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
 # 
 # HCVData$TotalVisits15to18 <- HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
-# 
-# save(HCVData, file="HCVData.Rdata")
 
 ```
 
 ```{r Age_and_FIB-4}
 
-HCVData <- StephandShelleyDataLoad2("HCVData.Rdata")
-
-age <- function(dob, curryear, units = "years", floor = TRUE) {
-    calc.age = interval(dob, curryear) / duration(num = 1, units = units)
-    return(as.integer(floor(calc.age)))
-}
-
-HCVData$AGE_2009 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2009-12-31'))
-
-HCVData$AGE_2010 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2010-12-31'))
-
-HCVData$AGE_2011 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2011-12-31'))
-
-HCVData$AGE_2012 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2012-12-31'))
-
-HCVData$AGE_2013 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2013-12-31'))
-
-HCVData$AGE_2014 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2014-12-31'))
-
-HCVData$AGE_2015 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2015-12-31'))
-
-HCVData$AGE_2016 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2016-12-31'))
-
-HCVData$AGE_2017 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2017-12-31'))
-
-HCVData$AGE_2018 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2018-12-31'))
-
-HCVData$AGE_2019 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2019-12-31'))
-
-#drop DOB from dataset for privacy reasons
-#HCVData <- subset(HCVData, select = -c(BIRTH_DATE))
-
-HCVData$FIB4_2009 <- HCVData$AGE_2009 * HCVData$AST_2009 / (HCVData$PLATELET_2009 * sqrt(HCVData$ALT_2009))
-
-HCVData$FIB4_2010 <- HCVData$AGE_2010 * HCVData$AST_2010 / (HCVData$PLATELET_2010 * sqrt(HCVData$ALT_2010))
-  
-HCVData$FIB4_2011 <- HCVData$AGE_2011 * HCVData$AST_2011 / (HCVData$PLATELET_2011 * sqrt(HCVData$ALT_2011))
-  
-HCVData$FIB4_2012 <- HCVData$AGE_2012 * HCVData$AST_2012 / (HCVData$PLATELET_2012 * sqrt(HCVData$ALT_2012))
-
-HCVData$FIB4_2013 <- HCVData$AGE_2013 * HCVData$AST_2013 / (HCVData$PLATELET_2013 * sqrt(HCVData$ALT_2013))
-
-HCVData$FIB4_2014 <- HCVData$AGE_2011 * HCVData$AST_2014 / (HCVData$PLATELET_2014 * sqrt(HCVData$ALT_2014))
-
-HCVData$FIB4_2015 <- HCVData$AGE_2011 * HCVData$AST_2015 / (HCVData$PLATELET_2015 * sqrt(HCVData$ALT_2015))
-
-HCVData$FIB4_2016 <- HCVData$AGE_2011 * HCVData$AST_2016 / (HCVData$PLATELET_2016 * sqrt(HCVData$ALT_2016))
-
-HCVData$FIB4_2017 <- HCVData$AGE_2011 * HCVData$AST_2017 / (HCVData$PLATELET_2017 * sqrt(HCVData$ALT_2017))
-
-HCVData$FIB4_2018 <- HCVData$AGE_2011 * HCVData$AST_2018 / (HCVData$PLATELET_2018 * sqrt(HCVData$ALT_2018))
-
-HCVData$FIB4_2019 <- HCVData$AGE_2011 * HCVData$AST_2019 / (HCVData$PLATELET_2019 * sqrt(HCVData$ALT_2019))
-
+# age <- function(dob, curryear, units = "years", floor = TRUE) {
+#     calc.age = interval(dob, curryear) / duration(num = 1, units = units)
+#     return(as.integer(floor(calc.age)))
+# }
+# 
+# HCVData$AGE_2009 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2009-12-31'))
+# 
+# HCVData$AGE_2010 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2010-12-31'))
+# 
+# HCVData$AGE_2011 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2011-12-31'))
+# 
+# HCVData$AGE_2012 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2012-12-31'))
+# 
+# HCVData$AGE_2013 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2013-12-31'))
+# 
+# HCVData$AGE_2014 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2014-12-31'))
+# 
+# HCVData$AGE_2015 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2015-12-31'))
+# 
+# HCVData$AGE_2016 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2016-12-31'))
+# 
+# HCVData$AGE_2017 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2017-12-31'))
+# 
+# HCVData$AGE_2018 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2018-12-31'))
+# 
+# HCVData$AGE_2019 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2019-12-31'))
+# 
+# #drop DOB from dataset for privacy reasons
+# HCVData <- subset(HCVData, select = -c(BIRTH_DATE))
+# 
+# HCVData$FIB4_2009 <- HCVData$AGE_2009 * HCVData$AST_2009 / (HCVData$PLATELET_2009 * sqrt(HCVData$ALT_2009))
+# 
+# HCVData$FIB4_2010 <- HCVData$AGE_2010 * HCVData$AST_2010 / (HCVData$PLATELET_2010 * sqrt(HCVData$ALT_2010))
+#   
+# HCVData$FIB4_2011 <- HCVData$AGE_2011 * HCVData$AST_2011 / (HCVData$PLATELET_2011 * sqrt(HCVData$ALT_2011))
+#   
+# HCVData$FIB4_2012 <- HCVData$AGE_2012 * HCVData$AST_2012 / (HCVData$PLATELET_2012 * sqrt(HCVData$ALT_2012))
+# 
+# HCVData$FIB4_2013 <- HCVData$AGE_2013 * HCVData$AST_2013 / (HCVData$PLATELET_2013 * sqrt(HCVData$ALT_2013))
+# 
+# HCVData$FIB4_2014 <- HCVData$AGE_2011 * HCVData$AST_2014 / (HCVData$PLATELET_2014 * sqrt(HCVData$ALT_2014))
+# 
+# HCVData$FIB4_2015 <- HCVData$AGE_2011 * HCVData$AST_2015 / (HCVData$PLATELET_2015 * sqrt(HCVData$ALT_2015))
+# 
+# HCVData$FIB4_2016 <- HCVData$AGE_2011 * HCVData$AST_2016 / (HCVData$PLATELET_2016 * sqrt(HCVData$ALT_2016))
+# 
+# HCVData$FIB4_2017 <- HCVData$AGE_2011 * HCVData$AST_2017 / (HCVData$PLATELET_2017 * sqrt(HCVData$ALT_2017))
+# 
+# HCVData$FIB4_2018 <- HCVData$AGE_2011 * HCVData$AST_2018 / (HCVData$PLATELET_2018 * sqrt(HCVData$ALT_2018))
+# 
+# HCVData$FIB4_2019 <- HCVData$AGE_2011 * HCVData$AST_2019 / (HCVData$PLATELET_2019 * sqrt(HCVData$ALT_2019))
+# 
+# save(HCVData, file="HCVData.Rdata")
 
 ```
 
@@ -374,6 +371,9 @@ HCVData$FIB4_2019 <- HCVData$AGE_2011 * HCVData$AST_2019 / (HCVData$PLATELET_201
 
 
 ```{r filter to adults with visits, historical FIB4s}
+#HCVData <- StephandShelleyDataLoad2("HCVData.Rdata")
+load("~/GitHub/stephandshelley/HCVData.Rdata")
+
 HCVData<- HCVData %>% filter(TotalVisits != 0) %>%
                       filter(AGE_2011 >18)
 
@@ -621,7 +621,7 @@ Y(t) &= f_{Y(t)}(W, \bar{L}(t-1), \bar{A}(t-1), Y(t-1), U_{Y(t)}) \\
 Y(K) &= f_{Y(K)}(W, C(K), \bar{L}(K-1), \bar{A}(K-1), Y(K-1), U_{Y(K)}) \\
 \end{align*}
 
-We are also operating with one key exclusion restriction: once someone develops the outcome [$Y(t) = 1$] then we set their $A(t+1...K)$ and $L(t+1,...,K)$ to NA for the remainder of the analysis, and set $C(K) = 1$ for that subject. %%%ARMADILLO CHECK WITH STEPH%%%
+We are also operating with one key exclusion restriction: once someone develops the outcome [$Y(t) = 1$], we then set their $A(t+1...K)$ and $L(t+1,...,K)$ to NA for the remainder of the analysis, and set $C(K) = 1$ for that subject. <!--%%%ARMADILLO CHECK WITH STEPH%%%-->
 
 ## b. Proposed causal question
 
@@ -663,7 +663,7 @@ We will intervene to deterministically set $\bar{C}(K) = 0$ and $\bar{A}(t) = \b
 
 The number of visits per patient ranges from 0 to 44 in any given year, with a median of 1 visit per year overall. The figure below presents number of visits per patient in each year, truncated at 25 visits.
 
-```{r numvisits, include = FALSE, cache = TRUE}
+```{r numvisits, include = FALSE, eval = TRUE, cache = TRUE}
 
 plot_multi_histonly <- function(df, feature, label_column) {
     plt <- ggplot(df, aes(x=eval(parse(text=feature)), fill=eval(parse(text=label_column)))) +
@@ -698,13 +698,19 @@ suppressWarnings(print(Visitplots))
 
 **Diagnosed with HCC (annually)**
 
-```{r HCC, include=FALSE}
+```{r HCC, include=FALSE, eval=TRUE}
 HCVData$HCC <- ifelse(is.na(HCVData$Cancer.Diagnosis.Name), 0, 1)
+percentHCC <- mean(HCVData$HCC)*100
 ```
 
-`r sum(HCVData$HCC)` people (`r round(mean(HCVData$HCC)*100), 1)`%) developed the outcome (were diagnosed with HCC during the course of the study). At this time we are still waitingon an updated dataset that includes the year of diagnosis for each patient. <!--armadillo remember to update this in the final version! -->
+`r sum(HCVData$HCC)` people (`r round(percentHCC, 1)`%) developed the outcome (were diagnosed with HCC during the course of the study). At this time we are still waitingon an updated dataset that includes the year of diagnosis for each patient. <!--armadillo remember to update this in the final version! -->
 
 **FIB-4 Score (annually)**
+
+```{r fiblong, include = FALSE, eval = TRUE}
+FIBscores <- HCVData %>% dplyr::select(FIB4_2011, FIB4_2012, FIB4_2013, FIB4_2014, FIB4_2015, FIB4_2016, FIB4_2017, FIB4_2018)
+FIBLong <- FIBscores %>% gather
+```
 
 FIB-4 scores are calculated with inputs of age, platelet count, AST, and ALT. Scores of <1.45 are considered to be strongly suggestive of no liver fibrosis, and scores >3.25 are indicative of advanced fibrosis and/or cirrhosis. 
 
@@ -712,10 +718,8 @@ FIB-4 scores in this dataset range of 0.181 to 45.956 , with an IQR of 1.198-2.8
 
 The figure below presents the distribution of FIB-4 scores in each year.
 
-```{r fibplots, include = FALSE, cache=TRUE}
+```{r fibplots, include = FALSE, eval = TRUE, cache=TRUE}
 
-FIBscores <- HCVData %>% dplyr::select(FIB4_2011, FIB4_2012, FIB4_2013, FIB4_2014, FIB4_2015, FIB4_2016, FIB4_2017, FIB4_2018)
-FIBLong <- FIBscores %>% gather
 fib2011 <- ggplot(data = subset(FIBLong, key=="FIB4_2011"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2011") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
 fib2012 <- ggplot(data = subset(FIBLong, key=="FIB4_2012"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2012") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
 fib2013 <- ggplot(data = subset(FIBLong, key=="FIB4_2013"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2013") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
