@@ -790,7 +790,6 @@ We will estimate MSMs using G-computation, IPTW, and LTMLE estimators.
 
 All estimators are implemented via the ltmleMSM function in the \textit{ltmle} R package.
 
-<!--
 
 #4. Preliminary Results
 ## a. Simulation
