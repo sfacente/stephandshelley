@@ -35,10 +35,10 @@ StephandShelleyDataLoad2 <- function(filename)
 {
   if(Sys.info()['sysname']=="Darwin"){
     
-     load(as.character(filename))}
+     load(as.character(filename), envir = globalenv())}
   else{
     windowsfilepath <- paste("~/GitHub/stephandshelley/", filename, sep = "")
-     load(as.character(windowsfilepath))
+     load(as.character(windowsfilepath), envir = globalenv())
   }
 }
 
@@ -371,8 +371,8 @@ StephandShelleyDataLoad2 <- function(filename)
 
 
 ```{r filter to adults with visits, historical FIB4s}
-#HCVData <- StephandShelleyDataLoad2("HCVData.Rdata")
-load("~/GitHub/stephandshelley/HCVData.Rdata")
+HCVData <- StephandShelleyDataLoad2("HCVData.Rdata")
+#load("~/GitHub/stephandshelley/HCVData.Rdata")
 
 HCVData<- HCVData %>% filter(TotalVisits != 0) %>%
                       filter(AGE_2011 >18)
