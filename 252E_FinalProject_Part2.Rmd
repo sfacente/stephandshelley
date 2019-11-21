@@ -750,6 +750,13 @@ generate_data <- function(n) {
            A5 = ifelse(Y4==1, NA,round(as.numeric(UA5 + 0.1*L4),0)), 
            C5 = ifelse(A5 == 0, 1, 0),
            Y5 = ifelse(Y4==1, 1, as.numeric((UY5+0.01*A4-0.05*L4)< 0.03)))
+  
+  #bound visits to 4 max per year
+  O$A1[O$A1>3]<-4
+  O$A2[O$A2>3]<-4
+  O$A3[O$A3>3]<-4
+  O$A4[O$A4>3]<-4
+  
   return(O)
 }
 
@@ -870,6 +877,13 @@ generate_data_intervene <- function(n, c, a1, a2, a3, a4, a5) {
            A5 = ifelse(Y4==1, NA, a5), 
            C5 = 0,
            Y5 = ifelse(Y4==1, 1, as.numeric((UY5+0.01*A4-0.05*L4)< 0.03)))
+  
+  #bound visits to 4 max per year
+  O$A1[O$A1>3]<-4
+  O$A2[O$A2>3]<-4
+  O$A3[O$A3>3]<-4
+  O$A4[O$A4>3]<-4
+  
   return(O)
 }
 
@@ -881,7 +895,7 @@ set.seed(8675309)
 n<-3000
 
 
-x <- list(0:8)
+x <- list(0:5)
 TreatmentLevels<- expand.grid(rep(x, 4))
 
 k <- nrow(TreatmentLevels)
@@ -900,7 +914,12 @@ df <- generate_data_intervene(
                           a5 = 1
 )
 
-sum_abar[i] <- sum(as.numeric(temporary[1]) + as.numeric(temporary[2]) + as.numeric(temporary[3]) + as.numeric(temporary[4]), na.rm = TRUE)
+df$a1[df$a1 >3]<-4
+df$a2[df$a2 >3]<-4
+df$a3[df$a3 >3]<-4
+df$a4[df$a4 >3]<-4
+
+sum_abar[i] <- sum(df$a1 + df$a2 + df$a3 + df$a4, na.rm = TRUE)
 EY_abar[i] <- mean(df$Y5)
 }
 
