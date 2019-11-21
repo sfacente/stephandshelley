@@ -14,6 +14,7 @@ library(xlsx)
 library(lubridate)
 library(MASS)
 library(ggplot2)
+library(ggpubr)
 #library(Hmisc)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
@@ -35,262 +36,265 @@ HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-14-19.xl
 ```
 
 ```{r Data_Cleaning}
-#Let's do all Variable prep/Data cleaning in this chunk
+# # Let's do all Variable prep/Data cleaning in this chunk
+# 
+# #first just making variables their proper type, and renaming so there's no spaces
+# HCVData$'Deidentified Pt Number (updated)'<- as.factor(HCVData$'Deidentified Pt Number (updated)')
+# colnames(HCVData)[colnames(HCVData) == 'Deidentified Pt Number (updated)'] <- 'PtID'
+# 
+# HCVData$'Hep Visit?'<- as.factor(HCVData$'Hep Visit?')
+# colnames(HCVData)[colnames(HCVData) == 'Hep Visit?'] <- 'EverHepVisit'
+# 
+# HCVData$'Ever Chronic HCV?' <- as.factor(HCVData$'Ever Chronic HCV?')
+# colnames(HCVData)[colnames(HCVData) == 'Ever Chronic HCV?'] <- 'EverChronicHCV'
+# 
+# HCVData$'Spontaneous Clearance?' <- as.factor(HCVData$'Spontaneous Clearance?')
+# colnames(HCVData)[colnames(HCVData) == 'Spontaneous Clearance?'] <- 'SpontClearance'
+# 
+# HCVData$'Ever Ab positive HCV?' <- as.factor(HCVData$'Ever Ab positive HCV?')
+# colnames(HCVData)[colnames(HCVData) == 'Ever Ab positive HCV?'] <- 'EverAbPosHCV'
+# 
+# HCVData$'Ever Treated?'<- as.factor(HCVData$'Ever Treated?')
+# colnames(HCVData)[colnames(HCVData) == 'Ever Treated?'] <- 'EverTreated'
+# 
+# HCVData$'Evidence of SVR?'<- as.factor(HCVData$'Evidence of SVR?')
+# colnames(HCVData)[colnames(HCVData) == 'Evidence of SVR?'] <- 'SVRAchieved'
+# 
+# HCVData$'Treatment Definition' <- as.factor(HCVData$'Treatment Definition')
+# colnames(HCVData)[colnames(HCVData) == 'Treatment Definition'] <- 'TreatmentDefinition'
+# 
+# HCVData$'DX_TYPE OR TEST_TYPE' <- as.factor(HCVData$'DX_TYPE OR TEST_TYPE')
+# colnames(HCVData)[colnames(HCVData) == 'DX_TYPE OR TEST_TYPE'] <- 'inclusion.source'
+# 
+# HCVData$'DX_NAME OR TEST RESULT'<- as.factor(HCVData$'DX_NAME OR TEST RESULT')
+# colnames(HCVData)[colnames(HCVData) == 'DX_NAME OR TEST RESULT'] <- 'inclusion.reason'
+# 
+# #Didn't do anything with the column 'ICD10 OR RESULT_DATE' because it's a mix of formats/info
+# 
+# colnames(HCVData)[colnames(HCVData) == 'SPECIMN TAKEN DATE'] <- 'date.first.pos.HCV.test'
+# 
+# HCVData$RESULT <- as.factor(HCVData$RESULT)
+# colnames(HCVData)[colnames(HCVData) == 'RESULT'] <- 'HCV.test.result'
+# 
+# HCVData$'RNA EVER TESTED' <- as.factor(HCVData$'RNA EVER TESTED')
+# colnames(HCVData)[colnames(HCVData) == 'RNA EVER TESTED'] <- 'RNAeverTested'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'FIRST POS (Or if no POS, "SEE TEXT") RNA TEST DATE'] <- 'Date.First.Pos.RNA'
+# 
+# HCVData$'FIRST POS (Or if no POS, "SEE TEXT") RNA TEST RESULT' <- as.factor(HCVData$'FIRST POS (Or if no POS, "SEE TEXT") RNA TEST RESULT')
+# colnames(HCVData)[colnames(HCVData) == 'FIRST POS (Or if no POS, "SEE TEXT") RNA TEST RESULT'] <- 'Result.First.Pos.RNA'
+# 
+# #Added this to address the "See Text" weirdness; I think "See Text" was inserted here when the test was undetectable or lab error, etc. ##### MAY WANT TO REMOVE IF NUMERIC PREFERRED
+# ##Note from Steph- it's not undetectable/lab error, it's just that for a number of years, they used this as a way to 'hide' results so that people in someone's chart inadvertantly didn't see sensitive test results. It was sort of a weird thing and they eventually dropped it. But that's why it's there. Right now though this is erroring over the RNA.interpretation column so I've commented it out.
+# #HCVData$Result.First.Pos.RNA <- ifelse(HCVData$Result.First.Pos.RNA == 'See Text', HCVData$RNA.interpretation, HCVData$Result.First.Pos.RNA)
+# 
+# colnames(HCVData)[colnames(HCVData) == 'MOST RECENT RNA POS'] <- 'Most.Recent.RNA.Pos'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'MOST RECENT RNA NEG'] <- 'Most.Recent.RNA.Neg'
+# 
+# #This column is in the midst of the RNA testing section but is unlabeled. It's a date.
+# colnames(HCVData)[colnames(HCVData) == '..19'] <- 'UnknownColumn'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'MOST RECENT RNA "SEE TEXT"'] <- 'Most.Recent.RNA.SeeText'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'RNA interpretation'] <- 'RNA.interpretation'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'other notes on diagnosis'] <- 'Notes'
+# 
+# HCVData$'Where getting care' <- as.factor(HCVData$'Where getting care')
+# colnames(HCVData)[colnames(HCVData) == 'Where getting care'] <- 'Care.Location'
+# 
+# #This errors because there are a number of non-dates in this column. Should discuss with Rena if using.
+# #HCVData$'HEP C GENOTYPE DATE' <- as.POSIXct(HCVData$'HEP C GENOTYPE DATE')
+# #colnames(HCVData)[colnames(HCVData) == 'HEP C GENOTYPE DATE'] <- 'HCV.Genotype.Date'
+# 
+# HCVData$'HEP C GENOTYPE RESULT' <- as.factor(HCVData$'HEP C GENOTYPE RESULT')
+# colnames(HCVData)[colnames(HCVData) == 'HEP C GENOTYPE RESULT'] <- 'HCV.Genotype.Result'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'ALPHAFETOPROTEIN_RESULT_DATE'] <- 'AFP.Date'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'ALPHAFETOPROTEIN_RESULT'] <- 'AFP.Result'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'FIRST_HEPATOLOGY_APPT'] <- 'First.Hep.Appt'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'MOST_RECENT_HEPATOLOGY_APPT'] <- 'Most.Recent.Hep.Appt'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'PLATLET_RESULT_DATE'] <- 'Lowest.Platelet.Date'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'LOWEST_PLATELETS_RESULT'] <- 'Lowest.Platelet.Result'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'HEPA_VACCINE_DATE'] <- 'HAV.Vax.Date'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'HEPB_VACCINE_DATE'] <- 'HBV.Vax.Date'
+# 
+# HCVData$'Ever Had a Primary Care Visit' <- as.factor(HCVData$'Ever Had a Primary Care Visit')
+# colnames(HCVData)[colnames(HCVData) == 'Ever Had a Primary Care Visit'] <- 'EverPrimaryCareVisit'
+# 
+# HCVData$'DEPT_NAME' <- as.factor(HCVData$'DEPT_NAME')
+# 
+# HCVData$'CURRENT_PCP' <- as.factor(HCVData$'CURRENT_PCP')
+# 
+# HCVData$'CURRENT_PCP_DEPT' <- as.factor(HCVData$'CURRENT_PCP_DEPT')
+# 
+# colnames(HCVData)[colnames(HCVData) == 'HBsAb_RESULT_DATE'] <- 'HBsAG.Date'
+# 
+# HCVData$'HBsAb_ORD_VALUE' <- as.factor(HCVData$'HBsAb_ORD_VALUE')
+# colnames(HCVData)[colnames(HCVData) == 'HBsAb_ORD_VALUE'] <- 'HBsAb.Result'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'HIV_RESULT_DATE'] <- 'HIV.Date'
+# 
+# HCVData$'ORD_VALUE' <- as.factor(HCVData$'ORD_VALUE')
+# colnames(HCVData)[colnames(HCVData) == 'ORD_VALUE'] <- 'HIV.Result'
+# 
+# HCVData$'HepA_IgG_Result_Date' <- as.factor(HCVData$'HepA_IgG_Result_Date')
+# colnames(HCVData)[colnames(HCVData) == 'HepA_IgG_Result_Date'] <- 'HepA_IgG.Date'
+# 
+# HCVData$'HepA_IgG' <- as.factor(HCVData$'HepA_IgG')
+# colnames(HCVData)[colnames(HCVData) == 'HepA_IgG'] <- 'HepA_IgG.Result'
+# 
+# HCVData$'HBsAg_RESULT_DATE' <- as.factor(HCVData$'HBsAg_RESULT_DATE')
+# colnames(HCVData)[colnames(HCVData) == 'HBsAg_RESULT_DATE'] <- 'HBsAg_Date'
+# 
+# HCVData$'HBsAg_Value' <- as.factor(HCVData$'HBsAg_Value')
+# 
+# HCVData$'Med_1' <- as.factor(HCVData$'Med_1')
+# 
+# HCVData$'Med_2' <- as.factor(HCVData$'Med_2')
+# 
+# HCVData$'HEPB_CORE_IgM_RESULT' <- as.factor(HCVData$'HEPB_CORE_IgM_RESULT')
+# 
+# HCVData$'HEPB_CORE_Total_RESULT' <- as.factor(HCVData$'HEPB_CORE_Total_RESULT')
+# 
+# HCVData$DX_TYPE <- as.factor(HCVData$DX_TYPE)
+# colnames(HCVData)[colnames(HCVData) == 'DX_TYPE'] <- 'Cancer.Diagnosis.Source'
+# 
+# HCVData$'DX_NAME..56' <- as.factor(HCVData$'DX_NAME..56')
+# colnames(HCVData)[colnames(HCVData) == 'DX_NAME..56'] <- 'Cancer.Diagnosis.Name'
+# 
+# HCVData$ICD10 <- as.factor(HCVData$ICD10)
+# colnames(HCVData)[colnames(HCVData) == 'ICD10'] <- 'Cancer.ICD10'
+# 
+# ##Need to check with Rena if this is indeed HCC Dx (not HCV Dx)
+# colnames(HCVData)[colnames(HCVData) == 'FIRST_DX_DATE'] <- 'Cancer.Diagnosis.Date'
+# 
+# HCVData$RACE <- as.factor(HCVData$RACE)
+# colnames(HCVData)[colnames(HCVData) == 'RACE'] <- 'Race'
+# 
+# HCVData$ETHNICTY <- as.factor(HCVData$ETHNICTY)
+# colnames(HCVData)[colnames(HCVData) == 'ETHNICTY'] <- 'Ethnicity'
+# 
+# #Appears to only be male/female, I suspect really sex :(
+# HCVData$SEX <- as.factor(HCVData$SEX)
+# colnames(HCVData)[colnames(HCVData) == 'SEX'] <- 'Sex'
+# 
+# HCVData$LANGUAGE <- as.factor(HCVData$LANGUAGE)
+# colnames(HCVData)[colnames(HCVData) == 'LANGUAGE'] <- 'Language'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'Outpatient Completed'] <- 'Num.Outpatient.Visits'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'Outpatient Canceled'] <- 'Num.Outpatient.Cancellations'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'Outpatient No Show'] <- 'Num.Outpatient.NoShows'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'Opiod'] <- 'Opioid.Hx'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'ED'] <- 'ED.Visits'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'Hosp Admission'] <- 'Hospital.Admissions'
+# 
+# ##removing extra variables with the same column names, unneeded for our analysis as far as I can tell
+# HCVData <- subset(HCVData, select = -c(DX_NAME..70,
+#            CURRENT_ICD10_LIST..71, 
+#            DX_NAME..73,
+#            CURRENT_ICD10_LIST..74,
+#            DX_NAME..76,
+#            CURRENT_ICD10_LIST..77,
+#            DX_NAME..79,
+#            CURRENT_ICD10_LIST..80,
+#            DX_NAME..82,
+#            CURRENT_ICD10_LIST..83,
+#            DX_NAME..85,
+#            CURRENT_ICD10_LIST..86,
+#            DX_NAME..88,
+#            CURRENT_ICD10_LIST..89,
+#            DX_NAME..91,
+#            CURRENT_ICD10_LIST..92,
+#            DX_NAME..94,
+#            CURRENT_ICD10_LIST..95,
+#            DX_NAME..97,
+#            CURRENT_ICD10_LIST..98,
+#            DX_NAME..100,
+#            CURRENT_ICD10_LIST..101, 
+#            CURRENT_ICD10_LIST..103, 
+#            DX_NAME..104,
+#            CURRENT_ICD10_LIST..106,
+#            DX_NAME..107,
+#            DX_NAME..109,
+#            CURRENT_ICD10_LIST..110,
+#            CURRENT_ICD10_LIST..112,
+#            DX_NAME..113,
+#            CURRENT_ICD10_LIST..115,
+#            DX_NAME..116,
+#            DX_NAME..118,
+#            CURRENT_ICD10_LIST..119,
+#            DX_NAME..121,
+#            CURRENT_ICD10_LIST..122,
+#            DX_NAME..124,
+#            CURRENT_ICD10_LIST..125))
+# 
+# colnames(HCVData)[colnames(HCVData) == 'METASTATIC Cancer'] <- 'Metastatic.Cancer'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'Nonmetastatic Cancer'] <- 'NON-Metastatic.Cancer'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'Alcohol Abuse'] <- 'Alcohol.Abuse'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'Drug Abuse'] <- 'Drug.Abuse'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'Othe Neurological Disorder'] <- 'Other.Neuro.Disorder'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'CHRONIC PULMONARY DISORDER'] <- 'CPD'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'Renal Failure'] <- 'Renal.Failure'
+# 
+# colnames(HCVData)[colnames(HCVData) == 'Liver Disease'] <- 'Liver.Disease'
+# 
+# HCVData$PAYOR_NAME <- as.factor(HCVData$PAYOR_NAME)
+# colnames(HCVData)[colnames(HCVData) == 'PAYOR_NAME'] <- 'PAYOR'
+# 
+# HCVData <- HCVData %>% mutate(PayorType = ifelse(str_detect(HCVData$PAYOR, "MCAL"), "MediCal", "Commercial"),
+#                               PayorType = ifelse(str_detect(HCVData$PAYOR, "M-CAL"), "MediCal", PayorType),
+#                               PayorType = ifelse(str_detect(HCVData$PAYOR, "MEDI-CAL"), "MediCal", PayorType),
+#                               PayorType = ifelse(str_detect(HCVData$PAYOR, "SENIOR"), "Medicare", PayorType),
+#                               PayorType = ifelse(str_detect(HCVData$PAYOR, "SNR"), "Medicare", PayorType),
+#                               PayorType = ifelse(str_detect(HCVData$PAYOR, "MEDICARE"), "Medicare", PayorType))
+# 
+# HCVData$'FIRST PC APPT DEPT' <- as.factor(HCVData$'FIRST PC APPT DEPT')
+# colnames(HCVData)[colnames(HCVData) == 'FIRST PC APPT DEPT'] <- 'FIRST_PC_APPT_DEPT'
+# 
+# HCVData$'MOST RECENT PC APPT DEPT' <- as.factor(HCVData$'MOST RECENT PC APPT DEPT')
+# colnames(HCVData)[colnames(HCVData) == 'MOST RECENT PC APPT DEPT'] <- 'MOST_RECENT_PC_APPT_DEPT'
+# 
+# HCVData$VISIT_COUNT_2011 <-rowSums(cbind(HCVData$PC_2011_VISIT_COUNT, HCVData$HEP_2011_VISIT_COUNT), na.rm=TRUE)
+# HCVData$VISIT_COUNT_2012 <-rowSums(cbind(HCVData$PC_2012_VISIT_COUNT, HCVData$HEP_2012_VISIT_COUNT), na.rm=TRUE)
+# HCVData$VISIT_COUNT_2013 <-rowSums(cbind(HCVData$PC_2013_VISIT_COUNT, HCVData$HEP_2013_VISIT_COUNT), na.rm=TRUE)
+# HCVData$VISIT_COUNT_2014 <-rowSums(cbind(HCVData$PC_2014_VISIT_COUNT, HCVData$HEP_2014_VISIT_COUNT), na.rm=TRUE)
+# HCVData$VISIT_COUNT_2015 <-rowSums(cbind(HCVData$PC_2015_VISIT_COUNT, HCVData$HEP_2015_VISIT_COUNT), na.rm=TRUE)
+# HCVData$VISIT_COUNT_2016 <-rowSums(cbind(HCVData$PC_2016_VISIT_COUNT, HCVData$HEP_2016_VISIT_COUNT), na.rm=TRUE)
+# HCVData$VISIT_COUNT_2017 <-rowSums(cbind(HCVData$PC_2017_VISIT_COUNT, HCVData$HEP_2017_VISIT_COUNT), na.rm=TRUE)
+# HCVData$VISIT_COUNT_2018 <-rowSums(cbind(HCVData$PC_2018_VISIT_COUNT, HCVData$HEP_2018_VISIT_COUNT), na.rm=TRUE)
+# HCVData$VISIT_COUNT_2019 <-rowSums(cbind(HCVData$PC_2019_VISIT_COUNT, HCVData$HEP_2019_VISIT_COUNT), na.rm=TRUE)
+# 
+# HCVData$TotalVisits<- HCVData$VISIT_COUNT_2011 + HCVData$VISIT_COUNT_2012 + HCVData$VISIT_COUNT_2013 + HCVData$VISIT_COUNT_2014 + HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
+# 
+# HCVData$TotalVisits15to18 <- HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
+# 
+# save(HCVData, file="HCVData.Rdata")
 
-#first just making variables their proper type, and renaming so there's no spaces
-HCVData$'Deidentified Pt Number (updated)'<- as.factor(HCVData$'Deidentified Pt Number (updated)')
-colnames(HCVData)[colnames(HCVData) == 'Deidentified Pt Number (updated)'] <- 'PtID'
-
-HCVData$'Hep Visit?'<- as.factor(HCVData$'Hep Visit?')
-colnames(HCVData)[colnames(HCVData) == 'Hep Visit?'] <- 'EverHepVisit'
-
-HCVData$'Ever Chronic HCV?' <- as.factor(HCVData$'Ever Chronic HCV?')
-colnames(HCVData)[colnames(HCVData) == 'Ever Chronic HCV?'] <- 'EverChronicHCV'
-
-HCVData$'Spontaneous Clearance?' <- as.factor(HCVData$'Spontaneous Clearance?')
-colnames(HCVData)[colnames(HCVData) == 'Spontaneous Clearance?'] <- 'SpontClearance'
-
-HCVData$'Ever Ab positive HCV?' <- as.factor(HCVData$'Ever Ab positive HCV?')
-colnames(HCVData)[colnames(HCVData) == 'Ever Ab positive HCV?'] <- 'EverAbPosHCV'
-
-HCVData$'Ever Treated?'<- as.factor(HCVData$'Ever Treated?')
-colnames(HCVData)[colnames(HCVData) == 'Ever Treated?'] <- 'EverTreated'
-
-HCVData$'Evidence of SVR?'<- as.factor(HCVData$'Evidence of SVR?')
-colnames(HCVData)[colnames(HCVData) == 'Evidence of SVR?'] <- 'SVRAchieved'
-
-HCVData$'Treatment Definition' <- as.factor(HCVData$'Treatment Definition')
-colnames(HCVData)[colnames(HCVData) == 'Treatment Definition'] <- 'TreatmentDefinition'
-
-HCVData$'DX_TYPE OR TEST_TYPE' <- as.factor(HCVData$'DX_TYPE OR TEST_TYPE')
-colnames(HCVData)[colnames(HCVData) == 'DX_TYPE OR TEST_TYPE'] <- 'inclusion.source'
-
-HCVData$'DX_NAME OR TEST RESULT'<- as.factor(HCVData$'DX_NAME OR TEST RESULT')
-colnames(HCVData)[colnames(HCVData) == 'DX_NAME OR TEST RESULT'] <- 'inclusion.reason'
-
-#Didn't do anything with the column 'ICD10 OR RESULT_DATE' because it's a mix of formats/info
-
-colnames(HCVData)[colnames(HCVData) == 'SPECIMN TAKEN DATE'] <- 'date.first.pos.HCV.test'
-
-HCVData$RESULT <- as.factor(HCVData$RESULT)
-colnames(HCVData)[colnames(HCVData) == 'RESULT'] <- 'HCV.test.result'
-
-HCVData$'RNA EVER TESTED' <- as.factor(HCVData$'RNA EVER TESTED')
-colnames(HCVData)[colnames(HCVData) == 'RNA EVER TESTED'] <- 'RNAeverTested'
-
-colnames(HCVData)[colnames(HCVData) == 'FIRST POS (Or if no POS, "SEE TEXT") RNA TEST DATE'] <- 'Date.First.Pos.RNA'
-
-HCVData$'FIRST POS (Or if no POS, "SEE TEXT") RNA TEST RESULT' <- as.factor(HCVData$'FIRST POS (Or if no POS, "SEE TEXT") RNA TEST RESULT')
-colnames(HCVData)[colnames(HCVData) == 'FIRST POS (Or if no POS, "SEE TEXT") RNA TEST RESULT'] <- 'Result.First.Pos.RNA'
-
-#Added this to address the "See Text" weirdness; I think "See Text" was inserted here when the test was undetectable or lab error, etc. ##### MAY WANT TO REMOVE IF NUMERIC PREFERRED
-##Note from Steph- it's not undetectable/lab error, it's just that for a number of years, they used this as a way to 'hide' results so that people in someone's chart inadvertantly didn't see sensitive test results. It was sort of a weird thing and they eventually dropped it. But that's why it's there. Right now though this is erroring over the RNA.interpretation column so I've commented it out.
-#HCVData$Result.First.Pos.RNA <- ifelse(HCVData$Result.First.Pos.RNA == 'See Text', HCVData$RNA.interpretation, HCVData$Result.First.Pos.RNA)
-
-colnames(HCVData)[colnames(HCVData) == 'MOST RECENT RNA POS'] <- 'Most.Recent.RNA.Pos'
-
-colnames(HCVData)[colnames(HCVData) == 'MOST RECENT RNA NEG'] <- 'Most.Recent.RNA.Neg'
-
-#This column is in the midst of the RNA testing section but is unlabeled. It's a date.
-colnames(HCVData)[colnames(HCVData) == '...19'] <- 'UnknownColumn'
-
-colnames(HCVData)[colnames(HCVData) == 'MOST RECENT RNA "SEE TEXT"'] <- 'Most.Recent.RNA.SeeText'
-
-colnames(HCVData)[colnames(HCVData) == 'RNA interpretation'] <- 'RNA.interpretation'
-
-colnames(HCVData)[colnames(HCVData) == 'other notes on diagnosis'] <- 'Notes'
-
-HCVData$'Where getting care' <- as.factor(HCVData$'Where getting care')
-colnames(HCVData)[colnames(HCVData) == 'Where getting care'] <- 'Care.Location'
-
-#This errors because there are a number of non-dates in this column. Should discuss with Rena if using.
-#HCVData$'HEP C GENOTYPE DATE' <- as.POSIXct(HCVData$'HEP C GENOTYPE DATE')
-#colnames(HCVData)[colnames(HCVData) == 'HEP C GENOTYPE DATE'] <- 'HCV.Genotype.Date'
-
-HCVData$'HEP C GENOTYPE RESULT' <- as.factor(HCVData$'HEP C GENOTYPE RESULT')
-colnames(HCVData)[colnames(HCVData) == 'HEP C GENOTYPE RESULT'] <- 'HCV.Genotype.Result'
-
-colnames(HCVData)[colnames(HCVData) == 'ALPHAFETOPROTEIN_RESULT_DATE'] <- 'AFP.Date'
-
-colnames(HCVData)[colnames(HCVData) == 'ALPHAFETOPROTEIN_RESULT'] <- 'AFP.Result'
-
-colnames(HCVData)[colnames(HCVData) == 'FIRST_HEPATOLOGY_APPT'] <- 'First.Hep.Appt'
-
-colnames(HCVData)[colnames(HCVData) == 'MOST_RECENT_HEPATOLOGY_APPT'] <- 'Most.Recent.Hep.Appt'
-
-colnames(HCVData)[colnames(HCVData) == 'PLATLET_RESULT_DATE'] <- 'Lowest.Platelet.Date'
-
-colnames(HCVData)[colnames(HCVData) == 'LOWEST_PLATELETS_RESULT'] <- 'Lowest.Platelet.Result'
-
-colnames(HCVData)[colnames(HCVData) == 'HEPA_VACCINE_DATE'] <- 'HAV.Vax.Date'
-
-colnames(HCVData)[colnames(HCVData) == 'HEPB_VACCINE_DATE'] <- 'HBV.Vax.Date'
-
-HCVData$'Ever Had a Primary Care Visit' <- as.factor(HCVData$'Ever Had a Primary Care Visit')
-colnames(HCVData)[colnames(HCVData) == 'Ever Had a Primary Care Visit'] <- 'EverPrimaryCareVisit'
-
-HCVData$'DEPT_NAME' <- as.factor(HCVData$'DEPT_NAME')
-
-HCVData$'CURRENT_PCP' <- as.factor(HCVData$'CURRENT_PCP')
-
-HCVData$'CURRENT_PCP_DEPT' <- as.factor(HCVData$'CURRENT_PCP_DEPT')
-
-colnames(HCVData)[colnames(HCVData) == 'HBsAb_RESULT_DATE'] <- 'HBsAG.Date'
-
-HCVData$'HBsAb_ORD_VALUE' <- as.factor(HCVData$'HBsAb_ORD_VALUE')
-colnames(HCVData)[colnames(HCVData) == 'HBsAb_ORD_VALUE'] <- 'HBsAb.Result'
-
-colnames(HCVData)[colnames(HCVData) == 'HIV_RESULT_DATE'] <- 'HIV.Date'
-
-HCVData$'ORD_VALUE' <- as.factor(HCVData$'ORD_VALUE')
-colnames(HCVData)[colnames(HCVData) == 'ORD_VALUE'] <- 'HIV.Result'
-
-HCVData$'HepA_IgG_Result_Date' <- as.factor(HCVData$'HepA_IgG_Result_Date')
-colnames(HCVData)[colnames(HCVData) == 'HepA_IgG_Result_Date'] <- 'HepA_IgG.Date'
-
-HCVData$'HepA_IgG' <- as.factor(HCVData$'HepA_IgG')
-colnames(HCVData)[colnames(HCVData) == 'HepA_IgG'] <- 'HepA_IgG.Result'
-
-HCVData$'HBsAg_RESULT_DATE' <- as.factor(HCVData$'HBsAg_RESULT_DATE')
-colnames(HCVData)[colnames(HCVData) == 'HBsAg_RESULT_DATE'] <- 'HBsAg_Date'
-
-HCVData$'HBsAg_Value' <- as.factor(HCVData$'HBsAg_Value')
-
-HCVData$'Med_1' <- as.factor(HCVData$'Med_1')
-
-HCVData$'Med_2' <- as.factor(HCVData$'Med_2')
-
-HCVData$'HEPB_CORE_IgM_RESULT' <- as.factor(HCVData$'HEPB_CORE_IgM_RESULT')
-
-HCVData$'HEPB_CORE_Total_RESULT' <- as.factor(HCVData$'HEPB_CORE_Total_RESULT')
-
-HCVData$DX_TYPE <- as.factor(HCVData$DX_TYPE)
-colnames(HCVData)[colnames(HCVData) == 'DX_TYPE'] <- 'Cancer.Diagnosis.Source'
-
-HCVData$'DX_NAME...56' <- as.factor(HCVData$'DX_NAME...56')
-colnames(HCVData)[colnames(HCVData) == 'DX_NAME...56'] <- 'Cancer.Diagnosis.Name'
-
-HCVData$ICD10 <- as.factor(HCVData$ICD10)
-colnames(HCVData)[colnames(HCVData) == 'ICD10'] <- 'Cancer.ICD10'
-
-##Need to check with Rena if this is indeed HCC Dx (not HCV Dx)
-colnames(HCVData)[colnames(HCVData) == 'FIRST_DX_DATE'] <- 'Cancer.Diagnosis.Date'
-
-HCVData$RACE <- as.factor(HCVData$RACE)
-colnames(HCVData)[colnames(HCVData) == 'RACE'] <- 'Race'
-
-HCVData$ETHNICTY <- as.factor(HCVData$ETHNICTY)
-colnames(HCVData)[colnames(HCVData) == 'ETHNICTY'] <- 'Ethnicity'
-
-#Appears to only be male/female, I suspect really sex :(
-HCVData$SEX <- as.factor(HCVData$SEX)
-colnames(HCVData)[colnames(HCVData) == 'SEX'] <- 'Sex'
-
-HCVData$LANGUAGE <- as.factor(HCVData$LANGUAGE)
-colnames(HCVData)[colnames(HCVData) == 'LANGUAGE'] <- 'Language'
-
-colnames(HCVData)[colnames(HCVData) == 'Outpatient Completed'] <- 'Num.Outpatient.Visits'
-
-colnames(HCVData)[colnames(HCVData) == 'Outpatient Canceled'] <- 'Num.Outpatient.Cancellations'
-
-colnames(HCVData)[colnames(HCVData) == 'Outpatient No Show'] <- 'Num.Outpatient.NoShows'
-
-colnames(HCVData)[colnames(HCVData) == 'Opiod'] <- 'Opioid.Hx'
-
-colnames(HCVData)[colnames(HCVData) == 'ED'] <- 'ED.Visits'
-
-colnames(HCVData)[colnames(HCVData) == 'Hosp Admission'] <- 'Hospital.Admissions'
-
-##removing extra variables with the same column names, unneeded for our analysis as far as I can tell
-HCVData <- subset(HCVData, select = -c(DX_NAME...70,
-           CURRENT_ICD10_LIST...71, 
-           DX_NAME...73,
-           CURRENT_ICD10_LIST...74,
-           DX_NAME...76,
-           CURRENT_ICD10_LIST...77,
-           DX_NAME...79,
-           CURRENT_ICD10_LIST...80,
-           DX_NAME...82,
-           CURRENT_ICD10_LIST...83,
-           DX_NAME...85,
-           CURRENT_ICD10_LIST...86,
-           DX_NAME...88,
-           CURRENT_ICD10_LIST...89,
-           DX_NAME...91,
-           CURRENT_ICD10_LIST...92,
-           DX_NAME...94,
-           CURRENT_ICD10_LIST...95,
-           DX_NAME...97,
-           CURRENT_ICD10_LIST...98,
-           DX_NAME...100,
-           CURRENT_ICD10_LIST...101, 
-           CURRENT_ICD10_LIST...103, 
-           DX_NAME...104,
-           CURRENT_ICD10_LIST...106,
-           DX_NAME...107,
-           DX_NAME...109,
-           CURRENT_ICD10_LIST...110,
-           CURRENT_ICD10_LIST...112,
-           DX_NAME...113,
-           CURRENT_ICD10_LIST...115,
-           DX_NAME...116,
-           DX_NAME...118,
-           CURRENT_ICD10_LIST...119,
-           DX_NAME...121,
-           CURRENT_ICD10_LIST...122,
-           DX_NAME...124,
-           CURRENT_ICD10_LIST...125))
-
-colnames(HCVData)[colnames(HCVData) == 'METASTATIC Cancer'] <- 'Metastatic.Cancer'
-
-colnames(HCVData)[colnames(HCVData) == 'Nonmetastatic Cancer'] <- 'NON-Metastatic.Cancer'
-
-colnames(HCVData)[colnames(HCVData) == 'Alcohol Abuse'] <- 'Alcohol.Abuse'
-
-colnames(HCVData)[colnames(HCVData) == 'Drug Abuse'] <- 'Drug.Abuse'
-
-colnames(HCVData)[colnames(HCVData) == 'Othe Neurological Disorder'] <- 'Other.Neuro.Disorder'
-
-colnames(HCVData)[colnames(HCVData) == 'CHRONIC PULMONARY DISORDER'] <- 'CPD'
-
-colnames(HCVData)[colnames(HCVData) == 'Renal Failure'] <- 'Renal.Failure'
-
-colnames(HCVData)[colnames(HCVData) == 'Liver Disease'] <- 'Liver.Disease'
-
-HCVData$PAYOR_NAME <- as.factor(HCVData$PAYOR_NAME)
-colnames(HCVData)[colnames(HCVData) == 'PAYOR_NAME'] <- 'PAYOR'
-
-HCVData <- HCVData %>% mutate(PayorType = ifelse(str_detect(HCVData$PAYOR, "MCAL"), "MediCal", "Commercial"),
-                              PayorType = ifelse(str_detect(HCVData$PAYOR, "M-CAL"), "MediCal", PayorType),
-                              PayorType = ifelse(str_detect(HCVData$PAYOR, "MEDI-CAL"), "MediCal", PayorType),
-                              PayorType = ifelse(str_detect(HCVData$PAYOR, "SENIOR"), "Medicare", PayorType),
-                              PayorType = ifelse(str_detect(HCVData$PAYOR, "SNR"), "Medicare", PayorType),
-                              PayorType = ifelse(str_detect(HCVData$PAYOR, "MEDICARE"), "Medicare", PayorType))
-
-HCVData$'FIRST PC APPT DEPT' <- as.factor(HCVData$'FIRST PC APPT DEPT')
-colnames(HCVData)[colnames(HCVData) == 'FIRST PC APPT DEPT'] <- 'FIRST_PC_APPT_DEPT'
-
-HCVData$'MOST RECENT PC APPT DEPT' <- as.factor(HCVData$'MOST RECENT PC APPT DEPT')
-colnames(HCVData)[colnames(HCVData) == 'MOST RECENT PC APPT DEPT'] <- 'MOST_RECENT_PC_APPT_DEPT'
-
-HCVData$VISIT_COUNT_2011 <-rowSums(cbind(HCVData$PC_2011_VISIT_COUNT, HCVData$HEP_2011_VISIT_COUNT), na.rm=TRUE)
-HCVData$VISIT_COUNT_2012 <-rowSums(cbind(HCVData$PC_2012_VISIT_COUNT, HCVData$HEP_2012_VISIT_COUNT), na.rm=TRUE)
-HCVData$VISIT_COUNT_2013 <-rowSums(cbind(HCVData$PC_2013_VISIT_COUNT, HCVData$HEP_2013_VISIT_COUNT), na.rm=TRUE)
-HCVData$VISIT_COUNT_2014 <-rowSums(cbind(HCVData$PC_2014_VISIT_COUNT, HCVData$HEP_2014_VISIT_COUNT), na.rm=TRUE)
-HCVData$VISIT_COUNT_2015 <-rowSums(cbind(HCVData$PC_2015_VISIT_COUNT, HCVData$HEP_2015_VISIT_COUNT), na.rm=TRUE)
-HCVData$VISIT_COUNT_2016 <-rowSums(cbind(HCVData$PC_2016_VISIT_COUNT, HCVData$HEP_2016_VISIT_COUNT), na.rm=TRUE)
-HCVData$VISIT_COUNT_2017 <-rowSums(cbind(HCVData$PC_2017_VISIT_COUNT, HCVData$HEP_2017_VISIT_COUNT), na.rm=TRUE)
-HCVData$VISIT_COUNT_2018 <-rowSums(cbind(HCVData$PC_2018_VISIT_COUNT, HCVData$HEP_2018_VISIT_COUNT), na.rm=TRUE)
-HCVData$VISIT_COUNT_2019 <-rowSums(cbind(HCVData$PC_2019_VISIT_COUNT, HCVData$HEP_2019_VISIT_COUNT), na.rm=TRUE)
-
-HCVData$TotalVisits<- HCVData$VISIT_COUNT_2011 + HCVData$VISIT_COUNT_2012 + HCVData$VISIT_COUNT_2013 + HCVData$VISIT_COUNT_2014 + HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
-
-HCVData$TotalVisits15to18 <- HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
-
-save(HCVData, file="HCVData.RData")
 ```
 
 ```{r Age_and_FIB-4}
+
+HCVData <- StephandShelleyDataLoad("HCVData.Rdata")
 
 age <- function(dob, curryear, units = "years", floor = TRUE) {
     calc.age = interval(dob, curryear) / duration(num = 1, units = units)
@@ -647,7 +651,7 @@ We will intervene to deterministically set $\bar{C}(K) = 0$ and $\bar{A}(t) = \b
 
 **Number of Visits (annually)**
 
-The number of visits per patient ranges from 0 to 44 in any given year, with a median of 0 - 2 visits across years. The figure below presents number of visits per patient in each year, truncated at 25 visits.
+The number of visits per patient ranges from 0 to 44 in any given year, with a median of 1 visit per year overall. The figure below presents number of visits per patient in each year, truncated at 25 visits.
 
 ```{r numvisits, include = FALSE, cache = TRUE}
 
@@ -667,7 +671,6 @@ plot_multi_density <- function(df, feature, label_column) {
     plt + guides(fill=guide_legend(title=label_column))
 }
 
-library(ggpubr)
 VisitCounts <- HCVData %>% dplyr::select(VISIT_COUNT_2011, VISIT_COUNT_2012, VISIT_COUNT_2013, VISIT_COUNT_2014, VISIT_COUNT_2015, VISIT_COUNT_2016, VISIT_COUNT_2017, VISIT_COUNT_2018)
 VisitCountsLong <- VisitCounts %>% gather
 plot2011 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2011"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2011") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
@@ -683,22 +686,45 @@ Visitplots <- annotate_figure(Visitplots, top = "Number of Visits per Patient (A
 suppressWarnings(print(Visitplots))
 ```
 
-
 **Diagnosed with HCC (annually)**
 
-```{r}
-
+```{r HCC, include=FALSE}
+HCVData$HCC <- ifelse(is.na(HCVData$Cancer.Diagnosis.Name), 0, 1)
 ```
 
-* FIB-4 Score (annually)- Based on previous literature (Sterling et al 2006), we expect these scores to range 0.2 to 10, with much of the probability mass below 1. 
+`r sum(HCVData$HCC)` people (`r round(mean(HCVData$HCC)*100), 1)`%) developed the outcome (were diagnosed with HCC during the course of the study). At this time we are still waitingon an updated dataset that includes the year of diagnosis for each patient. <!--armadillo remember to update this in the final version! -->
+
+**FIB-4 Score (annually)**
+
+FIB-4 scores are calculated with inputs of age, platelet count, AST, and ALT. Scores of <1.45 are considered to be strongly suggestive of no liver fibrosis, and scores >3.25 are indicative of advanced fibrosis and/or cirrhosis. 
+
+FIB-4 scores in this dataset range of 0.181 to 45.956 , with an IQR of 1.198-2.872 (i.e. the FIB-4 score of 45 is a substantial outlier). `r nrow(subset(FIBLong, value>3.25))` FIB-4 scores are >3.25 throughout all years of follow-up on all patients, indicating likely cirrhosis and increased risk of HCC at those timepoints.  There are `r nrow(subset(FIBLong, value>9))` instances where a patient's FIB-4 score was calculated to be greater than 9.
+
+The figure below presents the distribution of FIB-4 scores in each year.
+
+```{r fibplots, include = FALSE, cache=TRUE}
+
+FIBscores <- HCVData %>% dplyr::select(FIB4_2011, FIB4_2012, FIB4_2013, FIB4_2014, FIB4_2015, FIB4_2016, FIB4_2017, FIB4_2018)
+FIBLong <- FIBscores %>% gather
+fib2011 <- ggplot(data = subset(FIBLong, key=="FIB4_2011"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2011") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+fib2012 <- ggplot(data = subset(FIBLong, key=="FIB4_2012"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2012") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+fib2013 <- ggplot(data = subset(FIBLong, key=="FIB4_2013"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2013") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+fib2014 <- ggplot(data = subset(FIBLong, key=="FIB4_2014"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2014") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+fib2015 <- ggplot(data = subset(FIBLong, key=="FIB4_2015"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2015") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+fib2016 <- ggplot(data = subset(FIBLong, key=="FIB4_2016"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2016") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+fib2017 <- ggplot(data = subset(FIBLong, key=="FIB4_2017"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2017") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+fib2018 <- ggplot(data = subset(FIBLong, key=="FIB4_2018"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,40,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2018") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+Visitplots <- ggarrange(fib2011, fib2012, fib2013, fib2014, fib2015, fib2016, fib2017, fib2018, ncol = 4, nrow = 2)
+FIBplots <- annotate_figure(Visitplots, top = "FIB-4 Score Distribution (Annually)")
+suppressWarnings(print(FIBplots))
+```
+
 * Gender- this will be a categorical variable, likely with three categories (man, woman and non-binary). Based on a prior (small) study of HCV patients at UCSF (Burman et al 2016), it is expected that the cohort will be approximately 70% men.
+
+
 * Race- this will be a categorical variable. Based on a prior (small) study of HCV patients at UCSF (Burman et al 2016), it is expected that the cohort will be approximately 40% White, 20% Latinx, 30% Black and 10% other races.
 * SES- we are using insurance type (MediCal or private) as a marker of SES status, which will be a categorical variable.
-* Delta (annually)- is an indicator of missingness for FIB-4
-* C (annually)- is an indicator of whether the patient has been censored. Based on our current data, we estimate that `r as.numeric(summary(HCVData$MOST_RECENT_HEPATOLOGY_APPT < as.POSIXct(strptime("2014-01-01", "%Y-%m-%d")))["FALSE"])-as.numeric(summary(HCVData$MOST_RECENT_HEPATOLOGY_APPT < as.POSIXct(strptime("2015-01-01", "%Y-%m-%d")))["FALSE"])` patients will be censored in the year 2015, `r as.numeric(summary(HCVData$MOST_RECENT_HEPATOLOGY_APPT < as.POSIXct(strptime("2015-01-01", "%Y-%m-%d")))["FALSE"])-as.numeric(summary(HCVData$MOST_RECENT_HEPATOLOGY_APPT < as.POSIXct(strptime("2016-01-01", "%Y-%m-%d")))["FALSE"])` in the year 2016, `r as.numeric(summary(HCVData$MOST_RECENT_HEPATOLOGY_APPT < as.POSIXct(strptime("2016-01-01", "%Y-%m-%d")))["FALSE"])-as.numeric(summary(HCVData$MOST_RECENT_HEPATOLOGY_APPT < as.POSIXct(strptime("2017-01-01", "%Y-%m-%d")))["FALSE"])` in the year 2017, and `r as.numeric(summary(HCVData$MOST_RECENT_HEPATOLOGY_APPT < as.POSIXct(strptime("2017-01-01",  "%Y-%m-%d")))["FALSE"])-as.numeric(summary(HCVData$MOST_RECENT_HEPATOLOGY_APPT < as.POSIXct(strptime("2018-01-01", "%Y-%m-%d")))["FALSE"])` in the year 2018. 
-
-<!-- note that these numbers are just based on last hepatology visit since we don't have last primary care, so they're likely an OVERestimate--> 
-
+ 
 
 ### Missingness
   Note that we have FIB-4 scores calculated annually (when the appropriate components are available) from 2009 forward. Thus, we have a FIB-4 score available for `r as.numeric(summary(HCVData$totalFIB4BY2015==0)[2])/nrow(HCVData)` % of participants at the start of the study interval (calculated somewhere in 2009-2015). For the rest of the participants, we used multiple imputation to impute a 2015 FIB-4 score. For all participants, the FIB-4 score and years since measured are updated every year that all the requisite labs were measured. Thus, by the end of interval, `r as.numeric(summary(HCVData$totalFIB4BY2019==0)[2])/nrow(HCVData)` % of participants had a measured FIB-4 score rather than an imputed value.
