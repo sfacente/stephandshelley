@@ -770,16 +770,14 @@ Our target causal parameter is identified as a function of the observed data dis
 
 *Our statistical estimand is: $$\Psi(P_0) = m(\bar{a}|\beta) = E[Y_{\bar{a}}] = \beta_0 + \beta_1 \sum_{t=1}^8a(t)$$
 
-
-
 #3. Estimation
 ## a. What estimators will you use?
 
--g comp,iptw and ltmle MSMs?
+We will estimate MSMs using G-computation, IPTW, and LTMLE estimators.
 
 ## b. How will you implement these estimators?
 
-ltmleMSM  in ltmle package?
+All estimators are implemented via the ltmleMSM function in the \textit{ltmle} R package.
 
 #4. Preliminary Results
 ## a. Simulation
