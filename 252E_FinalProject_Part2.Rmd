@@ -13,6 +13,7 @@ library(knitr)
 library(xlsx)
 library(lubridate)
 library(MASS)
+library(ggplot2)
 #library(Hmisc)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
@@ -605,7 +606,7 @@ Y(t) &= f_{Y(t)}(W, \bar{L}(t-1), \bar{A}(t-1), Y(t-1), U_{Y(t)}) \\
 Y(K) &= f_{Y(K)}(W, C(K), \bar{L}(K-1), \bar{A}(K-1), Y(K-1), U_{Y(K)}) \\
 \end{align*}
 
-%%%SHELLEY TO FIX THE EXCLUSION RESTRICTION SITUATION%%% armadillo
+We are also operating with one key exclusion restriction: once someone develops the outcome [$Y(t) = 1$] then we set their $A(t+1...K)$ and $L(t+1,...,K)$ to NA for the remainder of the analysis, and set $C(K) = 1$ for that subject. %%%ARMADILLO CHECK WITH STEPH%%%
 
 ## b. Proposed causal question
 
@@ -619,35 +620,76 @@ The ideal experiment to answer our Causal Question would be to deny people acces
 
 **Which of your variables would you intervene on to answer your Causal Question(s)? What values would you set them equal to?**
 
-We would intervene on $\bar{A}(t)$ to answer our Causal Question, and set them all equal to zero, then just one of the A timepoints equal to 1 (ultimately we might be interested in the effect of only A(1)=1 compared to only A(2)=1, compared to only A(3)=1, etc.), then each of them equal to 1. We also intervene on C(t) to ensure that all participants have outcome assessed at the end of the interval.
+We would intervene on $\bar{A}(t)$ to answer our Causal Question, and set them all equal to zero, then just one of the A timepoints equal to 1 (ultimately we might be interested in the effect of only A(1)=1 compared to only A(2)=1, compared to only A(3)=1, etc.), then each of them equal to 1. We also intervene on C(K) to ensure that all participants have outcome assessed at the end of the interval.
 
 **What outcomes are you interested in? Measured when?**
 
-We are interested in whether a patient is diagnosed with hepatocellular carcinoma, a liver cancer that commonly develops in people with liver cirrhosis (including as a result of chronic HCV infection) and has a very low survival rate. For our project, anyone diagnosed with HCC anytime before the final timepoint in the dataset (i.e. the date the data were pulled from the electronic medical record) will be counted as having the outcome.
+We are interested in whether a patient is diagnosed with HCC, measured at each timepoint (by the end of each year in our study period). For our time-to-event analysis, anyone diagnosed with HCC anytime before the final timepoint in the dataset (i.e. the date the data were pulled from the electronic medical record) will be counted as having the outcome during the period of study.
 
 **What are your counterfactual outcomes, and how would you explain them in words?**
 
-  Our counterfactual outcomes are the prevalence of HCC at the end of study follow-up if no one had any primary care or hepatology visits, and the difference in prevalence of HCC at the end of study follow-up for every additional annual primary care or hepatology visit over the study period.
+Our counterfactual outcomes are the prevalence of HCC by the end of study follow-up if no one had any primary care or hepatology visits, and the difference in prevalence of HCC at the end of study follow-up for every additional annual primary care or hepatology visit over the study period (i.e. the association between the number of primary care or hepatology visits each year and the hazard of developing HCC. <!--%%%ARMADILLO CHECK WITH STEPH%%%-->
 
 **What aspects of the counterfactual outcome distribution are you interested in contrasting?**
   
-  We are interested in contrasting the counterfactual outcome from various numbers of primary care and/or hepatology visits with the counterfactual outcome from fewer visits, to see if there is some sort of exposure-response relationship.
+We are interested in contrasting the counterfactual outcome from various numbers of primary care and/or hepatology visits with the counterfactual outcome from fewer visits, to see if there is some sort of exposure-response relationship.
 
 **What contrast are you interested in (e.g., absolute difference? relative difference? MSMs? conditional on subgroups?)?**
   
-  We are interested in a MSM that helps us understand the relationship between frequency of primary care or hepatology visits and risk of HCC diagnosis, conditional on FIB-4 score and a variety of other demographics.
+We are interested in a MSM that helps us understand the relationship between frequency of primary care or hepatology visits and risk of HCC diagnosis, conditional on FIB-4 score (as a proxy for liver cirrhosis) and a variety of other demographics.
 
 **How would you intervene on the SCM you came up with to evaluate the causal target parameter?**
 
-We will intervene to deterministically set $\bar{C}(t) = 1$ and $\bar{A}(t) = \bar{a}(t)$.
+We will intervene to deterministically set $\bar{C}(K) = 0$ and $\bar{A}(t) = \bar{a}(t)$.  <!--%%%ARMADILLO CHECK WITH STEPH%%%-->
 
 ## c. Our Observed Data
-<!-- armadillo! This bit needs to be re-done now that we have data-->
+<!-- armadillo! This bit needs to be re-done now that we have data  SHELLEY IS WORKING ON THIS-->
 
-Many of the variables that we intend to use will be coming in the next data pull from the EMR, so we can't present histograms or tables of counts yet. Instead we've listed below each of the variables that we will have after the next data query and their variable types; we listed details for the  variables that we *do* have already.
+**Number of Visits (annually)**
 
-* Number of Visits (annually)- this will be a count variable, at each year
-* Diagnosed with HCC (annually)- this will be a binary yes/no
+The number of visits per patient ranges from 0 to 44 in any given year, with a median of 0 - 2 visits across years. The figure below presents number of visits per patient in each year, truncated at 25 visits.
+
+```{r numvisits, include = FALSE, cache = TRUE}
+
+plot_multi_histonly <- function(df, feature, label_column) {
+    plt <- ggplot(df, aes(x=eval(parse(text=feature)), fill=eval(parse(text=label_column)))) +
+    geom_histogram(alpha=0.7, position="dodge", aes(y = ..density..), color="black") +
+    geom_vline(aes(xintercept=mean(eval(parse(text=feature)))), color="black", linetype="dashed", size=1) +
+    labs(x=feature, y = "Density")
+    plt + guides(fill=guide_legend(title=label_column))
+}
+
+plot_multi_density <- function(df, feature, label_column) {
+    plt <- ggplot(df, aes(x=eval(parse(text=feature)), fill=eval(parse(text=label_column)))) +
+    geom_density(alpha=0.7) +
+    geom_vline(aes(xintercept=mean(eval(parse(text=feature)))), color="black", linetype="dashed", size=1) +
+    labs(x=feature, y = "Density")
+    plt + guides(fill=guide_legend(title=label_column))
+}
+
+library(ggpubr)
+VisitCounts <- HCVData %>% dplyr::select(VISIT_COUNT_2011, VISIT_COUNT_2012, VISIT_COUNT_2013, VISIT_COUNT_2014, VISIT_COUNT_2015, VISIT_COUNT_2016, VISIT_COUNT_2017, VISIT_COUNT_2018)
+VisitCountsLong <- VisitCounts %>% gather
+plot2011 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2011"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2011") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+plot2012 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2012"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2012") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+plot2013 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2013"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2013") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+plot2014 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2014"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2014") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+plot2015 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2015"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2015") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+plot2016 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2016"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2016") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+plot2017 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2017"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2017") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+plot2018 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2018"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2018") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
+Visitplots <- ggarrange(plot2011, plot2012, plot2013, plot2014, plot2015, plot2016, plot2017, plot2018, ncol = 4, nrow = 2)
+Visitplots <- annotate_figure(Visitplots, top = "Number of Visits per Patient (Annually)")
+suppressWarnings(print(Visitplots))
+```
+
+
+**Diagnosed with HCC (annually)**
+
+```{r}
+
+```
+
 * FIB-4 Score (annually)- Based on previous literature (Sterling et al 2006), we expect these scores to range 0.2 to 10, with much of the probability mass below 1. 
 * Gender- this will be a categorical variable, likely with three categories (man, woman and non-binary). Based on a prior (small) study of HCV patients at UCSF (Burman et al 2016), it is expected that the cohort will be approximately 70% men.
 * Race- this will be a categorical variable. Based on a prior (small) study of HCV patients at UCSF (Burman et al 2016), it is expected that the cohort will be approximately 40% White, 20% Latinx, 30% Black and 10% other races.
@@ -787,22 +829,6 @@ Here are density plots demonstrating the distribution of FIB-4 scores over the y
 #     labs(x=feature, y = "Density")
 #     plt + guides(fill=guide_legend(title=label_column))
 # }
-
-plot_multi_histonly <- function(df, feature, label_column) {
-    plt <- ggplot(df, aes(x=eval(parse(text=feature)), fill=eval(parse(text=label_column)))) +
-    geom_histogram(alpha=0.7, position="dodge", aes(y = ..density..), color="black") +
-    geom_vline(aes(xintercept=mean(eval(parse(text=feature)))), color="black", linetype="dashed", size=1) +
-    labs(x=feature, y = "Density")
-    plt + guides(fill=guide_legend(title=label_column))
-}
-
-plot_multi_density <- function(df, feature, label_column) {
-    plt <- ggplot(df, aes(x=eval(parse(text=feature)), fill=eval(parse(text=label_column)))) +
-    geom_density(alpha=0.7) +
-    geom_vline(aes(xintercept=mean(eval(parse(text=feature)))), color="black", linetype="dashed", size=1) +
-    labs(x=feature, y = "Density")
-    plt + guides(fill=guide_legend(title=label_column))
-}
 
 FIB4Only <- SimData %>% select(L1, L2, L3, L4)
 FIB4Long <- FIB4Only %>% gather
@@ -957,6 +983,48 @@ This means that for every additional primary care or hepatology visit, patients 
 
 <!--### C. Confirm that in your simulation, the value of your estimand equals the value of your target causal parameter.-->
 
+```{r IPTW back in}
+# Analysis.IPTW <- function(df){
+#   df2 <-df
+#   
+#   #IPTW
+#   
+#   #Creating probabilities
+# g2A1 <- glm.nb(A1 ~ L1, data = df2)
+# g2A2 <- glm.nb(A2 ~ L1 + A1 + L2, data = df2)
+# g2A3 <- glm.nb(A3 ~ L1 + A1 + L2 + A2 + L3, data = df2)
+# g2A4 <- glm.nb(A4 ~ L1 + A1 + L2 + A2 + L3 + A3 + L4, data = df2)
+# 
+# gA1_2 <-round(predict(g2A1, type="response", newdata= df2),0)
+# gA2_2 <- round(predict(g2A2, type="response", newdata= df2),0)
+# gA3_2 <- round(predict(g2A3, type="response", newdata= df2),0)
+# gA4_2 <- round(predict(g2A4, type="response", newdata= df2),0)
+# 
+# df3 <- cbind(df2, gA1_2, gA2_2, gA3_2, gA4_2)
+# 
+# #Checking for Practical Positivity violations.
+# summary(df3)
+# 
+# #probabilities of observed exposure status- armadillo!these are for binomial...not sure how to getthese probabilities for counts
+# gA1 <- (df3$A1 == 1) * gA1_2 + (df3$A1 == 0) * (1 - gA1_2)
+# gA2 <- (df3$A2 == 1) * gA2_2 + (df3$A2 == 0) * (1 - gA2_2)
+# gA3 <- (df3$A3 == 1) * gA3_2 + (df3$A3 == 0) * (1 - gA3_2)
+# gA4 <- (df3$A4 == 1) * gA4_2 + (df3$A4 == 0) * (1 - gA4_2)
+# 
+# #Creating IPTW Weights
+# Weight <-ifelse(is.na(gA1), 0, 
+#                 (ifelse(is.na(gA2), 0, 
+#                        (ifelse(is.na(gA3), 0, 
+#                               (ifelse(is.na(gA4), 0, (1/gA1)*(1/gA2)*(1/gA3)*(1/gA4))))))))
+# 
+# df4 <- df3 %>% dplyr::select(A1,A2, A3,A4)
+# sum_a <- rowSums(df4, na.rm = TRUE)
+# 
+# MSM <- glm(df3$Y5~sum_a, weights = Weight)
+# MSMbeta1<-as.numeric(MSM$coefficients[2])
+# return(MSMbeta1)
+# }
+```
 
 
 ```{r checking estimator performance with ltmle}
