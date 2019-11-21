@@ -31,6 +31,17 @@ StephandShelleyDataLoad <- function(filename)
   }
 }
 
+StephandShelleyDataLoad2 <- function(filename) 
+{
+  if(Sys.info()['sysname']=="Darwin"){
+    
+     load(as.character(filename))}
+  else{
+    windowsfilepath <- paste("~/GitHub/stephandshelley/", filename, sep = "")
+     load(as.character(windowsfilepath))
+  }
+}
+
 #HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-14-19.xlsx")
 
 ```
@@ -294,7 +305,7 @@ StephandShelleyDataLoad <- function(filename)
 
 ```{r Age_and_FIB-4}
 
-HCVData <- StephandShelleyDataLoad("HCVData.Rdata")
+HCVData <- StephandShelleyDataLoad2("HCVData.Rdata")
 
 age <- function(dob, curryear, units = "years", floor = TRUE) {
     calc.age = interval(dob, curryear) / duration(num = 1, units = units)
