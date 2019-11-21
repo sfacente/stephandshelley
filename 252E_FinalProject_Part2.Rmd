@@ -1080,8 +1080,21 @@ B = 5
 estimates_data2 <- matrix(nrow = B, ncol = 3)
 colnames(estimates_data2) <- c("Gcomp", "IPTW",  "TMLE") 
 
-x <- list(0:1)
-abar<- expand.grid(rep(x, 12))
+# #version with 8 levels for each A
+# x <- list(0:1)
+# abar<- expand.grid(rep(x, 12))
+
+#To make 5 levels for each A
+test <-expand.grid(rep(list(0:1),2))
+test<-cbind(test, Var3 = c(1,1,1,1))
+test<-rbind(test, c(0,0,0))
+
+expand.grid(rep(test,4))
+permutations  <-5*5*5*5
+abar<-matrix(nrow=permutations, ncol=12)
+for (i in 1:permutations){
+  
+}
 
 #set n equal to number of rows
 n = as.numeric(nrow(df))
