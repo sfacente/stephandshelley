@@ -1463,17 +1463,19 @@ n <- as.numeric(nrow(df))
 
 n2 <- as.numeric(nrow(abar))
 
+df <- O
+
 #truncate visits to 1
-O$A1[O$A1>0] <-1
-O$A2[O$A2>0] <-1
-O$A3[O$A3>0] <-1
-O$A4[O$A4>0] <-1
+df$A1[df$A1>0] <-1
+df$A2[df$A2>0] <-1
+df$A3[df$A3>0] <-1
+df$A4[df$A4>0] <-1
 
 #initialize sumA
 sumA= rep(NA, n2)
 
 # initialize regimes with dim n X num Anodes = 4 X num regimes
-regimes = array(NA, dim=c(n,2,n2))
+regimes = array(NA, dim=c(n,4,n2))
 
 #fill in regimes and sumA
 for(i in 1:n2){
@@ -1489,41 +1491,11 @@ summary.measures[,,1]=as.matrix(sumA)
 # #define working.msm = character formula for working MSM
 working.msm = "Y ~ sumA"
 
-#Turning As into sets of binary indicators-armadillo
-#A1 first
-df$A11 <- ifelse(df$A1 == 0, 0, NA)
-df$A12 <- ifelse(df$A1 == 0, 0, NA)
-
-df$A11 <- ifelse(df$A1 == 1, 1, df$A11)
-df$A12 <- ifelse(df$A1 == 1, 0, df$A12)
-
-#creating the A2 indicators
-df$A21 <- ifelse(df$A2 == 0, 0, NA)
-df$A22 <- ifelse(df$A2 == 0, 0, NA)
-
-df$A21 <- ifelse(df$A2 == 1, 1, df$A21)
-df$A22 <- ifelse(df$A2 == 1, 0, df$A22)
-
-#creating the A3 indicators
-df$A31 <- ifelse(df$A3 == 0, 0, NA)
-df$A32 <- ifelse(df$A3 == 0, 0, NA)
-
-df$A31 <- ifelse(df$A3 == 1, 1, df$A31)
-df$A32 <- ifelse(df$A3 == 1, 0, df$A32)
-
-#creating the A4 indicators
-df$A41 <- ifelse(df$A4 == 0, 0, NA)
-df$A42 <- ifelse(df$A4 == 0, 0, NA)
-
-df$A41 <- ifelse(df$A4 == 1, 1, df$A41)
-df$A42 <- ifelse(df$A4 == 1, 0, df$A42)
-
-
-df <- df %>% dplyr::select(L1, A11, A12,
-                           L2, A21, A22, Y2,
-                           L3, A31, A32, Y3,
-                           L4, A41, A42,Y4,
-                           C5,Y5)
+df <- df %>% dplyr::select(L1, A1, 
+                           L2, A2, Y2,
+                           L3, A3, Y3,
+                           L4, A4, Y4,
+                           C5, Y5)
 
 #Rescale Ls
 maxL1 <-max(df$L1)
@@ -1540,10 +1512,7 @@ df$L4<-ifelse(is.na(df$L4), NA,(maxL4-df$L4)/maxL4)
 
 #estimate parameter using ltmleMSM function-
 resultsbin.MSM <- ltmle::ltmleMSM(df,
-                     Anodes= c("A11", "A12",
-                               "A21", "A22",
-                               "A31", "A32",
-                               "A41", "A42" ),
+                     Anodes = c("A1", "A2", "A3", "A4"),
                      Lnodes = c("L1", "L2", "L3", "L4"),
                      Ynodes = c("Y2", "Y3", "Y4", "Y5"),
                      Cnodes = "C5",
@@ -1560,10 +1529,7 @@ sum.resultsbin.MSM.iptw= summary(resultsbin.MSM, "iptw")
 sum.resultsbin.MSM.iptw
 
 resultsbin.MSM.g <- ltmle::ltmleMSM(df,
-                     Anodes= c("A11", "A12",
-                               "A21", "A22",
-                               "A31", "A32",
-                               "A41", "A42"),
+                     Anodes = c("A1", "A2", "A3", "A4"),
                      Lnodes = c("L1", "L2", "L3", "L4"),
                      Ynodes = c("Y2", "Y3", "Y4", "Y5"),
                      Cnodes = "C5",
@@ -1580,6 +1546,8 @@ sum.resultsbin.MSM.g
 estimates_Obin <- c(sum.resultsbin.MSM.g$cmat[2,1],
                          sum.resultsbin.MSM.iptw$cmat[2,1],
                          sum.resultsbin.MSM.tmle$cmat[2,1])
+
+save(estimates_Obin, file = "estimates_0bin.Rdata")
 ```
 
 <!-- armadillo! ###NEED TO DO THIS###-->
