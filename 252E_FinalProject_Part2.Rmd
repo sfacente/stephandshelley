@@ -31,7 +31,7 @@ StephandShelleyDataLoad <- function(filename)
   }
 }
 
-#HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-14-19.xlsx")
+#HCVData <- StephandShelleyDataLoad("Deidentified Chronic HCV Dataset 11-21-19.xlsx")
 
 ```
 
@@ -39,8 +39,8 @@ StephandShelleyDataLoad <- function(filename)
 # # Let's do all Variable prep/Data cleaning in this chunk
 # 
 # #first just making variables their proper type, and renaming so there's no spaces
-# HCVData$'Deidentified Pt Number (updated)'<- as.factor(HCVData$'Deidentified Pt Number (updated)')
-# colnames(HCVData)[colnames(HCVData) == 'Deidentified Pt Number (updated)'] <- 'PtID'
+# HCVData$'Deidentifier 11-21-19'<- as.factor(HCVData$'Deidentifier 11-21-19')
+# colnames(HCVData)[colnames(HCVData) == 'Deidentifier 11-21-19)'] <- 'PtID'
 # 
 # HCVData$'Hep Visit?'<- as.factor(HCVData$'Hep Visit?')
 # colnames(HCVData)[colnames(HCVData) == 'Hep Visit?'] <- 'EverHepVisit'
@@ -204,7 +204,7 @@ StephandShelleyDataLoad <- function(filename)
 # 
 # ##removing extra variables with the same column names, unneeded for our analysis as far as I can tell
 # HCVData <- subset(HCVData, select = -c(DX_NAME..70,
-#            CURRENT_ICD10_LIST..71, 
+#            CURRENT_ICD10_LIST..71,
 #            DX_NAME..73,
 #            CURRENT_ICD10_LIST..74,
 #            DX_NAME..76,
@@ -224,8 +224,8 @@ StephandShelleyDataLoad <- function(filename)
 #            DX_NAME..97,
 #            CURRENT_ICD10_LIST..98,
 #            DX_NAME..100,
-#            CURRENT_ICD10_LIST..101, 
-#            CURRENT_ICD10_LIST..103, 
+#            CURRENT_ICD10_LIST..101,
+#            CURRENT_ICD10_LIST..103,
 #            DX_NAME..104,
 #            CURRENT_ICD10_LIST..106,
 #            DX_NAME..107,
@@ -294,7 +294,7 @@ StephandShelleyDataLoad <- function(filename)
 
 ```{r Age_and_FIB-4, include = FALSE}
 
-# 
+
 # age <- function(dob, curryear, units = "years", floor = TRUE) {
 #     calc.age = interval(dob, curryear) / duration(num = 1, units = units)
 #     return(as.integer(floor(calc.age)))
@@ -328,9 +328,9 @@ StephandShelleyDataLoad <- function(filename)
 # HCVData$FIB4_2009 <- HCVData$AGE_2009 * HCVData$AST_2009 / (HCVData$PLATELET_2009 * sqrt(HCVData$ALT_2009))
 # 
 # HCVData$FIB4_2010 <- HCVData$AGE_2010 * HCVData$AST_2010 / (HCVData$PLATELET_2010 * sqrt(HCVData$ALT_2010))
-#   
+# 
 # HCVData$FIB4_2011 <- HCVData$AGE_2011 * HCVData$AST_2011 / (HCVData$PLATELET_2011 * sqrt(HCVData$ALT_2011))
-#   
+# 
 # HCVData$FIB4_2012 <- HCVData$AGE_2012 * HCVData$AST_2012 / (HCVData$PLATELET_2012 * sqrt(HCVData$ALT_2012))
 # 
 # HCVData$FIB4_2013 <- HCVData$AGE_2013 * HCVData$AST_2013 / (HCVData$PLATELET_2013 * sqrt(HCVData$ALT_2013))
@@ -351,13 +351,13 @@ StephandShelleyDataLoad <- function(filename)
 ```
 
 ```{r Export_age_and_FIB4_for_Rena, include = FALSE}
-#
-#adds <- data.frame(HCVData$PtID, HCVData$AGE_2009, HCVData$AGE_2010, HCVData$AGE_2011, HCVData$AGE_2012, HCVData$AGE_2013, HCVData$AGE_2014, HCVData$AGE_2015, HCVData$AGE_2016, HCVData$AGE_2017, HCVData$AGE_2018, HCVData$AGE_2019, HCVData$FIB4_2009, HCVData$FIB4_2010, HCVData$FIB4_2011, HCVData$FIB4_2012, HCVData$FIB4_2013, HCVData$FIB4_2014, HCVData$FIB4_2015, HCVData$FIB4_2016, HCVData$FIB4_2017, HCVData$FIB4_2018, HCVData$FIB4_2019)
-#colnames(adds) <- c("Deidentified Pt Number", "AGE_2009", "AGE_2010", "AGE_2011", "AGE_2012", "AGE_2013", "AGE_2014", "AGE_2015", "AGE_2016", "AGE_2017", "AGE_2018", "AGE_2019", "FIB4_2009", "FIB4_2010", "FIB4_2011", "FIB4_2012", "FIB4_2013", "FIB4_2014", "FIB4_2015", "FIB4_2016", "FIB4_2017", "FIB4_2018", "FIB4_2019")
-#
-#filename <- paste0("HCVadds", ".xlsx")
-#write.xlsx(adds, filename)
-#rm(adds)
+
+# adds <- data.frame(HCVData$PtID, HCVData$AGE_2009, HCVData$AGE_2010, HCVData$AGE_2011, HCVData$AGE_2012, HCVData$AGE_2013, HCVData$AGE_2014, HCVData$AGE_2015, HCVData$AGE_2016, HCVData$AGE_2017, HCVData$AGE_2018, HCVData$AGE_2019, HCVData$FIB4_2009, HCVData$FIB4_2010, HCVData$FIB4_2011, HCVData$FIB4_2012, HCVData$FIB4_2013, HCVData$FIB4_2014, HCVData$FIB4_2015, HCVData$FIB4_2016, HCVData$FIB4_2017, HCVData$FIB4_2018, HCVData$FIB4_2019)
+# colnames(adds) <- c("Deidentified Pt Number", "AGE_2009", "AGE_2010", "AGE_2011", "AGE_2012", "AGE_2013", "AGE_2014", "AGE_2015", "AGE_2016", "AGE_2017", "AGE_2018", "AGE_2019", "FIB4_2009", "FIB4_2010", "FIB4_2011", "FIB4_2012", "FIB4_2013", "FIB4_2014", "FIB4_2015", "FIB4_2016", "FIB4_2017", "FIB4_2018", "FIB4_2019")
+# 
+# filename <- paste0("HCVadds", ".xlsx")
+# write.xlsx(adds, filename)
+# rm(adds)
 ```
 
 
@@ -648,7 +648,6 @@ We are interested in a MSM that helps us understand the relationship between fre
 We will intervene to deterministically set $\bar{C}(K) = 0$ and $\bar{A}(t) = \bar{a}(t)$.  
 
 ## c. Our Observed Data
-<!-- armadillo! This bit needs to be re-done now that we have data  SHELLEY IS WORKING ON THIS-->
 
 **Number of Visits (annually)**
 
@@ -1228,7 +1227,7 @@ MSE.tmle <- mean((estimates_data2[,3]- PsiF)^2)
 
 ## e. "None of the options are good", and other life lessons from Causal
 
-Despite our efforts to simply our analysis to limit the number of possible treatment regimes (i.e. examining the effect of 0, 1, 2, and 3 or more visits, instead of the full distribution of visit counts), this analysis isquite competationally demanding; \textit{ltmle} is quite slow, with 1 iteration of the simulation taking more than an hour to complete and 50 iterations running for more than half a day. We will continue to proceed and plan time for R to run analyses as needed, but any suggestions for how to streamline would be welcome. 
+Despite our efforts to simply our analysis to limit the number of possible treatment regimes (i.e. examining the effect of 0, 1, 2, and 3 or more visits, instead of the full distribution of visit counts), this analysis isquite competationally demanding; \textit{ltmle} is quite slow, with 1 iteration of the simulation taking more than an hour to complete and 50 iterations running for more than half a day. We will continue to proceed and plan time for R to run analyses as needed, but any suggestions for how to streamline would be welcome!! 
 
 ## f. Next steps
 
