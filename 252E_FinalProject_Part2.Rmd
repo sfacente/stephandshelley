@@ -1,7 +1,7 @@
 ---
 title: "252E Final Project Part 2: \nRelationship between Frequency of Care and Progression to Hepatocellular Carcinoma \namong Chronic Hepatitis C Patients"
 author: "Stephanie Holm and Shelley Facente"
-date: "11/14/2019"
+date: "11/21/2019"
 output: pdf_document
 ---
 
@@ -24,10 +24,10 @@ StephandShelleyDataLoad <- function(filename)
 {
   if(Sys.info()['sysname']=="Darwin"){
     
-     load(as.character(filename))}
+     read_excel(as.character(filename))}
   else{
     windowsfilepath <- paste("~/GitHub/stephandshelley/", filename, sep = "")
-     load(as.character(windowsfilepath))
+     read_excel(as.character(windowsfilepath))
   }
 }
 
@@ -39,8 +39,8 @@ StephandShelleyDataLoad <- function(filename)
 # # Let's do all Variable prep/Data cleaning in this chunk
 # 
 # #first just making variables their proper type, and renaming so there's no spaces
-# HCVData$'Deidentifier 11-21-19'<- as.factor(HCVData$'Deidentifier 11-21-19')
-# colnames(HCVData)[colnames(HCVData) == 'Deidentifier 11-21-19)'] <- 'PtID'
+# HCVData$`Deidentifier  11-21-19` <-  as.factor(HCVData$`Deidentifier  11-21-19`)
+# colnames(HCVData)[colnames(HCVData) == 'Deidentifier  11-21-19'] <- 'PtID'
 # 
 # HCVData$'Hep Visit?'<- as.factor(HCVData$'Hep Visit?')
 # colnames(HCVData)[colnames(HCVData) == 'Hep Visit?'] <- 'EverHepVisit'
@@ -174,7 +174,8 @@ StephandShelleyDataLoad <- function(filename)
 # HCVData$ICD10 <- as.factor(HCVData$ICD10)
 # colnames(HCVData)[colnames(HCVData) == 'ICD10'] <- 'Cancer.ICD10'
 # 
-# ##Need to check with Rena if this is indeed HCC Dx (not HCV Dx)
+# HCVData$FIRST_DX_DATE <- as.numeric(HCVData$FIRST_DX_DATE)
+# HCVData$FIRST_DX_DATE <- as.Date(HCVData$FIRST_DX_DATE, origin = "1899-12-30")
 # colnames(HCVData)[colnames(HCVData) == 'FIRST_DX_DATE'] <- 'Cancer.Diagnosis.Date'
 # 
 # HCVData$RACE <- as.factor(HCVData$RACE)
@@ -203,44 +204,44 @@ StephandShelleyDataLoad <- function(filename)
 # colnames(HCVData)[colnames(HCVData) == 'Hosp Admission'] <- 'Hospital.Admissions'
 # 
 # ##removing extra variables with the same column names, unneeded for our analysis as far as I can tell
-# HCVData <- subset(HCVData, select = -c(DX_NAME..70,
-#            CURRENT_ICD10_LIST..71,
-#            DX_NAME..73,
-#            CURRENT_ICD10_LIST..74,
-#            DX_NAME..76,
-#            CURRENT_ICD10_LIST..77,
-#            DX_NAME..79,
-#            CURRENT_ICD10_LIST..80,
-#            DX_NAME..82,
-#            CURRENT_ICD10_LIST..83,
-#            DX_NAME..85,
-#            CURRENT_ICD10_LIST..86,
-#            DX_NAME..88,
-#            CURRENT_ICD10_LIST..89,
-#            DX_NAME..91,
-#            CURRENT_ICD10_LIST..92,
-#            DX_NAME..94,
-#            CURRENT_ICD10_LIST..95,
-#            DX_NAME..97,
-#            CURRENT_ICD10_LIST..98,
-#            DX_NAME..100,
-#            CURRENT_ICD10_LIST..101,
-#            CURRENT_ICD10_LIST..103,
-#            DX_NAME..104,
-#            CURRENT_ICD10_LIST..106,
-#            DX_NAME..107,
-#            DX_NAME..109,
-#            CURRENT_ICD10_LIST..110,
-#            CURRENT_ICD10_LIST..112,
-#            DX_NAME..113,
-#            CURRENT_ICD10_LIST..115,
-#            DX_NAME..116,
-#            DX_NAME..118,
-#            CURRENT_ICD10_LIST..119,
-#            DX_NAME..121,
-#            CURRENT_ICD10_LIST..122,
-#            DX_NAME..124,
-#            CURRENT_ICD10_LIST..125))
+# HCVData <- subset(HCVData, select = -c(DX_NAME..71,
+#            CURRENT_ICD10_LIST..72,
+#            DX_NAME..74,
+#            CURRENT_ICD10_LIST..75,
+#            DX_NAME..77,
+#            CURRENT_ICD10_LIST..78,
+#            DX_NAME..80,
+#            CURRENT_ICD10_LIST..81,
+#            DX_NAME..83,
+#            CURRENT_ICD10_LIST..84,
+#            DX_NAME..86,
+#            CURRENT_ICD10_LIST..87,
+#            DX_NAME..89,
+#            CURRENT_ICD10_LIST..90,
+#            DX_NAME..92,
+#            CURRENT_ICD10_LIST..93,
+#            DX_NAME..95,
+#            CURRENT_ICD10_LIST..96,
+#            DX_NAME..98,
+#            CURRENT_ICD10_LIST..99,
+#            DX_NAME..101,
+#            CURRENT_ICD10_LIST..102,
+#            CURRENT_ICD10_LIST..104,
+#            DX_NAME..105,
+#            CURRENT_ICD10_LIST..107,
+#            DX_NAME..108,
+#            DX_NAME..110,
+#            CURRENT_ICD10_LIST..111,
+#            CURRENT_ICD10_LIST..113,
+#            DX_NAME..114,
+#            CURRENT_ICD10_LIST..116,
+#            DX_NAME..117,
+#            DX_NAME..119,
+#            CURRENT_ICD10_LIST..120,
+#            DX_NAME..122,
+#            CURRENT_ICD10_LIST..123,
+#            DX_NAME..125,
+#            CURRENT_ICD10_LIST..126))
 # 
 # colnames(HCVData)[colnames(HCVData) == 'METASTATIC Cancer'] <- 'Metastatic.Cancer'
 # 
@@ -287,18 +288,15 @@ StephandShelleyDataLoad <- function(filename)
 # HCVData$TotalVisits<- HCVData$VISIT_COUNT_2011 + HCVData$VISIT_COUNT_2012 + HCVData$VISIT_COUNT_2013 + HCVData$VISIT_COUNT_2014 + HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
 # 
 # HCVData$TotalVisits15to18 <- HCVData$VISIT_COUNT_2015 + HCVData$VISIT_COUNT_2016 + HCVData$VISIT_COUNT_2017 + HCVData$VISIT_COUNT_2018
-# 
-# save(HCVData, file="HCVData.Rdata")
 
 ```
 
 ```{r Age_and_FIB-4, include = FALSE}
 
-
-# age <- function(dob, curryear, units = "years", floor = TRUE) {
-#     calc.age = interval(dob, curryear) / duration(num = 1, units = units)
-#     return(as.integer(floor(calc.age)))
-# }
+#  age <- function(dob, curryear, units = "years", floor = TRUE) {
+#      calc.age = interval(dob, curryear) / duration(num = 1, units = units)
+#      return(as.integer(floor(calc.age)))
+#  }
 # 
 # HCVData$AGE_2009 <- age(dob = HCVData$BIRTH_DATE, curryear = as.Date('2009-12-31'))
 # 
@@ -346,8 +344,8 @@ StephandShelleyDataLoad <- function(filename)
 # HCVData$FIB4_2018 <- HCVData$AGE_2011 * HCVData$AST_2018 / (HCVData$PLATELET_2018 * sqrt(HCVData$ALT_2018))
 # 
 # HCVData$FIB4_2019 <- HCVData$AGE_2011 * HCVData$AST_2019 / (HCVData$PLATELET_2019 * sqrt(HCVData$ALT_2019))
-
-
+# 
+# save(HCVData, file="HCVData.Rdata")
 ```
 
 ```{r Export_age_and_FIB4_for_Rena, include = FALSE}
@@ -454,7 +452,7 @@ HCVData<- HCVData %>% filter(TotalVisits != 0) %>%
 
 
 #creating the FIB4 scores that  pull forward past scores
-HCVData <-  HCVData %>% mutate(FIB4_by2010 = FIB4_2010, YearsSinceFib4_2010 = 0)
+HCVData <- HCVData %>% mutate(FIB4_by2010 = FIB4_2010, YearsSinceFib4_2010 = 0)
 HCVData <- HCVData %>% mutate(FIB4_by2010 = ifelse(is.na(FIB4_2010)== "TRUE", FIB4_2009, FIB4_by2010),
                                YearsSinceFib4_2010 = ifelse(is.na(FIB4_2010)== "TRUE", 1, 0))
  
@@ -611,7 +609,7 @@ Y(t) &= f_{Y(t)}(W, \bar{L}(t-1), \bar{A}(t-1), Y(t-1), U_{Y(t)}) \\
 Y(K) &= f_{Y(K)}(W, C(K), \bar{L}(K-1), \bar{A}(K-1), Y(K-1), U_{Y(K)}) \\
 \end{align*}
 
-We are also operating with one key exclusion restriction: once someone develops the outcome [$Y(t) = 1$] then we set their $A(t+1...K)$ and $L(t+1,...,K)$ to NA for the remainder of the analysis, and set $C(K) = 1$ for that subject. %%%ARMADILLO CHECK WITH STEPH%%%
+We are also operating with one key exclusion restriction: once someone develops the outcome [$Y(t) = 1$] then we set their $A(t+1...K)$ and $L(t+1,...,K)$ to NA for the remainder of the analysis, and set $C(K) = 1$ for that subject. <!--%%%ARMADILLO CHECK WITH STEPH%%%-->
 
 ## b. Proposed causal question
 
@@ -1222,6 +1220,31 @@ MSE.tmle <- mean((estimates_data2[,3]- PsiF)^2)
 <!--*In our simulation, armadillo! ###NEED TO FINISH THIS###-->
 
 ## d. Data example
+
+```{r datasetreconfig}
+HCVDataestimate <- as.data.frame(HCVData$PtID)
+HCVDataestimate$Y2 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2012-12-31' | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVDataestimate$Y3 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2013-12-31' | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVDataestimate$Y4 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2014-12-31' | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVDataestimate$Y5 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2015-12-31' | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+
+HCVDataestimate$L1 <- ifelse(is.na(HCVData$FIB4_2014), HCVData$FIB4_by2014, HCVData$FIB4_2014)
+HCVDataestimate$L2 <- ifelse(is.na(HCVData$FIB4_2015), HCVData$FIB4_by2015, HCVData$FIB4_2015)
+HCVDataestimate$L3 <- ifelse(is.na(HCVData$FIB4_2016), HCVData$FIB4_by2016, HCVData$FIB4_2016)
+HCVDataestimate$L4 <- ifelse(is.na(HCVData$FIB4_2017), HCVData$FIB4_by2017, HCVData$FIB4_2017)
+
+HCVDataestimate$L1lm <- ifelse(!is.na(HCVData$FIB4_2014), 2014, ifelse(!is.na(HCVData$FIB4_2013), 2013, ifelse(!is.na(HCVData$FIB4_2012), 2012, ifelse(!is.na(HCVData$FIB4_2011), 2011, ifelse(!is.na(HCVData$FIB4_2010), 2010, ifelse(!is.na(HCVData$FIB4_2009), 2009, NA)))))) 
+HCVDataestimate$L2lm <- ifelse(!is.na(HCVData$FIB4_2015), 2015, ifelse(!is.na(HCVData$FIB4_2014), 2014, ifelse(!is.na(HCVData$FIB4_2013), 2013, ifelse(!is.na(HCVData$FIB4_2012), 2012, ifelse(!is.na(HCVData$FIB4_2011), 2011, ifelse(!is.na(HCVData$FIB4_2010), 2010, ifelse(!is.na(HCVData$FIB4_2009), 2009, NA))))))) 
+#FINISH DATE LAST MEASURED
+
+HCVDataestimate$A1 <- HCVData$VISIT_COUNT_2014
+HCVDataestimate$A2 <- HCVData$VISIT_COUNT_2015
+HCVDataestimate$A3 <- HCVData$VISIT_COUNT_2016
+HCVDataestimate$A4 <- HCVData$VISIT_COUNT_2017
+HCVDataestimate$A5 <- HCVData$VISIT_COUNT_2018
+
+#HCVDataestimate$C5 <- ?????
+```
 
 <!-- armadillo! ###NEED TO DO THIS###-->
 
