@@ -701,26 +701,38 @@ suppressWarnings(print(Visitplots))
 HCVData$HCC <- ifelse(is.na(HCVData$Cancer.Diagnosis.Name), 0, 1)
 ```
 
-`r sum(HCVData$HCC)` people (`r round(mean(HCVData$HCC)*100), 1)`%) developed the outcome (were diagnosed with HCC during the course of the study). 
+`r sum(HCVData$HCC)` people (`r round(mean(HCVData$HCC)*100), 1)`%) developed the outcome (were diagnosed with HCC during the course of the study). The figure below shows the number of people diagnosed with HCC in each year, and cumulatively, throughout the study period (\textbf{note} that 2019 is an incomplete year!)
 
 ```{r HCC, include=FALSE}
-##SHELLEY TO FIX THIS SECTION##
-HCCtotal <- HCVData %>% dplyr::select(VISIT_COUNT_2011, VISIT_COUNT_2012, VISIT_COUNT_2013, VISIT_COUNT_2014, VISIT_COUNT_2015, VISIT_COUNT_2016, VISIT_COUNT_2017, VISIT_COUNT_2018)
-VisitCountsLong <- VisitCounts %>% gather
-HCC2011 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2011"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2011") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
-plot2012 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2012"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2012") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
-plot2013 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2013"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2013") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
-plot2014 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2014"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2014") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
-plot2015 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2015"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2015") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
-plot2016 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2016"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2016") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
-plot2017 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2017"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2017") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
-plot2018 <- ggplot(data = subset(VisitCountsLong, key=="VISIT_COUNT_2018"), aes(x=value)) + geom_histogram(fill = "darkred") + scale_y_continuous(breaks = seq(0,1500,100)) + scale_x_continuous(breaks = seq(0,25,5)) + xlab("Number of Visits") + ylab("Number of Patients") + ggtitle("2018") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
-Visitplots <- ggarrange(plot2011, plot2012, plot2013, plot2014, plot2015, plot2016, plot2017, plot2018, ncol = 4, nrow = 2)
-Visitplots <- annotate_figure(Visitplots, top = "Number of Visits per Patient (Annually)")
-suppressWarnings(print(Visitplots))
-```
+HCVData$HCC_2012only <- ifelse((HCVData$Cancer.Diagnosis.Date<'2012-1-1' | HCVData$Cancer.Diagnosis.Date>'2012-12-31') | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2013only <- ifelse((HCVData$Cancer.Diagnosis.Date<'2013-1-1' | HCVData$Cancer.Diagnosis.Date>'2013-12-31') | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2014only <- ifelse((HCVData$Cancer.Diagnosis.Date<'2014-1-1' | HCVData$Cancer.Diagnosis.Date>'2014-12-31') | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2015only <- ifelse((HCVData$Cancer.Diagnosis.Date<'2015-1-1' | HCVData$Cancer.Diagnosis.Date>'2015-12-31') | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2016only <- ifelse((HCVData$Cancer.Diagnosis.Date<'2016-1-1' | HCVData$Cancer.Diagnosis.Date>'2016-12-31') | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2017only <- ifelse((HCVData$Cancer.Diagnosis.Date<'2017-1-1' | HCVData$Cancer.Diagnosis.Date>'2017-12-31') | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2018only <- ifelse((HCVData$Cancer.Diagnosis.Date<'2018-1-1' | HCVData$Cancer.Diagnosis.Date>'2018-12-31') | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2019only <- ifelse((HCVData$Cancer.Diagnosis.Date<'2019-1-1' | HCVData$Cancer.Diagnosis.Date>'2019-12-31') | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCCyearly <- HCVData %>% dplyr::select(HCC_2012only, HCC_2013only, HCC_2014only, HCC_2015only, HCC_2016only, HCC_2017only, HCC_2018only, HCC_2019only)
+colnames(HCCyearly) <- c("2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019")
+HCCYearlyLong <- HCCyearly %>% gather
+plotHCCann <- ggplot(HCCYearlyLong, aes(x=key, y=value)) + geom_col(fill = "darkgreen") + scale_y_continuous(breaks = seq(0,100,10)) + xlab("Year") + ylab("Number of Patients") + ggtitle("New HCC diagnoses, by year") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 14, hjust = 0.5))
 
-At this time we are still waitingon an updated dataset that includes the year of diagnosis for each patient. <!--armadillo remember to update this in the final version! -->
+ptrHCVData$HCC_2012 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2012-12-31' | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2013 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2013-12-31' | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2014 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2014-12-31' | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2015 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2015-12-31' | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2016 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2016-12-31' | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2017 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2017-12-31' | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2018 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2018-12-31' | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCVData$HCC_2019 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2019-12-31' | is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+HCCtotal <- HCVData %>% dplyr::select(HCC_2012, HCC_2013, HCC_2014, HCC_2015, HCC_2016, HCC_2017, HCC_2018, HCC_2019)
+colnames(HCCtotal) <- c("2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019")
+HCCLong <- HCCtotal %>% gather
+plotHCCcum <- ggplot(HCCLong, aes(x=key, y=value)) + geom_col(fill = "darkgreen") + scale_y_continuous(breaks = seq(0,500,50)) + xlab("Year") + ylab("Number of Patients") + ggtitle("Cumulative HCC cases, by year") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 14, hjust = 0.5))
+
+HCCplots <- ggarrange(plotHCCann, plotHCCcum, ncol = 2, nrow = 1)
+suppressWarnings(print(HCCplots))
+```
 
 **FIB-4 Score (annually)**
 
