@@ -1101,7 +1101,6 @@ n = as.numeric(nrow(df))
 n2 <- as.numeric(nrow(abar))
 
 
-
 #initialize sumA
 sumA= rep(NA, n2)
 
@@ -1260,7 +1259,7 @@ Variance.tmle <- var(estimates_data2[,3])
 MSE.tmle <- mean((estimates_data2[,3]- PsiF)^2)
 ```
 
-Unfortunately, this simulation ran for >60 hours and ultimately crashed Stephanie's laptop (without saving :/). We'd love some help on how to optomize this. Notably we keep getting an error message about rescaling the L variables (even after we thought we rescaled them), so that might be one thing to look at.
+Unfortunately, this simulation ran for >60 hours and ultimately crashed Stephanie's laptop (without saving :/). We'd love some help on how to optimize this. Notably we keep getting an error message about rescaling the L variables (even after we thought we rescaled them), so that might be one thing to look at.
 
 ## d. Data example
 
@@ -1455,7 +1454,7 @@ Unfortunately, this simulation ran for >60 hours and ultimately crashed Stephani
 ```
 
 
-```{r loading in results from binary analysis}
+```{r loading in results from binary analysis, include  = FALSE, echo = FALSE, eval = TRUE}
 load("O.Rdata")
 load("results2.MSM112219.Rdata")
 load("results2.MSM.g112219.Rdata")
