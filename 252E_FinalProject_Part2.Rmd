@@ -1303,7 +1303,7 @@ estimates_data2
 
 ```{r checking estimator performance with ltmle and 2 levels}
 
-B = 1000
+B = 100
 n= 1000
 estimates_SimParameterCheck <- matrix(nrow = B, ncol = 3)
 colnames(estimates_SimParameterCheck) <- c("Gcomp", "IPTW",  "TMLE")
@@ -1399,7 +1399,7 @@ results2.MSM.g <- ltmle::ltmleMSM(df,
 sum.results2.MSM.g = summary(results2.MSM.g, "gcomp")
 sum.results2.MSM.g
 
-estimates_SimParameterCheck[b,] <- c(sum.results2.MSM.g$cmat[2,1],
+estimates_SimParameterCheckBinary[b,] <- c(sum.results2.MSM.g$cmat[2,1],
                          sum.results2.MSM.iptw$cmat[2,1],
                          sum.results2.MSM.tmle$cmat[2,1])
 print(b)
@@ -1407,17 +1407,17 @@ print(b)
 }
 
 
-Bias.g <- mean(estimates_SimParameterCheck[,1]) - PsiF
-Variance.g <- var(estimates_SimParameterCheck[,1])
-MSE.g <- mean((estimates_SimParameterCheck[,1]- PsiF)^2)
+Bias.g <- mean(estimates_SimParameterCheckBinary[,1]) - PsiF
+Variance.g <- var(estimates_SimParameterCheckBinary[,1])
+MSE.g <- mean((estimates_SimParameterCheckBinary[,1]- PsiF)^2)
 
-Bias.iptw <- mean(estimates_SimParameterCheck[,2]) - PsiF
-Variance.iptw <- var(estimates_SimParameterCheck[,2])
-MSE.iptw <- mean((estimates_SimParameterCheck[,2]- PsiF)^2)
+Bias.iptw <- mean(estimates_SimParameterCheckBinary[,2]) - PsiF
+Variance.iptw <- var(estimates_SimParameterCheckBinary[,2])
+MSE.iptw <- mean((estimates_SimParameterCheckBinary[,2]- PsiF)^2)
 
-Bias.tmle <- mean(estimates_SimParameterCheck[,3]) - PsiF
-Variance.tmle <- var(estimates_SimParameterCheck[,3])
-MSE.tmle <- mean((estimates_SimParameterCheck[,3]- PsiF)^2)
+Bias.tmle <- mean(estimates_SimParameterCheckBinary[,3]) - PsiF
+Variance.tmle <- var(estimates_SimParameterCheckBinary[,3])
+MSE.tmle <- mean((estimates_SimParameterCheckBinary[,3]- PsiF)^2)
 
 ```
 
