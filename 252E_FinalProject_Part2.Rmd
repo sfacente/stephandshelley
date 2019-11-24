@@ -1303,7 +1303,7 @@ estimates_data2
 
 ```{r checking estimator performance with ltmle and 2 levels}
 
-B = 100
+B = 500
 n= 1000
 estimates_SimParameterCheck <- matrix(nrow = B, ncol = 3)
 colnames(estimates_SimParameterCheck) <- c("Gcomp", "IPTW",  "TMLE")
@@ -1406,6 +1406,8 @@ print(b)
 
 }
 
+#save(estimates_SimParameterCheckBinary, file = "estimates_SimParameterCheckBinary112319.Rdata")
+#load("estimates_SimParameterCheckBinary112319.Rdata")
 
 Bias.g <- mean(estimates_SimParameterCheckBinary[,1]) - PsiF
 Variance.g <- var(estimates_SimParameterCheckBinary[,1])
@@ -1420,6 +1422,13 @@ Variance.tmle <- var(estimates_SimParameterCheckBinary[,3])
 MSE.tmle <- mean((estimates_SimParameterCheckBinary[,3]- PsiF)^2)
 
 ```
+
+For the binary example:
+|| G-Comp | IPTW | TMLE |
+|----------| ------ | ------ | ------ |
+| Bias | `r round(Bias.g, 3)` | `r round(Bias.iptw, 3)` | `r round(Bias.tmle, 3)` |
+| Variance | `r round(Variance.g, 3)` | `r round(Variance.iptw, 3)` | `r round(Variance.tmle, 3)` |
+| MSE | `r round(MSE.g, 3)` | `r round(MSE.iptw, 3)` | `r round(MSE.tmle, 3)` |
 
 ## d. Data example
 
