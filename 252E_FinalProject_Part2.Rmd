@@ -1426,16 +1426,11 @@ MSE.tmle <- mean((estimates_SimParameterCheckBinary[,3]- PsiF)^2)
 ```{r datasetreconfig, include = TRUE, eval = TRUE, warning = FALSE, message = FALSE, echo = TRUE}
 #Turning observed data into something that we can analyze
 O <- as.data.frame(matrix(nrow=nrow(HCVData), NA))
-O$Y1 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2015-12-31' |
-                 is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
-O$Y2 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2016-12-31' |
-                 is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
-O$Y3 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2017-12-31' |
-                 is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
-O$Y4 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2018-12-31' |
-                 is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
-O$Y5 <- ifelse(HCVData$Cancer.Diagnosis.Date>'2019-12-31' |
-                 is.na(HCVData$Cancer.Diagnosis.Date), 0, 1)
+ 
+O$Y2 <- HCVData$HCC_2016
+O$Y3 <- HCVData$HCC_2017
+O$Y4 <- HCVData$HCC_2018
+O$Y5 <- HCVData$HCC_2019
 
 O$L1 <- HCVData$FIB4_by2015
 O$L2 <- HCVData$FIB4_by2016
@@ -1619,15 +1614,15 @@ PlottingData <- PlottingData %>%
                 mutate(sumA = V1+V2+V3+V4, Y5 = V5) %>% 
                 dplyr::select(sumA, Y5) %>%
                 group_by(sumA) %>%
-                tally(Y5)
+                summarise(sumY = sum(Y5), number = n())
 
 
-Plot3 <- ggplot(PlottingData, aes(x = sumA, y = n)) +
+Plot3 <- ggplot(PlottingData, aes(x = sumA, y = (sumY/number))) +
 geom_point() +
 geom_smooth(method = "lm") +
 ggtitle("Expected Probability of HCC dependant on \n How many Visits Occured Each Year")  +
 xlab("Total Number of Years with Visits 2015-2018")+ 
-ylab("Count of HCC diagnoses")
+ylab("Proportion of Patient Diagnosed with HCC")
 
 #This is checking for linearity based on number of visits (up to 3 annually) among our observed data
 Plot3
@@ -1738,16 +1733,17 @@ estimates_Obin <- c(sum.resultsbin.MSM.g$cmat[2,1],
 
 save(estimates_Obin, file = "estimates_Obin112319.Rdata")
 
-#checking linearity in the binary analysis now
+
+#checking linearity
 PlottingData <-as.data.frame(cbind(df$A1, df$A2, df$A3, df$A4, df$Y5))
 PlottingData <- PlottingData %>% 
                 mutate(sumA = V1+V2+V3+V4, Y5 = V5) %>% 
                 dplyr::select(sumA, Y5) %>%
                 group_by(sumA) %>%
-                tally(Y5)
+                summarise(sumY = sum(Y5), number = n())
 
 
-Plot4 <- ggplot(PlottingData, aes(x = sumA, y = n)) +
+Plot4 <- ggplot(PlottingData, aes(x = sumA, y = (sumY/number))) +
 geom_point() +
 geom_smooth(method = "lm") +
 ggtitle("Expected Probability of HCC dependant on \n Whether a Visit Occured Each Year")  +
