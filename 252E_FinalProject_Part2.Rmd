@@ -1305,7 +1305,7 @@ estimates_data2
 
 B = 500
 n= 1000
-estimates_SimParameterCheck <- matrix(nrow = B, ncol = 3)
+estimates_SimParameterCheckBinary <- matrix(nrow = B, ncol = 3)
 colnames(estimates_SimParameterCheck) <- c("Gcomp", "IPTW",  "TMLE")
 
 #version with 2 levels for each A
