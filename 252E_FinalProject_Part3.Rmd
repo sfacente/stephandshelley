@@ -1381,15 +1381,13 @@ O$L4lm <- HCVData$YearsSinceFib4_2018
   
   O$SES <- HCVData$PayorType
   O$Sex <- HCVData$Sex
-  O$Race <- NA
-  O$Race[!is.na(HCVData$Race) & !is.na(HCVData$Ethnicity)] <- 1
-  O$Race[HCVData$Race == "White or Caucasian" & 
-                                HCVData$Ethnicity == "Not Hispanic or Latino" ] <- 2
-  O$Race[HCVData$Race == "Black or African American" & 
-                                HCVData$Ethnicity == "Not Hispanic or Latino" ] <- 3
-  O$Race[HCVData$Ethnicity == "Hispanic or Latino" ] <- 4
+  O$Race <- HCVData$race.ethnicity
   
   O$C5 <- ifelse(O$A5 == 0, 1, 0)
+  
+ #remove NAs for now, until we impute
+  O <- subset(O, !is.na(O$SES))
+  O <- subset(O, !is.na(O$Race))
   
   O <- O %>% dplyr::select(SES, Race, Sex, L1, A1, 
                            L2, A2, Y2, 
@@ -1484,7 +1482,7 @@ estimates_O <- c(sum.resultsbin.MSM.g$cmat[2,1],
                          sum.resultsbin.MSM.iptw$cmat[2,1],
                          sum.resultsbin.MSM.tmle$cmat[2,1])
 
-#save(estimates, file = "estimates_Obin112319.Rdata")
+save(estimates_O, file = "estimates_Obin112619.Rdata")
 
 
 #checking linearity
