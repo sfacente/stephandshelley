@@ -1,5 +1,10 @@
 ---
-title: "252E Final Project Part 2: \nRelationship between Frequency of Care and Progression to Hepatocellular Carcinoma \namong Chronic Hepatitis C Patients"
+title: |
+  | 252E Final Project  
+  | \textcolor{white}{.}
+  | Relationship between Frequency of Care 
+  | and Progression to Hepatocellular Carcinoma
+  | among Chronic Hepatitis C Patients
 author: "Stephanie Holm and Shelley Facente"
 date: "12/11/2019"
 output: beamer_presentation
@@ -369,92 +374,91 @@ StephandShelleyDataLoad2 <- function(filename)
 # rm(adds)
 ```
 
-
 ```{r filter_to_adults_with_visits_and_no_Ca_at_start_historical_FIB4s, include = FALSE, eval = TRUE}
 load("HCVData.Rdata")
 
-# #calculating a total fib4, NOT  because it's meaningful but to be ableto see how many had NO FIB4
-# #commenting out for now bc just used this to explore
-# HCVData$totalFIB4 <-rowSums(cbind(HCVData$FIB4_2009,
-#                                   HCVData$FIB4_2010,
-#                                   HCVData$FIB4_2011,
-#                                   HCVData$FIB4_2012,
-#                                   HCVData$FIB4_2013,
-#                                   HCVData$FIB4_2014,
-#                                   HCVData$FIB4_2015,
-#                                   HCVData$FIB4_2016,
-#                                   HCVData$FIB4_2017,
-#                                   HCVData$FIB4_2018), na.rm=TRUE)
-# summary(HCVData$totalFIB4==0)
-# 
-# HCVData$totalFIB4BY2011 <-rowSums(cbind(HCVData$FIB4_2009,
-#                                   HCVData$FIB4_2010,
-#                                   HCVData$FIB4_2011), na.rm=TRUE)
-# summary(HCVData$totalFIB4BY2011==0)
-# 
-# HCVData$totalFIB4BY2014 <-rowSums(cbind(HCVData$FIB4_2009,
-#                                   HCVData$FIB4_2010,
-#                                   HCVData$FIB4_2011,
-#                                   HCVData$FIB4_2012,
-#                                   HCVData$FIB4_2013,
-#                                   HCVData$FIB4_2014), na.rm=TRUE)
-# summary(HCVData$totalFIB4BY2014==0)
-# 
-# HCVData$totalFIB4BY2015 <-rowSums(cbind(HCVData$FIB4_2009,
-#                                   HCVData$FIB4_2010,
-#                                   HCVData$FIB4_2011,
-#                                   HCVData$FIB4_2012,
-#                                   HCVData$FIB4_2013,
-#                                   HCVData$FIB4_2014,
-#                                   HCVData$FIB4_2015), na.rm=TRUE)
-# summary(HCVData$totalFIB4BY2015==0)
-# #note- by 2015 72% of our sample has a FIB4.
-# 
-# HCVData$totalFIB4BY2016 <-rowSums(cbind(HCVData$FIB4_2009,
-#                                   HCVData$FIB4_2010,
-#                                   HCVData$FIB4_2011,
-#                                   HCVData$FIB4_2012,
-#                                   HCVData$FIB4_2013,
-#                                   HCVData$FIB4_2014,
-#                                   HCVData$FIB4_2015,
-#                                   HCVData$FIB4_2016), na.rm=TRUE)
-# summary(HCVData$totalFIB4BY2016==0)
-# 
-# HCVData$totalFIB4BY2017 <-rowSums(cbind(HCVData$FIB4_2009,
-#                                   HCVData$FIB4_2010,
-#                                   HCVData$FIB4_2011,
-#                                   HCVData$FIB4_2012,
-#                                   HCVData$FIB4_2013,
-#                                   HCVData$FIB4_2014,
-#                                   HCVData$FIB4_2015,
-#                                   HCVData$FIB4_2016,
-#                                   HCVData$FIB4_2017), na.rm=TRUE)
-# summary(HCVData$totalFIB4BY2017==0)
-# 
-# HCVData$totalFIB4BY2018 <-rowSums(cbind(HCVData$FIB4_2009,
-#                                   HCVData$FIB4_2010,
-#                                   HCVData$FIB4_2011,
-#                                   HCVData$FIB4_2012,
-#                                   HCVData$FIB4_2013,
-#                                   HCVData$FIB4_2014,
-#                                   HCVData$FIB4_2015,
-#                                   HCVData$FIB4_2016,
-#                                   HCVData$FIB4_2017,
-#                                   HCVData$FIB4_2018), na.rm=TRUE)
-# summary(HCVData$totalFIB4BY2018==0)
-# 
-# HCVData$totalFIB4BY2019 <-rowSums(cbind(HCVData$FIB4_2009,
-#                                   HCVData$FIB4_2010,
-#                                   HCVData$FIB4_2011,
-#                                   HCVData$FIB4_2012,
-#                                   HCVData$FIB4_2013,
-#                                   HCVData$FIB4_2014,
-#                                   HCVData$FIB4_2015,
-#                                   HCVData$FIB4_2016,
-#                                   HCVData$FIB4_2017,
-#                                   HCVData$FIB4_2018,
-#                                   HCVData$FIB4_2019), na.rm=TRUE)
-# summary(HCVData$totalFIB4BY2019==0)
+#calculating a total fib4, NOT  because it's meaningful but to be ableto see how many had NO FIB4
+#commenting out for now bc just used this to explore
+HCVData$totalFIB4 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014,
+                                  HCVData$FIB4_2015,
+                                  HCVData$FIB4_2016,
+                                  HCVData$FIB4_2017,
+                                  HCVData$FIB4_2018), na.rm=TRUE)
+summary(HCVData$totalFIB4==0)
+
+HCVData$totalFIB4BY2011 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2011==0)
+
+HCVData$totalFIB4BY2014 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2014==0)
+
+HCVData$totalFIB4BY2015 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014,
+                                  HCVData$FIB4_2015), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2015==0)
+#note- by 2015 72% of our sample has a FIB4.
+
+HCVData$totalFIB4BY2016 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014,
+                                  HCVData$FIB4_2015,
+                                  HCVData$FIB4_2016), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2016==0)
+
+HCVData$totalFIB4BY2017 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014,
+                                  HCVData$FIB4_2015,
+                                  HCVData$FIB4_2016,
+                                  HCVData$FIB4_2017), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2017==0)
+
+HCVData$totalFIB4BY2018 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014,
+                                  HCVData$FIB4_2015,
+                                  HCVData$FIB4_2016,
+                                  HCVData$FIB4_2017,
+                                  HCVData$FIB4_2018), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2018==0)
+
+HCVData$totalFIB4BY2019 <-rowSums(cbind(HCVData$FIB4_2009,
+                                  HCVData$FIB4_2010,
+                                  HCVData$FIB4_2011,
+                                  HCVData$FIB4_2012,
+                                  HCVData$FIB4_2013,
+                                  HCVData$FIB4_2014,
+                                  HCVData$FIB4_2015,
+                                  HCVData$FIB4_2016,
+                                  HCVData$FIB4_2017,
+                                  HCVData$FIB4_2018,
+                                  HCVData$FIB4_2019), na.rm=TRUE)
+summary(HCVData$totalFIB4BY2019==0)
 
 
 
@@ -646,30 +650,52 @@ Since 2014, direct-acting antiviral (DAA) therapy has dramatically improved prog
 
 We are using a dataset of patients with chronic hepatitis C virus (HCV), receiving care in the UCSF system since 2009. 
 
+\vspace{6pt}  
+
 * n = `r nrow(HCVData)`
+
+\vspace{6pt}  
+
 * Adults seen in the UCSF system by the end of 2015 
-* At least one visit in the primary care or hepatology (liver) clinic between 2015 and 2019
+
+\vspace{6pt}  
+
+* At least one visit in the primary care or hepatology (liver)  
+clinic between 2015 and 2019
+
+\vspace{6pt}  
+
 * Did not already have HCC at the start of the study period
 
 <!--These data come from a query of Apex, the UCSF-specific build of the electronic medical record system Epic.-->
 
-# Roadmap
+#
+\begin{center} \usebeamerfont*{frametitle} \usebeamercolor[fg]{frametitle} Roadmap \end{center}
+
+#
+\begin{center} \usebeamerfont*{frametitle} \usebeamercolor[fg]{frametitle} 1. Specify Causal Model \end{center}
 
 # 1. Specify Causal Model
 
 ## Defining Our Variables
 
-**Exposure**: $A(t), \  t = 1,2...,4$: The annual number of clinical visits that each chronic HCV patient had in the UCSF system annually from 2015 through 2018.
+\vspace{6pt}  
 
-**Outcome**: $Y(K)$: Diagnosis of HCC, by the final year (2019), which occured in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. 
+**Exposure**: $A(t), \  t = 1,2,...,4$: The annual number of clinical visits that each chronic HCV patient had in the UCSF system annually from 2015 through 2018.
 
-**Covariates**: FIB-4 score, years since FIB-4 score last measured, sex (Male, Female), race (Black, Latinx, Other), insurance type (Medi-Cal, Medicare, private) as a surrogate of socioeconomic status.
+\vspace{6pt}  
+
+**Outcome**: $Y(K)$: Diagnosis of HCC by the final year (2019), which occured in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. 
+
+\vspace{6pt}  
+
+**Covariates**: FIB-4 score, years since FIB-4 score last measured, sex (Male, Female), race (Black, Latinx, Other), insurance type (Medi-Cal, Medicare, private) as a surrogate of SES.
 <!-- FIB-4 is a validated measure used for prediction of cirrhosis (Khan et al 2017), which uses age, platelet count and liver transaminases-->
 
 # 1. Specify Causal Model
 
 ## Our DAG
-```{r DAG, include = TRUE, echo = FALSE, out.width= "80%"}
+```{r DAG, include = TRUE, echo = FALSE, out.width= "90%"}
 knitr::include_graphics("dagitty-model.png")
 ```
 
@@ -680,20 +706,29 @@ This analysis includes 5 years worth of data (4 of exposure and 1 of outcome), b
 # 1. Specify Causal Model
 
 ## Our SCM
-$O= (W, C(K), L(t), Y(t), A(t))$
+
+\vspace{10pt}  
+
+$\mathbf{O= (W, C(K), L(t), Y(t), A(t))}$
+
+\vspace{10pt}  
+
 This is survival data with missingness and censoring, where:
 
 * W = baseline covariates (race, sex and SES)
-* L(t) = the set of covariates (most recent FIB-4 score, years since last FIB-4) at time t
-* A(t) = the exposure (number of visits) at time t
-* C(K) = indicator of being censored at the final timepoint (1 = censored)
-* Y(K) = outcome (an indicator of HCC diagnosis)
+* L(t) = the set of covariates (most recent FIB-4 score, years since last FIB-4) at time $t$
+* A(t) = the exposure (number of visits) at time $t$
+* C(K) = indicator of being censored at the final timepoint 
+* Y(t) = outcome (an indicator of HCC diagnosis)
 
-$U = (U_{L(t)}, U_{A(t)}, U_{C(t)}, U_{Y(t)},), t = 1,2,3,4,5$ ~ $P_U$
+\vspace{8pt}  
+
+$U = (U_{L(t)}, U_{A(t)}, U_{C(t)}, U_{Y(t)}), \ t = 1,2,3,4,5$ ~ $P_U$
 
 # 1. Specify Causal Model
 
 Structural Equations, $\mathcal{M^F}$, for $t$ from 1 to 5:
+\vspace{-8pt}
 \begin{align*}
 W &= f_{W}(U_{W}) \\
 L(1) &= f_{L(1)}(U_{L(1)}) \\
@@ -709,7 +744,12 @@ Y(K) &= f_{Y(K)}(W, C(K), \bar{L}(K-1), \bar{A}(K-1), Y(K-1), U_{Y(K)}) \\
 
 We are also operating with one key exclusion restriction: 
 
-Once someone develops the outcome [$Y(t) = 1$], we set their $A(t+1...K)$ and $L(t+1,...,K)$ to *NA* for the remainder of the analysis, and set $C(K) = 1$ for that subject. 
+\vspace{10pt}
+
+Once someone develops the outcome [$Y(t) = 1$], we set their $A(t+1...K)$ and $L(t+1,...,K)$ to \textit{\textcolor{orange}{NA}} for the remainder of the analysis, and set $C(K) = 1$ for that subject. 
+
+#
+\begin{center} \usebeamerfont*{frametitle} \usebeamercolor[fg]{frametitle} 2. Specify Causal Question \end{center}
 
 # 2. Specify Causal Question
 
@@ -735,7 +775,11 @@ Our counterfactual outcomes are the prevalence of HCC by the end of study follow
 **What aspects of the counterfactual outcome distribution are you interested in contrasting?**
 -->
   
+# 2. Specify Causal Question
+
 We are interested in contrasting the counterfactual outcome from various numbers of primary care and/or hepatology visits with the counterfactual outcome from fewer visits, to see if there is some sort of exposure-response relationship.
+
+\vspace{8pt}
 
 To do this, we will use a MSM that helps us understand the relationship between frequency of primary care or hepatology visits and risk of HCC diagnosis, conditional on FIB-4 score (as a proxy for liver cirrhosis) and a variety of other demographics.
 
@@ -743,15 +787,22 @@ To do this, we will use a MSM that helps us understand the relationship between 
 **How would you intervene on the SCM you came up with to evaluate the causal target parameter?**
 -->
 
-We will intervene to deterministically set $\bar{C}(K) = 0$ and $\bar{A}(t) = \bar{a}(t)$.  
+\vspace{8pt}
+
+We will intervene to deterministically set $\bar{C}(K) = 0$ and $\bar{A}(t) = \bar{a}(t)$.
+
+#
+\begin{center} \usebeamerfont*{frametitle} \usebeamercolor[fg]{frametitle} 3. Specify Observed Data \end{center}
 
 # 3. Specify Observed Data
 
 ## Number of Visits (annually)
 
-The number of visits per patient ranges from 0 to 44 in any given year, with a median of 1 visit per year overall. The figure below presents number of visits per patient in each year.
+The number of visits per patient ranges from 0 to 44 in any given year, with a median of 1 visit per year overall. 
 
-```{r numvisits, include = TRUE, echo = FALSE, cache = TRUE, warning = FALSE, message = FALSE}
+\vspace{10pt}
+
+```{r numvisits, include = TRUE, echo = FALSE, cache = TRUE, warning = FALSE, message = FALSE, fig.height = 5}
 
 plot_multi_histonly <- function(df, feature, label_column) {
     plt <- ggplot(df, aes(x=eval(parse(text=feature)), fill=eval(parse(text=label_column)))) +
@@ -793,9 +844,11 @@ HCVData$HCC <- ifelse(is.na(HCVData$Cancer.Diagnosis.Name), 0, 1)
 HCCpercent <- mean(HCVData$HCC)*100
 ```
 
-`r sum(HCVData$HCC)` people (`r round(HCCpercent, 1)`%) developed the outcome by $Y(K)$. The figure below shows the number of people diagnosed with HCC in each year, and cumulatively, throughout the study period (\textbf{note} that 2019 is an incomplete year!)
+`r sum(HCVData$HCC)` people (`r round(HCCpercent, 1)`%) developed the outcome by $Y(K)$.
 
-```{r HCCplots, include = TRUE, echo = FALSE, warning = FALSE, message = FALSE, fig.width=11, fig.height=5.5}
+\vspace{10pt}
+
+```{r HCCplots, include = TRUE, echo = FALSE, warning = FALSE, message = FALSE, fig.width=9, fig.height=4.5}
 
 #note-calculation of the HCC year variables was moved upto chunk that's called filter_to_adults_with_visits_and_no_Ca_at_start_historical_FIB4s
 
@@ -827,6 +880,8 @@ HCCplots <- ggarrange(plotHCCann, plotHCCcum, ncol = 2, nrow = 1)
 suppressWarnings(print(HCCplots))
 ```
 
+\*\textbf{note} 2019 is an incomplete year!
+
 # 3. Specify Observed Data
 
 ## FIB-4 Score (annually)
@@ -838,12 +893,17 @@ cirrhosis <- nrow(subset(FIBLong, value>3.25))
 outliers <- nrow(subset(FIBLong, value>9))
 ```
 
-FIB-4 scores are calculated with inputs of age, platelet count, AST, and ALT. 
+\vspace{8pt}
+
+FIB-4 scores are calculated using age, platelet count, AST, and ALT. 
 
 * Scores of <1.45 are considered to be strongly suggestive of no liver fibrosis
-* Scores >3.25 are indicative of advanced fibrosis and/or cirrhosis. 
+* Scores >3.25 are indicative of advanced fibrosis and/or cirrhosis.
+
+\vspace{8pt}
 
 FIB-4 scores in this dataset range of 0.181 to 45.956, with an IQR of 1.198-2.872. 
+
 * `r cirrhosis` FIB-4 scores are >3.25 throughout all years of follow-up on all patients
 * There are `r outliers` instances where a patient's FIB-4 score was calculated to be > 9.
 
@@ -851,9 +911,9 @@ FIB-4 scores in this dataset range of 0.181 to 45.956, with an IQR of 1.198-2.87
 
 ## FIB-4 Score (annually)
 
-The figure below presents the distribution of FIB-4 scores in each year.
+\vspace{10pt}
 
-```{r fibplots, include = TRUE, echo = FALSE, cache=TRUE, warning = FALSE, message = FALSE}
+```{r fibplots, include = TRUE, echo = FALSE, cache=TRUE, warning = FALSE, message = FALSE, fig.height = 5.5}
 
 fib2011 <- ggplot(data = subset(FIBLong, key=="FIB4_2011"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,25,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2011") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
 fib2012 <- ggplot(data = subset(FIBLong, key=="FIB4_2012"), aes(x=value)) + geom_histogram(aes(y=..density..), fill = "darkblue") + scale_x_continuous(breaks = seq(0,25,5)) + xlab("FIB-4 Score") + ylab("Density") + ggtitle("2012") + theme(legend.position = "none") + theme_minimal() + theme(plot.title = element_text(size = 12, hjust = 0.5))
@@ -870,7 +930,11 @@ suppressWarnings(print(FIBplots))
 
 # 3. Specify Observed Data
 
+\vspace{8pt}
+
 ## Other demographics
+
+\vspace{-4pt}
 
 ```{r demographics, include = FALSE, eval = TRUE}
 sex <- table(HCVData$Sex, useNA = "ifany")
@@ -909,8 +973,7 @@ unkinsp <- unkins/n*100
 
 * \textbf{SES}. We are using insurance type (Medi-Cal, Medicare or commercial/private) as a marker of SES status, which is again a categorical variable.
 -->
-
-The table below displays the demographic breakdown of the sample.
+\small
 
 | Demographic | Category | n | % |
 | ----------------- | ----------------- | -------- | --------|
@@ -928,41 +991,73 @@ The table below displays the demographic breakdown of the sample.
 |        | Commercial/Private | `r private` | `r round(privatep, 1)`% |
 |        | Unknown | `r unkins` | `r round(unkinsp, 1)`% |
 |  | 
-| TOTAL | | `r n` | 100% |
+| TOTAL | | `r n` | 100% |}
+
+\normalsize
 
 # 3. Specify Observed Data
 
 ## Missingness
 
+\vspace{8pt}
+
+```{r fibpercents, eval=TRUE}
+ssum <- as.numeric(summary(HCVData$totalFIB4BY2015==0)[2])
+start <- ssum/nrow(HCVData)*100
+esum <- as.numeric(summary(HCVData$totalFIB4BY2019==0)[2])
+end <- esum/nrow(HCVData)*100
+```
+
 FIB-4 scores were available from 2009 onward.
-* `r as.numeric(summary(HCVData$totalFIB4BY2015==0)[2])/nrow(HCVData)`% of participants had FIB-4 scores at the start of the study.
+
+<!--* `r round(start, 1)`% of participants had FIB-4 scores at the start of the study.-->
+* __82.8%__ of participants had FIB-4 scores at the start of the study.
 * For the rest of the participants, we used multiple imputation to impute a 2015 FIB-4 score.
 * Updated $L(t)$ every year the requisite labs were measured.
-* `r as.numeric(summary(HCVData$totalFIB4BY2019==0)[2])/nrow(HCVData)` % of participants had a measured FIB-4 score rather than an imputed value at the end of the study.
+<!--* `r round(end, 1)`% of participants had a measured FIB-4 score rather than an imputed value at the end of the study.-->
+* __95.5%__ of participants had a measured FIB-4 score rather than an imputed value at the end of the study.
+
+\vspace{8pt}
 
 No missingness expected in exposure, since EMR designed for clinical billing
 
+\vspace{8pt}
+
 No missingness assumed for outcome, unless patient is censored at end of study
-* However, if no visits in a particular year, Y(t) unknown in that year
+
+* However, if no visits at a particular $t$, that $Y(t)$ unknown
 
 <!--
   Note that we have FIB-4 scores calculated annually (when the appropriate components are available) from 2009 forward. Thus, we have a FIB-4 score available for `r as.numeric(summary(HCVData$totalFIB4BY2015==0)[2])/nrow(HCVData)` % of participants at the start of the study interval (calculated somewhere in 2009-2015). For the rest of the participants, we used multiple imputation to impute a 2015 FIB-4 score. For all participants, the FIB-4 score and years since measured are updated every year that all the requisite labs were measured. Thus, by the end of interval, `r as.numeric(summary(HCVData$totalFIB4BY2019==0)[2])/nrow(HCVData)` % of participants had a measured FIB-4 score rather than an imputed value.
   
   There is not missingness expected in the exposure-since EMRs are designed for clinical billing, the data on whether or not visit(s) occurred are expected to be highly accurate. Because HCC is a common and severe complication of HCV, we are comfortable assuming that a patient who is still followed in the system and does not yet have a diagnosis of HCC, is truly negative for HCC, rather than simply missing that data. Further, we will intervene at the end to ensure everyone has outcome measured.
--->
 
 Patients can be censored from the dataset in one of two ways: 
+
 * No longer seeking care within the UCSF system
 * Becoming deceased
+-->
+
+#
+\begin{center} \usebeamerfont*{frametitle} \usebeamercolor[fg]{frametitle} 4. Identification \end{center}
 
 # 4. Identification 
 
 Our target causal parameter is identified under the following conditions:
 
 * Assumed independence between each of the exogenous variables (no shared unknowns)
+
+\vspace{6pt}
+
 * No practical positivity violations
 <!--i.e. >0 probability of HCC among all of the baseline covariate and treatment regime combinations-->
+
+\vspace{6pt}
+
 * Sequential randomization assumption for our data generating process
+
+\vspace{6pt}
+
 * Controlling for baseline covariates ($W$s)
 
 <!--
@@ -971,41 +1066,61 @@ Our target causal parameter is identified under the following conditions:
 Our target causal parameter is identified as a function of the observed data distribution under the assumptions that there is independence between each of the exogenous variables (i.e. there are no shared unknown variables influencing each of the endogenous nodes in our SCM) and that there are no practical positivity violations (i.e. there is a >0 probability of HCC among all of the baseline covariate and treatment regime combinations). In addition to controlling for any baseline covariates ($W$s), we also must rely on the sequential randomization assumption for our data generating process.
 -->
 
+#
+\begin{center} \usebeamerfont*{frametitle} \usebeamercolor[fg]{frametitle} 5. Commit to an Estimand and Statistical Model \end{center}
+
 # 5. Commit to an Estimand and Statistical Model
 
-*Our statistical estimand is: $$\Psi(P_0) = m(\bar{a}|\beta) = E[Y_{\bar{a}}] = \beta_0 + \beta_1 \sum_{t=1}^8a(t)$$
+Our statistical estimand is: $$\Psi(P_0) = m(\bar{a}|\beta) = E[Y_{\bar{a}}] = \beta_0 + \beta_1 \sum_{t=1}^8a(t)$$
 
 \vspace{8pt}
 
-#3. Estimation
-## a. What estimators will you use?
+Our statistical model is an MSM:
+\begin{align*}
+\Psi^F(P_{U,X}) &= E(Y_{\bar{a}, C(K)=0}) = m(\bar{a} | \beta, V) \\
+&= \beta_0 \ + \ \beta_1 \sum\limits_{t = 1}^Ka(t) + \beta_2V\\
+\end{align*}
 
-We will estimate our target causal parameter using MSMs estimated with G-computation, IPTW, and LTMLE estimators. 
+#
+\begin{center} \usebeamerfont*{frametitle} \usebeamercolor[fg]{frametitle} 6. Estimation \end{center}
 
-## b. How will you implement these estimators?
+# 6. Estimation
 
-We will implement each of these estimators using the \tt{ltmleMSM} function in the \textit{ltmle} R package. 
+We estimated our target causal parameter using MSMs implemented with G-computation, IPTW, and LTMLE estimators, via the $\tt{ltmleMSM}$ function in the *ltmle* R package.
 
-\vspace{20pt}
+\vspace{5pt}
 
-#4. Preliminary Results
 ## a. Simulation
 
-\fontfamily{cmr}\selectfont
+\vspace{5pt}
 
-To run our simulation, we first create a dataframe $O$ which includes all of the exogenous and endogenous variables in our SCM. Each of our $U_{W}, U_{C(t)}, \ \text{and} \ U_{Y(t)}$ variables have a uniform distribution with a min of 0 and max of 1. Each of our $U_{L(t)}$ variables have a gamma distribution with a shape parameter of 0.6 and scale parameter of 2.6. Each of our $U_{A(t)}$ variables have a negative binomial distribution with a dispersion parameter of 4 and a probability of 0.6. The shape and scale parameters for these distributions were chosen by having them reflect the distribution of variables in our observed data.
+Exogenous variables:
+
+* $U_{W}, U_{C(t)}, \ \text{and} \ U_{Y(t)}$ variables have a uniform distribution with a min of 0 and max of 1. 
+* $U_{L(t)}$ variables have a gamma distribution with a shape parameter of 0.6 and scale parameter of 2.6. 
+* $U_{A(t)}$ variables have a negative binomial distribution with a dispersion parameter of 4 and a probability of 0.6. 
+
+<!--The shape and scale parameters for these distributions were chosen by having them reflect the distribution of variables in our observed data.-->
+
+# 6. Estimation
+
+\vspace{5pt}
+
+## a. Simulation
+
+\vspace{5pt}
+
+Endogenous variables:
   
-For our endogenous variables:
-  
-* For $W$ we created a nominal categorical variable for the 16 possible different combinations of sex, gender, and SES that apply to our dataset. 
-* For the $L(t)$ variables, we set L(1) equal to the underlying $U_{L(1)}$ gamma distribution. In subsequent years, we set $L(t)$ to the FIB-4 score from the prior year ($L(t-1)$) and add 10% of the value generated by the underlying gamma distribution for $U_{L(t)}$ - i.e. we expect FIB-4 score to increase slightly each year as people's liver disease slowly progresses. 
-* $A(t)$ is calculated by using the underlying poisson distribution for $U_{A(t)}$ plus FIB-4 score (adding more visits for higher FIB-4 scores, indicating worsening cirrhosis) 
-* For the $C(t)$ variable, if a subject had no primary care or hepatology visits in the prior year they were censored; if they had at least one visit in the prior year then they were not censored. 
-* For $Y(t)$ we calculated it as having a 10% chance of indicating HCC diagnosis if they had no visits over the prior interval, with a decreasing chance of HCC with every visit the subject had in the prior year and an increasing chance of HCC as the FIB-4 score rises, indicating worsening cirrhosis ($Y(t) = I(U_{Y(t)} + 0.01(A(t-1)) - 0.05(L(t-1))) < 0.03)$.
+* $W$ = a nominal categorical variable for the 16 possible different combinations of sex, gender, and SES. 
+<!--* $L(1)$ = underlying $U_{L(1)}$ gamma distribution.--> 
+* $L(t)$ = FIB-4 score from the prior year ($L(t-1)$) + 10% of the value generated by underlying gamma distribution for $U_{L(t)}$ <!--i.e. we expect FIB-4 score to increase slightly each year as people's liver disease slowly progresses.-->
+* $A(t)$ = underlying negative binomial distribution for $U_{A(t)}$ plus FIB-4 score (more visits for higher FIB-4<!--, indicating worsening cirrhosis-->). **Dichotomitized into $A(t)=0$ if visits are 0-1 or $A(t)=1$ if visits are 2+.** 
+* $C(K) = 1$ if a subject had no primary care or hepatology visits in the final year, otherwise $C(K) = 0$.
+* $Y(t)$ = 10% chance of HCC if no visits over the prior interval, with a decreasing chance of HCC with every visit the subject had in the prior year and an increasing chance of HCC as the FIB-4 score rises, indicating worsening cirrhosis: ($Y(t) = I(U_{Y(t)} + 0.01(A(t-1)) - 0.05(L(t-1))) < 0.03)$.
 
-We then set a seed so our numbers could be replicated exactly, and generated data with n = 1000. The following table and plots describe the results of the simulation.
-
-```{r simulation, include = TRUE, echo = TRUE}
+<!--
+```{r simulation, include = FALSE, echo = FALSE, eval = TRUE}
 
 generate_data <- function(n) {
   U <- data.frame(UW = runif(n = n, min = 0, max = 1),
@@ -1076,15 +1191,13 @@ SimData <- generate_data(3000)
 
 ```
 
-\vspace{8pt}
-
 #### Cases of HCC in the Simulated Data
 In our simulated dataset, there were `r sum(SimData$Y5, na.rm = TRUE)` cases of hepatocellular carcinoma (HCC) by the end of the study interval.
 
 #### Histograms of Visits and FIB-4 Scores in the Simulated Data
 Here are density plots demonstrating the distribution of FIB-4 scores over the years they were measured. 
 
-```{r FIB4 Histograms, include = TRUE, echo = FALSE, fig.height = 5, fig.width = 11}
+```{r FIB4 Histograms, include = FALSE, echo = FALSE, fig.height = 5, fig.width = 11}
 #found at https://stackoverflow.com/questions/6957549/overlaying-histograms-with-ggplot2-in-r
 # plot_multi_histogram <- function(df, feature, label_column) {
 #     plt <- ggplot(df, aes(x=eval(parse(text=feature)), fill=eval(parse(text=label_column)))) +
@@ -1101,23 +1214,20 @@ FIB4Density <- plot_multi_density(FIB4Long, 'value', 'key')
 suppressWarnings(print(FIB4Density))
 ```
 
-
 Here are histograms of the number of visits each patient had per year. 
 
-```{r Hist of Visits, include = TRUE, echo = FALSE, message = FALSE, fig.height = 4}
+```{r Hist of Visits, include = FALSE, echo = FALSE, message = FALSE, fig.height = 4}
 VisitsOnly <- SimData %>% dplyr::select(A1, A2, A3, A4)
 VisitsLong <- VisitsOnly %>% gather
 VisitsHist<- plot_multi_histonly(VisitsLong, 'value', 'key')
 suppressWarnings(print(VisitsHist))
 ```
 
-
-
 ## b. Implement our intervention computationally.
 
 To do this, we use the simulation code written earlier, but adapt our function, replacing the structural equations for $\bar{C}(t)$ and  $\bar{A}(t)$ with flexible parameters allowing us to specify values for our intervention.
 
-```{r intervene, include = TRUE, echo = FALSE}
+```{r intervene, include = FALSE, echo = FALSE}
 
 generate_data_intervene <- function(n, c, a1, a2, a3, a4, a5) {
   U <- data.frame(UW = runif(n = n, min = 0, max = 1),
@@ -1227,7 +1337,7 @@ PlottingData <- PlottingData %>%
 Plot2 <- ggplot(PlottingData, aes(x = sum_abar, y = (sumY/number))) +
 geom_point() +
 geom_smooth(method = "lm") +
-ggtitle("Expected Probability of HCC \n dependant on number of visits \n In Simulated Data")  +
+ggtitle("Expected Probability of HCC Dependant on Number of Visits in Simulated Data")  +
 xlab("Total Number of Years with Visits 2015-2018")+ 
 ylab("Expected Probability of HCC")
 
@@ -1248,13 +1358,31 @@ PsiFpercent <- PsiF*100
 
 We simulated counterfactual outcomes with all possible combinations of 0-3 visits per year to try to determine $\Psi^F(P_{U,X})$ as the coefficient on the total number of visits in the marginal structural model $\Psi^F(P_{U,X})$ = `r round(PsiF, 3)`.
 
-Note that some individuals have more than 3 visits per year but we felt that 3 or more indicated being well-connected to care, and this still results in `r nrow(TreatmentLevels)` possible  treatment combinations. 
 
-```{r Plot of linearity in simulated data,  include = TRUE, echo = FALSE}
+Note that some individuals have more than 3 visits per year but we felt that 3 or more indicated being well-connected to care, and this still results in `r nrow(TreatmentLevels)` possible  treatment combinations. 
+-->
+
+# 6. Estimation
+
+\vspace{5pt}
+
+## a. Simulation
+
+\vspace{5pt}
+
+We generated data with $n = 1000$. When we regressed to get the value of $\beta_1$ in our simulated MSM, it gave us $\psi^F$ = `r PsiF`.
+
+\vspace{10pt} 
+
+The plot below assesses the linearity of our simulated data.
+
+\vspace{6pt}
+
+```{r Plot of linearity in simulated data,  include = TRUE, echo = FALSE, fig.height = 5}
 Plot2
 ```
 
-
+<!--
 ### ii. Write a sentence interpreting your $\Psi^F(P_{U,X})$
 
 This means that for every additional primary care or hepatology visit (up to three annually), patients are are `r round(PsiFpercent, 1)`% less likely to develop HCC than people who have one fewer primary care or hepatology visits in the five years under study.
@@ -1424,16 +1552,50 @@ MSE.tmle <- mean((estimates_Sim[,3]- PsiF)^2)
 ```
 
 For the binary example:
+-->
 
-|----| G-Comp | IPTW | TMLE |
+# 6. Estimation
+
+\vspace{5pt}
+
+## a. Simulation
+
+\vspace{5pt}
+
+We then assessed the performance of our estimators relative to our target causal parameter:
+
+\LARGE
+
+|\textcolor{white}{.} | G-Comp | IPTW | TMLE |
 |----------| ------ | ------ | ------ |
 | Bias | `r round(Bias.g, 3)` | `r round(Bias.iptw, 3)` | `r round(Bias.tmle, 3)` |
 | Variance | `r round(Variance.g, 3)` | `r round(Variance.iptw, 3)` | `r round(Variance.tmle, 3)` |
 | MSE | `r round(MSE.g, 3)` | `r round(MSE.iptw, 3)` | `r round(MSE.tmle, 3)` |
 
-## d. Data example
+\normalsize
 
-```{r datasetreconfig, include = TRUE, eval = TRUE, warning = FALSE, message = FALSE, echo = TRUE}
+# 6. Estimation
+
+\vspace{5pt}
+
+## a. Simulation
+
+\vspace{5pt}
+
+We then assessed the performance of our estimators relative to our target causal parameter:
+
+\LARGE
+
+|\textcolor{white}{.} | \textcolor{red}{G-Comp} | IPTW | TMLE |
+|----------| ------ | ------ | ------ |
+| Bias | `r round(Bias.g, 3)` | `r round(Bias.iptw, 3)` | `r round(Bias.tmle, 3)` |
+| Variance | `r round(Variance.g, 3)` | `r round(Variance.iptw, 3)` | `r round(Variance.tmle, 3)` |
+| MSE | \textcolor{red}{`r round(MSE.g, 3)`} | `r round(MSE.iptw, 3)` | `r round(MSE.tmle, 3)` |
+
+\normalsize
+
+<!--
+```{r datasetreconfig, include = FALSE, eval = TRUE, warning = FALSE, message = FALSE, echo = FALSE}
 #Turning observed data into something that we can analyze
 O <- as.data.frame(matrix(nrow=nrow(HCVData), NA))
  
@@ -1481,9 +1643,7 @@ O$L4lm <- HCVData$YearsSinceFib4_2018
 
 ```
 
-
-
-```{r dataset analysis with binary exposure, include = TRUE, cache = TRUE, warning = FALSE, message = FALSE}
+```{r dataset analysis with binary exposure, include = FALSE, cache = TRUE, warning = FALSE, message = FALSE}
 #binary version of the analysis (yes/no visits each year)
 x <- list(0:1)
 
@@ -1581,7 +1741,7 @@ PlottingData <- PlottingData %>%
 Plot4 <- ggplot(PlottingData, aes(x = sumA, y = (sumY/number))) +
 geom_point() +
 geom_smooth(method = "lm") +
-ggtitle("Expected Probability of HCC dependant on \n Whether a Visit Occured Each Year")  +
+ggtitle("Expected Probability of HCC Dependant on Whether a Visit Occured Each Year")  +
 xlab("Total Number of Years with Visits 2015-2018")+ 
 ylab("Expected Probability of HCC")
 
@@ -1597,19 +1757,61 @@ Ultimately, implementing \textit{ltmle} on our observed data produced the follow
 
 ```{r interpretation rounding, include = FALSE, eval = TRUE}
 tmlebeta <- estimates_O[3]*-100
-
+gcompbeta <- estimates_O[1]*-100
 ```
+-->
 
+# 6. Estimation
 
-Implementing \textit{ltmle} on our observed data produced the following estimates for the $\beta$ on $\bar{A}(t) = \bar{a}(t)$ where $a \in \{0,1+\}$ hepatology or primary care visits in each timepoint (i.e. per year) - a binary outcome at each A(t):
+\vspace{5pt}
 
-| G-Comp | IPTW | TMLE |
-| ------ | ------ | ------ |
-| `r round(estimates_O[1], 3)` | `r round(estimates_O[2], 3)` | `r round(estimates_O[3], 3)` |
+## b. Observed data
 
-If we use the TMLE estimate, this means that over the five years under study, patients are `r round(tmlebeta, 1)`% less likely to develop HCC each year that they had at least one primary care or hepatology visit, compared to patients who had no primary care of hepatology visits that year, adjusting for liver cirrhosis.
+\vspace{5pt}
+
+Implementing \textit{ltmle} on our observed data produced the following estimates for $\beta_1$ on $\bar{A}(t) = \bar{a}(t)$ where $a \in \{0-1,2+\}$ hepatology or primary care visits in each timepoint (i.e. per year):
 
 \vspace{8pt}
+
+\LARGE
+
+| G-Comp | IPTW | TMLE |
+| --------- | --------- | --------- |
+| `r round(estimates_O[1], 3)` | `r round(estimates_O[2], 3)` | `r round(estimates_O[3], 3)` |
+
+\normalsize
+
+
+# 6. Estimation
+
+## b. Observed data
+
+\vspace{10pt}
+
+The linearity of our finding was encouraging:
+
+\vspace{6pt}
+
+```{r Plot of linearity in observed data,  include = TRUE, echo = FALSE, fig.height = 5}
+Plot4
+```
+
+#
+\begin{center} \usebeamerfont*{frametitle} \usebeamercolor[fg]{frametitle} 7. Interpret Results \end{center}
+
+# 7. Interpret Results
+
+Using the G-Comp estimator, which had the lowest MSE:
+
+\vspace{8pt}
+
+**Over the five years under study, patients are `r round(gcompbeta, 1)`% less likely to develop HCC each year that they had at least two primary care or hepatology visits, compared to patients who had one or fewer primary care of hepatology visits that year, adjusting for liver cirrhosis.**
+
+\vspace{8pt}
+
+Current AASLD guidelines recommend liver monitoring every 6 months for **patients with cirrhosis** but these findings indicate such screening may be worthwhile for **all** patients with chronic HCV.
+
+<!--
 
 ## e. "None of the options are good", and other life lessons from Causal
 
@@ -1650,3 +1852,4 @@ Khan MQ, Anand V, Hessefort N, Hassan A, Ahsan A, Sonnenberg A, Fimmel CJ. Utili
 Omland LH, Krarup H, Jepsen P, Georgsen J, Harritsh?j LH, Riisom K, Jacobsen SE, Schouenborg P, Christensen PB, S?rensen HT, Obel N, DANVIR Cohort Study. Mortality in patients with chronic and cleared hepatitis C viral infection: a nationwide cohort study. J Hepatol. 2010 Jul; 53(1):36-42.
 
 Sterling, R. K., Lissen, E. , Clumeck, N. , Sola, R. , Correa, M. C., Montaner, J. , S. Sulkowski, M. , Torriani, F. J., Dieterich, D. T., Thomas, D. L., Messinger, D. and Nelson, M. (2006), Development of a simple noninvasive index to predict significant fibrosis in patients with HIV/HCV coinfection. Hepatology, 43: 1317-1325. doi:10.1002/hep.21178
+-->
