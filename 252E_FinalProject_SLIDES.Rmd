@@ -962,7 +962,7 @@ PlottingData <- PlottingData %>%
 Plot2 <- ggplot(PlottingData, aes(x = sum_abar, y = (sumY/number))) +
 geom_point() +
 geom_smooth(method = "lm") +
-ggtitle("Expected Probability of HCC Dependant on Number of Visits in Simulated Data")  +
+ggtitle("Expected Probability of HCC Dependent on Number of Visits in Simulated Data")  +
 xlab("Total Number of Years with Visits 2015-2018")+ 
 ylab("Expected Probability of HCC")
 
@@ -1294,7 +1294,7 @@ for(i in 1:n2){
 }
 
 #initialize and define summary measures
-summary.measures = array(dim=c(n2,1,1))
+summary.measures = array(dim=c(n2,1,1))  
 dimnames(summary.measures)[[2]]=list("sumA")
 summary.measures[,,1]=as.matrix(sumA)
 
@@ -1381,8 +1381,8 @@ Ultimately, implementing \textit{ltmle} on our observed data produced the follow
 | `r round(estimates_O[1], 3)` | `r round(estimates_O[2], 3)` | `r round(estimates_O[3], 3)` |
 
 ```{r interpretation rounding, include = FALSE, eval = TRUE}
-tmlebeta <- estimates_O[3]*-100
-gcompbeta <- estimates_O[1]*-100
+tmlebeta <- exp(estimates_O[3])*-100
+gcompbeta <- exp(estimates_O[1])*-100
 ```
 -->
 
@@ -1426,11 +1426,11 @@ Plot4
 
 # 7. Interpret Results
 
-Using the G-Comp estimator, which had the lowest MSE:
+Using the G-Comp estimator, which had the lowest MSE, once our estimate was exponentiated we have the following finding:
 
 \vspace{8pt}
 
-**Over the five years under study, patients are `r round(gcompbeta, 1)`% less likely to develop HCC each year that they had at least two primary care or hepatology visits, compared to patients who had one or fewer primary care of hepatology visits that year, adjusting for liver cirrhosis.**
+**Over the five years under study, patients are `r round(gcompbeta, 1)`% less likely to have developed HCC by the end of the 5 years, for each additional year that they had at least two primary care or hepatology visits.**
 
 \vspace{8pt}
 
