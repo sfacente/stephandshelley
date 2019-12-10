@@ -314,7 +314,7 @@ clinic between 2015 and 2019
 
 \vspace{6pt}  
 
-**Covariates**: FIB-4 score, years since FIB-4 score last measured, sex (Male, Female), race (Black, Latinx, White, Other), insurance type (Medi-Cal, Medicare, Private) as a surrogate of SES.
+**Covariates**: FIB-4 score, years since FIB-4 score last measured, sex (Male, Female), race (Black, Latinx, White, Other), insurance type (Medi-Cal vs Private/Medicare) as a surrogate of SES.
 <!-- FIB-4 is a validated measure used for prediction of cirrhosis (Khan et al 2017), which uses age, platelet count and liver transaminases-->
 
 # 1. Specify Causal Model
@@ -1378,8 +1378,8 @@ Ultimately, implementing \textit{ltmle} on our observed data produced the follow
 | `r round(estimates_O[1], 3)` | `r round(estimates_O[2], 3)` | `r round(estimates_O[3], 3)` |
 
 ```{r interpretation rounding, include = FALSE, eval = TRUE}
-tmlebeta <- exp(estimates_O[3])*-100
-gcompbeta <- exp(estimates_O[1])*-100
+tmlebeta <- exp(estimates_O[3])*100
+gcompbeta <- (1-exp(estimates_O[1]))*100
 ```
 -->
 
@@ -1430,8 +1430,9 @@ Using the G-Comp estimator, which had the lowest MSE, once our estimate was expo
 **Over the five years under study, patients are `r round(gcompbeta, 1)`% less likely to have developed HCC by the end of the 5 years, for each additional year that they had at least two primary care or hepatology visits.**
 
 \vspace{8pt}
-
+<!--
 Current AASLD guidelines recommend liver monitoring every 6 months for **patients with cirrhosis** but these findings indicate such screening may be worthwhile for **all** patients with chronic HCV.
+-->
 
 <!--
 
