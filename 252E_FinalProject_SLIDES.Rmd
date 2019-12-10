@@ -306,15 +306,15 @@ clinic between 2015 and 2019
 
 \vspace{6pt}  
 
-**Exposure**: $A(t), \  t = 1,2,...,4$: The annual number of clinical visits that each chronic HCV patient had in the UCSF system annually from 2015 through 2018.
+**Exposure**: $A(t), \  t = 1,2,...,4$: A binary variable indicating whether or not the patient had at least two clinical visits at UCSF that year, from 2015 through 2018.*
 
 \vspace{6pt}  
 
-**Outcome**: $Y(K)$: Diagnosis of HCC by the final year (2019), which occured in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. 
+**Outcome**: $Y(K)$: Diagnosis of HCC by the final year (2019), which occurred in `r nrow(HCVData)- as.numeric(summary(HCVData$Cancer.Diagnosis.Source)["NA's"])` patients. 
 
 \vspace{6pt}  
 
-**Covariates**: FIB-4 score, years since FIB-4 score last measured, sex (Male, Female), race (Black, Latinx, Other), insurance type (Medi-Cal, Medicare, private) as a surrogate of SES.
+**Covariates**: FIB-4 score, years since FIB-4 score last measured, sex (Male, Female), race (Black, Latinx, White, Other), insurance type (Medi-Cal, Medicare, Private) as a surrogate of SES.
 <!-- FIB-4 is a validated measure used for prediction of cirrhosis (Khan et al 2017), which uses age, platelet count and liver transaminases-->
 
 # 1. Specify Causal Model
@@ -371,14 +371,14 @@ We are also operating with one key exclusion restriction:
 
 \vspace{10pt}
 
-Once someone develops the outcome [$Y(t) = 1$], we set their $A(t+1...K)$ and $L(t+1,...,K)$ to \textit{\textcolor{orange}{NA}} for the remainder of the analysis, and set $C(K) = 1$ for that subject. 
+Once someone develops the outcome [$Y(t) = 1$], we set their $A(t+1...K)$ and $L(t+1,...,K)$ to \textit{\textcolor{orange}{NA}} for the remainder of the analysis, and set $C(K) = 0$ for that subject. 
 
 #
 \begin{center} \usebeamerfont*{frametitle} \usebeamercolor[fg]{frametitle} 2. Specify Causal Question \end{center}
 
 # 2. Specify Causal Question
 
-**How does frequency of primary care and hepatology visits at UCSF affect the likelihood of developing hepatocellular carcinoma (HCC) by the end of the follow up period among patients diagnosed with chronic hepatitis C (HCV), who were HCC-free at the beginning of the follow up interval?**
+**How do the number of years with at least 2 primary care and/or hepatology visits at UCSF affect the likelihood of developing hepatocellular carcinoma (HCC) by the end of the follow up period among patients diagnosed with chronic hepatitis C (HCV), who were HCC-free at the beginning of the follow up interval?**
 
 <!--
 **What is the ideal experiment that would answer your Causal Question?**
@@ -402,11 +402,11 @@ Our counterfactual outcomes are the prevalence of HCC by the end of study follow
   
 # 2. Specify Causal Question
 
-We are interested in contrasting the counterfactual outcome from various numbers of primary care and/or hepatology visits with the counterfactual outcome from fewer visits, to see if there is some sort of exposure-response relationship.
+We are interested in contrasting the counterfactual outcome from various numbers of years with 2+ primary care and/or hepatology visits with the counterfactual outcome from fewer years with 2+ visits, to see if there is some sort of exposure-response relationship.
 
 \vspace{8pt}
 
-To do this, we will use a MSM that helps us understand the relationship between frequency of primary care or hepatology visits and risk of HCC diagnosis, conditional on FIB-4 score (as a proxy for liver cirrhosis) and a variety of other demographics.
+To do this, we will use a MSM that helps us understand the relationship between number of years of 2+ primary care or hepatology visits and risk of HCC diagnosis, accounting for time-varying FIB-4 score (as a proxy for liver cirrhosis) and a variety of other baseline demographics.
 
 <!--
 **How would you intervene on the SCM you came up with to evaluate the causal target parameter?**
@@ -636,11 +636,11 @@ end <- esum/nrow(HCVData)*100
 FIB-4 scores were available from 2009 onward.
 
 <!--* `r round(start, 1)`% of participants had FIB-4 scores at the start of the study.-->
-* __82.8%__ of participants had FIB-4 scores at the start of the study.
-* For the rest of the participants, we used multiple imputation to impute a 2015 FIB-4 score.
-* Updated $L(t)$ every year the requisite labs were measured.
-<!--* `r round(end, 1)`% of participants had a measured FIB-4 score rather than an imputed value at the end of the study.-->
-* __95.5%__ of participants had a measured FIB-4 score rather than an imputed value at the end of the study.
+* __82.8%__ of participants had FIB-4 scores by 2015.
+* Simple imputation for FIB-4 score for anyone still missing it at 2015 (median).
+* Updated $L(t)$ every year the requisite labs were measured after 2015.
+<!--* `r round(end, 1)`% of participants had a measured FIB-4 score at the end of the study (2019).-->
+* __95.5%__ of participants had a measured FIB-4 score at the end of the study (2019).
 
 \vspace{8pt}
 
@@ -696,15 +696,12 @@ Our target causal parameter is identified as a function of the observed data dis
 
 # 5. Commit to an Estimand and Statistical Model
 
-Our statistical estimand is: $$\Psi(P_0) = m(\bar{a}|\beta) = E[Y_{\bar{a}}] = \beta_0 + \beta_1 \sum_{t=1}^8a(t)$$
+Our statistical estimand is: $$\Psi(P_0) = m(\bar{a}|\beta) = E[Y_{\bar{a}}] = \beta_0 + \beta_1 \sum_{t=1}^5a(t)$$
 
 \vspace{8pt}
 
 Our statistical model is an MSM:
-\begin{align*}
-\Psi^F(P_{U,X}) &= E(Y_{\bar{a}, C(K)=0}) = m(\bar{a} | \beta, V) \\
-&= \beta_0 \ + \ \beta_1 \sum\limits_{t = 1}^Ka(t) + \beta_2V\\
-\end{align*}
+$$\Psi^F(P_{U,X}) = E(Y_{\bar{a}, C(K)=0}) = m(\bar{a} | \beta) = \beta_0 \ + \ \beta_1 \sum\limits_{t = 1}^Ka(t)$$
 
 #
 \begin{center} \usebeamerfont*{frametitle} \usebeamercolor[fg]{frametitle} 6. Estimation \end{center}
@@ -737,7 +734,7 @@ Exogenous variables:
 
 Endogenous variables:
   
-* $W$ = a nominal categorical variable for the 16 possible different combinations of sex, gender, and SES. 
+* $W$ = a nominal categorical variable for the 16 possible different combinations of sex, race, and SES. 
 <!--* $L(1)$ = underlying $U_{L(1)}$ gamma distribution.--> 
 * $L(t)$ = FIB-4 score from the prior year ($L(t-1)$) + 10% of the value generated by underlying gamma distribution for $U_{L(t)}$ <!--i.e. we expect FIB-4 score to increase slightly each year as people's liver disease slowly progresses.-->
 * $A(t)$ = underlying negative binomial distribution for $U_{A(t)}$ plus FIB-4 score (more visits for higher FIB-4<!--, indicating worsening cirrhosis-->). **Dichotomitized into $A(t)=0$ if visits are 0-1 or $A(t)=1$ if visits are 2+.** 
