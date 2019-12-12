@@ -1160,7 +1160,8 @@ PlottingData <- PlottingData %>%
 
 Plot2 <- ggplot(PlottingData, aes(x = sum_abar, y = (sumY/number))) +
 geom_point() +
-geom_smooth(method = "lm") +
+geom_smooth(method = "glm", 
+    method.args = list(family = "binomial"))  +
 ggtitle("Expected Probability of HCC \n dependant on number of visits \n In Simulated Data")  +
 xlab("Total Number of Years with Visits 2015-2018")+ 
 ylab("Expected Probability of HCC")
@@ -1170,7 +1171,7 @@ Plot2
 
 
 #Regressing to get beta value
-TrueParameterRegression <-lm(EY_abar ~ sum_abar)
+TrueParameterRegression <-glm(EY_abar ~ sum_abar, family= binomial)
 summary(TrueParameterRegression)
 
 #PsiF
