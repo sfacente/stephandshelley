@@ -870,7 +870,7 @@ unkinsp <- unkins/n*100
 
 * \textbf{Race}. This is a categorical variable, which we have recategorized into White, Black/African American, Latinx, and Other for ease of analysis.
 
-* \textbf{SES}. We are using insurance type (Medi-Cal, Medicare or commercial/private) as a marker of SES status, which is again a categorical variable.
+* \textbf{SES}. We are using insurance type (Medi-Cal, or not Medi-Cal) as a marker of SES status, which is again a categorical variable.
 
 The table below displays the demographic breakdown of the sample.
 
