@@ -359,8 +359,8 @@ StephandShelleyDataLoad2 <- function(filename)
 ```
 
 ```{r filter_to_adults_with_visits_and_no_Ca_at_start_historical_FIB4s, include = FALSE, eval = TRUE}
-load("HCVData.Rdata")
-
+load("HCVData.Rdata") 
+ 
 # #calculating a total fib4, NOT  because it's meaningful but to be ableto see how many had NO FIB4
 # #commenting out for now bc just used this to explore
 # HCVData$totalFIB4 <-rowSums(cbind(HCVData$FIB4_2009,
@@ -473,7 +473,7 @@ HCVData <-  HCVData %>% mutate(FIB4_by2015 = FIB4_2015, YearsSinceFib4_2015 = 0)
 HCVData <-  HCVData %>% mutate(FIB4_by2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, FIB4_by2015),
                                YearsSinceFib4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", YearsSinceFib4_2014 + 1, 0))
 
-
+ 
 #Imputing as the median value for those without a FIB4 by 2015
 HCVData <-  HCVData %>% mutate(YearsSinceFib4_2015 = ifelse(is.na(FIB4_by2015)== "TRUE", 0, YearsSinceFib4_2015),
                                ImputedFIB4_2015 = ifelse(is.na(FIB4_by2015)== "TRUE", 1, 0),
@@ -567,10 +567,28 @@ HCVData_inclcirr<- HCVData %>% filter(TotalVisits != 0) %>%
                       filter(AGE_2011 >18) %>%
                       filter(HCC_2015 == 0) %>%
                       filter(InSystemBy2015 ==1)
-
+ 
 #Filtering to those with no cirrhosis at baseline
 HCVData <- HCVData_inclcirr %>% filter(FIB4_by2015 < 3.25)
 
+#Changing abdominal imaging variables to be zero if it's NA
+HCVData$ABD_IMAGING_2015[is.na(HCVData$ABD_IMAGING_2015)] <-0
+HCVData$ABD_IMAGING_2016[is.na(HCVData$ABD_IMAGING_2016)] <-0
+HCVData$ABD_IMAGING_2017[is.na(HCVData$ABD_IMAGING_2017)] <-0
+HCVData$ABD_IMAGING_2018[is.na(HCVData$ABD_IMAGING_2018)] <-0
+
+#Making Abd imaging variables that are yes/no to whether someone had imaging that year
+HCVData$ABD_IMAGING_YN_2015[HCVData$ABD_IMAGING_2015 == 0] <- 0
+HCVData$ABD_IMAGING_YN_2015[HCVData$ABD_IMAGING_2015 > 0] <- 1
+
+HCVData$ABD_IMAGING_YN_2016[HCVData$ABD_IMAGING_2016 == 0] <- 0
+HCVData$ABD_IMAGING_YN_2016[HCVData$ABD_IMAGING_2016 > 0] <- 1
+
+HCVData$ABD_IMAGING_YN_2017[HCVData$ABD_IMAGING_2017 == 0] <- 0
+HCVData$ABD_IMAGING_YN_2017[HCVData$ABD_IMAGING_2017 > 0] <- 1
+
+HCVData$ABD_IMAGING_YN_2018[HCVData$ABD_IMAGING_2018 == 0] <- 0
+HCVData$ABD_IMAGING_YN_2018[HCVData$ABD_IMAGING_2018 > 0] <- 1
 
 #These were just to explore the data once we filtered out those with cirrhosis at baseline
 # table(HCVData_inclcirr$HCC_2019)
@@ -642,69 +660,217 @@ The table below displays the demographic breakdown of the sample.
 From here on we're using code from prior labs, for data structure 3 (the survival structure)
 Data Structure 3: $O = (L(1), A(1), Y(2), L(2), A(2), Y(3))$
 
-Here, $Y(t)$ is an indicator variable describing whether or not the student has become ill by time $t$; as such, it deterministically jumps to 1 and remains there once an individual has become ill. This is an example of a ``survival" or ``time to event" data structure.  For outcomes such as this, once the event of interest has occurred, by definition, no future interventions can change it. We could thus truncate the observed data for an individual at the point that the event occurs (this is often done when defining survival data structures). However, in the longitudinal causal inference literature, for notational convenience, we often instead define the values of observed variables as something deterministic (such as last observed value) after the event occurs. This allows us to write down a data structure that extends through time $K+1$ for all individuals (instead of a data structure where the number of time points varies by individual).
+Here, $Y(t)$ is an indicator variable describing whether or not the patient has been diagnosed with HCC by time $t$; as such, it deterministically jumps to 1 and remains there once an individual has become ill. 
+
+```{r Simulation Prep}
+
+#First just exploring our data distrubutions so our sims can match
+#Because A is the number imaging occurences in a year, A1 is imaging in 2015, A2 is in 2016...
+summary(HCVData$ABD_IMAGING_YN_2015)
+summary(HCVData$ABD_IMAGING_YN_2016)
+summary(HCVData$ABD_IMAGING_YN_2017)
+summary(HCVData$ABD_IMAGING_YN_2018)
+
+#Because L_a is visit count, L_a1 is visits in 2015,...
+summary(HCVData$VISIT_COUNT_2015)
+summary(HCVData$VISIT_COUNT_2016)
+summary(HCVData$VISIT_COUNT_2017)
+summary(HCVData$VISIT_COUNT_2018)
+
+#Because L_b is fib4 score, L_b1 is visits in 2015,...
+summary(HCVData$FIB4_by2015)
+summary(HCVData$FIB4_by2016)
+summary(HCVData$FIB4_by2017)
+summary(HCVData$FIB4_by2018)
+
+#Because Y is HCC occurence, Y2 is HCV diagnoses in 2016...
+summary(HCVData$HCC_2016)
+summary(HCVData$HCC_2017)
+summary(HCVData$HCC_2018)
+summary(HCVData$HCC_2019)
+
+
+
+
+
+#So that our w's will represent the distributions in the population
+
+racep1 = race[1]/nrow(HCVData)
+racep2 = race[2]/nrow(HCVData)
+racep4 = race[4]/nrow(HCVData)
+racep3 = (race[3]+ race[5])/nrow(HCVData)
+sexp1 = sex[1]/nrow(HCVData)
+sexp2 = sex[2]/nrow(HCVData)
+SESp1 = SES[1]/nrow(HCVData)
+SESp2 = SES[2]/nrow(HCVData)
+
+w1 = racep1 * sexp1 * SESp1
+w2 = racep1 * sexp1 * SESp2
+w3 = racep1 * sexp2 * SESp1
+w4 = racep1 * sexp2 * SESp1
+
+w5 = racep2 * sexp1 * SESp1
+w6 = racep2 * sexp1 * SESp2
+w7 = racep2 * sexp2 * SESp1
+w8 = racep2 * sexp2 * SESp2
+
+w9 = racep3 * sexp1 * SESp1
+w10 = racep3 * sexp1 * SESp2
+w11 = racep3 * sexp2 * SESp1
+w12 = racep3 * sexp2 * SESp2
+
+w13 = racep4 * sexp1 * SESp1
+w14 = racep4 * sexp1 * SESp2
+w15 = racep4 * sexp2 * SESp1
+w16 = racep4 * sexp2 * SESp2
+```
+
 
 ```{r Data Structure 3 Simulation From R Lab 1}
 #2. write function to generate O = (L(1), A(1), Y(2), ...Y(3))
-generate_data3  <- function(n) {
-  U <- data.frame(UL1 = rnorm(n=n, mean=0, sd = 1), 
-                  UL2 = rnorm(n=n, mean=0, sd = 1), 
-                  UA1 = runif(n = n, min = 0, max = 1),
-                  UA2 = runif(n = n, min = 0, max = 1),
-                  UY2 = runif(n=n, min=0, max = 1),
-                  UY3 = runif(n=n, min=0, max = 1))
+generate_data  <- function(n) {
+  U <- data.frame(UW = runif(n = n, min = 0, max = 1),
+                  ULa1 = rnbinom(n=n, size = 4, prob = 0.6), 
+                  ULa2 = rnbinom(n=n, size = 4, prob = 0.6), 
+                  ULa3 = rnbinom(n=n, size = 4, prob = 0.6), 
+                  ULa4 = rnbinom(n=n, size = 4, prob = 0.6), 
+                  ULa5 = rnbinom(n=n, size = 4, prob = 0.6),  
+                  ULb1 = rgamma(n = n, shape = 2, scale = 1), 
+                  ULb2 = rgamma(n = n, shape = 2, scale = 1), 
+                  ULb3 = rgamma(n = n, shape = 2, scale = 1), 
+                  ULb4 = rgamma(n = n, shape = 2, scale = 1), 
+                  ULb5 = rgamma(n = n, shape = 2, scale = 1), 
+                  UA1 = runif(n=n, min = 0, max = 1),
+                  UA2 = runif(n=n, min = 0, max = 1),
+                  UA3 = runif(n=n, min = 0, max = 1),
+                  UA4 = runif(n=n, min = 0, max = 1),
+                  UA5 = runif(n=n, min = 0, max = 1),
+                  UY2 = runif(n=n, min = 0, max = 1),
+                  UY3 = runif(n=n, min = 0, max = 1),
+                  UY4 = runif(n=n, min = 0, max = 1),
+                  UY5 = runif(n=n, min = 0, max = 1))
   
   O <- U
   O <- O %>% 
-    mutate(L1 = UL1,
-           A1 = as.numeric(UA1 < plogis(0.001*L1)),
-           Y2 = as.numeric(UY2 < plogis(L1-2*A1-6)),
-           L2 = ifelse(Y2==0,A1+L1+UL2, NA),
-           A2 = ifelse(Y2==0, as.numeric(UA2 < plogis(0.001*(L1+A1+L2))),NA),
-           Y3 = ifelse(Y2==0, as.numeric(UY3 < plogis(L1-2*A1+L2-A2)),NA))
+    mutate(W = ifelse(UW < w1, 1,
+                      ifelse(UW<(w1+w2), 2,
+                             ifelse(UW<(w1+w2+w3), 3, 
+                                    ifelse(UW<(w1+w2+w3+w4),4,
+                                           ifelse(UW<(w1+w2+w3+w4+w5), 5,
+                                                  ifelse(UW<(w1+w2+w3+w4+w5+w6), 6, 
+                                                         ifelse(UW<(w1+w2+w3+w4+w5+w6+w7), 7, 
+                        ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8), 8, 
+                               ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9), 9,
+                                      ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9+w10), 10,
+                                             ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9+w10+w11), 11,
+                        ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9+w10+w11+w12), 12,
+                                ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9+w10+w11+w12+w13), 13,
+                        ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9+w10+w11+w12+w13+w14), 14,
+                                ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9+w10+w11+w12+w13+w14+w15), 15, 16))))))))))))))),
+           La1 = ULa1,
+           Lb1 = ULb1,
+           A1 = as.numeric(UA1 < 0.33* plogis(La1 + Lb1)),
+           Y2 = as.numeric(UY2 < 0.04*plogis(Lb1 - La1 - A1)),
+           
+           La2 = ifelse(Y2==0, La1 + 0.1*ULa2, NA),
+           Lb2 = ifelse(Y2==0, as.integer(Lb1 + 0.1*ULb2), NA),
+           A2  = ifelse(Y2==0, as.numeric(UA2 < 0.33* plogis((La2 + Lb2 + A1))),NA),
+           Y3  = ifelse(Y2==0, as.numeric(UY3 < 0.04*plogis(Lb2 - La2 - A2)),NA),
+           
+           La3 = ifelse(Y3==0, La2 + 0.1*ULa3, NA),
+           Lb3 = ifelse(Y3==0, as.integer(Lb2 + 0.1*ULb3), NA),
+           A3  = ifelse(Y3==0, as.numeric(UA3 < 0.33* plogis((La3 + Lb3 + A2))),NA),
+           Y4  = ifelse(Y3==0, as.numeric(UY4 < 0.04*plogis(Lb3 - La3 - A3)),NA),
+           
+           La4 = ifelse(Y4==0, La3 + 0.1*ULa4, NA),
+           Lb4 = ifelse(Y4==0, as.integer(Lb3 + 0.1*ULb4), NA),
+           A4  = ifelse(Y4==0, as.numeric(UA4 < 0.33* plogis((La4 + Lb4 + A3))),NA),
+           Y5  = ifelse(Y4==0, as.numeric(UY5 < 0.04*plogis(Lb4 - La4 - A4)),NA)
+           )
   return(O)
 }
+
+#These are just to explore the simulation to make sure it's tuned
+#SimData <- generate_data(1000)
+#skimr::skim(SimData)
 ```
 
- Causal Question: How would the counterfactual probability of becoming sick differ by the time of the test under an intervention to get 8 or more hours of sleep for 2 nights before a statistics test versus an intervention to get less than 8 hours of sleep for 2 nights before a statistics test?
+ Causal Question: How would the counterfactual probability of getting HCC differ by the end of the 5 year follow up under an intervention to get at least once a year every year for four years?
  
  The target causal parameter is 
 
-$\psi^F (\mathcal{P}_{U,X}) = E_{U,X}(Y_{\bar{a}=1(3)}-Y_{\bar{a}=0(3)})$ 
+$\psi^F (\mathcal{P}_{U,X}) = E_{U,X}(Y_{\bar{a}=1(5)}-Y_{\bar{a}=0(5)})$ 
 
-the average treatment effect, assuming that all students had the intervention both nights prior to the exam ($Y_{\bar{a}=1}$) and the outcomes if all students did NOT have the intervention at any time point ($Y_{\bar{a}=0}$). This looks at having had the outcome up until time 3, based on the Y(3) notation.
+the average treatment effect, assuming that all patients had the intervention (imaging) every year ($Y_{\bar{a}=1}$) and the outcomes if all patients did NOT have the intervention at any time point ($Y_{\bar{a}=0}$). This looks at having had the outcome up until time 5, based on the Y(5) notation.
 
-```{r Intervene on Data Structure 3 from R lab 2}
+```{r Intervene on Our Data structure}
 # 3.3 - intervene on SCM/data generating function
-generate_data3_intervene  <- function(n, a) {
-  U <- data.frame(UL1 = rnorm(n=n, mean=0, sd = 1), 
-                  UL2 = rnorm(n=n, mean=0, sd = 1), 
-                 # UA1 = runif(n = n, min = 0, max = 1),
-                 # UA2 = runif(n = n, min = 0, max = 1),
-                  UY2 = runif(n=n, min=0, max = 1),
-                  UY3 = runif(n=n, min=0, max = 1))
-  
+generate_data_intervene  <- function(n, a) {
+  U <- data.frame(UW = runif(n = n, min = 0, max = 1),
+                  ULa1 = rnbinom(n=n, size = 4, prob = 0.6), 
+                  ULa2 = rnbinom(n=n, size = 4, prob = 0.6), 
+                  ULa3 = rnbinom(n=n, size = 4, prob = 0.6), 
+                  ULa4 = rnbinom(n=n, size = 4, prob = 0.6), 
+                  ULa5 = rnbinom(n=n, size = 4, prob = 0.6),  
+                  ULb1 = rgamma(n = n, shape = 2, scale = 1), 
+                  ULb2 = rgamma(n = n, shape = 2, scale = 1), 
+                  ULb3 = rgamma(n = n, shape = 2, scale = 1), 
+                  ULb4 = rgamma(n = n, shape = 2, scale = 1), 
+                  ULb5 = rgamma(n = n, shape = 2, scale = 1), 
+                  UY2 = runif(n=n, min = 0, max = 1),
+                  UY3 = runif(n=n, min = 0, max = 1),
+                  UY4 = runif(n=n, min = 0, max = 1),
+                  UY5 = runif(n=n, min = 0, max = 1))
+ 
   O <- U
-  O <- O %>% 
-    mutate(L1 = UL1,
+  O <- O %>%
+    
+ mutate(W = ifelse(UW < w1, 1,
+                      ifelse(UW<(w1+w2), 2,
+                             ifelse(UW<(w1+w2+w3), 3, 
+                                    ifelse(UW<(w1+w2+w3+w4),4,
+                                           ifelse(UW<(w1+w2+w3+w4+w5), 5,
+                                                  ifelse(UW<(w1+w2+w3+w4+w5+w6), 6, 
+                                                         ifelse(UW<(w1+w2+w3+w4+w5+w6+w7), 7, 
+                        ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8), 8, 
+                               ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9), 9,
+                                      ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9+w10), 10,
+                                             ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9+w10+w11), 11,
+                        ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9+w10+w11+w12), 12,
+                                ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9+w10+w11+w12+w13), 13,
+                        ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9+w10+w11+w12+w13+w14), 14,
+                                ifelse(UW<(w1+w2+w3+w4+w5+w6+w7+w8+w9+w10+w11+w12+w13+w14+w15), 15, 16))))))))))))))),
+           La1 = ULa1,
+           Lb1 = ULb1,
            A1 = a,
-           Y2 = as.numeric(UY2 < plogis(L1-2*A1-6)),
-           L2 = ifelse(Y2==0,A1+L1+UL2, NA),
-           A2 = a,
-           Y3 = ifelse(Y2==0, as.numeric(UY3 < plogis(L1-2*A1+L2-A2)),NA))
+           Y2 = as.numeric(UY2 < 0.04*plogis(Lb1 - La1 - A1)),
+           
+           La2 = ifelse(Y2==0, La1 + 0.1*ULa2, NA),
+           Lb2 = ifelse(Y2==0, as.integer(Lb1 + 0.1*ULb2), NA),
+           A2  = ifelse(Y2==0, a, NA),
+           Y3  = ifelse(Y2==0, as.numeric(UY3 < 0.04*plogis(Lb2 - La2 - A2)),NA),
+           
+           La3 = ifelse(Y3==0, La2 + 0.1*ULa3, NA),
+           Lb3 = ifelse(Y3==0, as.integer(Lb2 + 0.1*ULb3), NA),
+           A3  = ifelse(Y3==0, a, NA),
+           Y4  = ifelse(Y3==0, as.numeric(UY4 < 0.04*plogis(Lb3 - La3 - A3)),NA),
+           
+           La4 = ifelse(Y4==0, La3 + 0.1*ULa4, NA),
+           Lb4 = ifelse(Y4==0, as.integer(Lb3 + 0.1*ULb4), NA),
+           A4  = ifelse(Y4==0, a, NA),
+           Y5  = ifelse(Y4==0, as.numeric(UY5 < 0.04*plogis(Lb4 - La4 - A4)),NA)
+           )
   return(O)
 }
 
-ObsData3Intervene.0 <- generate_data3_intervene(100000, 0)
-ObsData3Intervene.0 <- ObsData3Intervene.0 %>% select(L1, A1, Y2, L2, A2, Y3)
+SimDataIntervene.0 <- generate_data_intervene(100000, 0)
 
-ObsData3Intervene.1 <- generate_data3_intervene(100000, 1)
-ObsData3Intervene.1 <- ObsData3Intervene.1 %>% select(L1, A1, Y2, L2, A2, Y3)
+SimDataIntervene.1 <- generate_data_intervene(100000, 1)
 
 
 # 3.4 - evaluate Psi.F
-Psi.F.3= mean(ObsData3Intervene.1$Y3-ObsData3Intervene.0$Y3, na.rm = TRUE)
-  Psi.F.3
+True.Psi.F= mean(SimDataIntervene.1$Y5-SimDataIntervene.0$Y5, na.rm = TRUE)
+True.Psi.F
 ```
 
 ```{r ltmle run on data structure 4 which is like 3 but with a censoring variable}
