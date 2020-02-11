@@ -887,8 +887,6 @@ results4 <- ltmle(ObsData4,
                      survivalOutcome = TRUE
 )
 
-
-
 results4.gcomp <- ltmle(ObsData4,
                      Anodes= c("A1", "A2"),
                      Lnodes = c("L1", "L2"),
