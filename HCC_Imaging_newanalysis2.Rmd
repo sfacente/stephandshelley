@@ -848,20 +848,21 @@ generate_data_intervene  <- function(n, a) {
            La2 = ifelse(Y2==0, La1 + 0.1*ULa2, NA),
            Lb2 = ifelse(Y2==0, as.integer(Lb1 + 0.1*ULb2), NA),
            A2  = ifelse(Y2==0, a, NA),
-           Y3  = ifelse(Y2==0, as.numeric(UY3 < 0.04*plogis(Lb2 - La2 - A2)),NA),
+           Y3  = ifelse(Y2==1, 1, ifelse(Y2==0, as.numeric(UY3 < 0.04*plogis(Lb2 - La2 - A2)),NA)),
            
            La3 = ifelse(Y3==0, La2 + 0.1*ULa3, NA),
            Lb3 = ifelse(Y3==0, as.integer(Lb2 + 0.1*ULb3), NA),
            A3  = ifelse(Y3==0, a, NA),
-           Y4  = ifelse(Y3==0, as.numeric(UY4 < 0.04*plogis(Lb3 - La3 - A3)),NA),
+           Y4  = ifelse(Y3==1, 1, ifelse(Y3==0, as.numeric(UY4 < 0.04*plogis(Lb3 - La3 - A3)),NA)),
            
            La4 = ifelse(Y4==0, La3 + 0.1*ULa4, NA),
            Lb4 = ifelse(Y4==0, as.integer(Lb3 + 0.1*ULb4), NA),
            A4  = ifelse(Y4==0, a, NA),
-           Y5  = ifelse(Y4==0, as.numeric(UY5 < 0.04*plogis(Lb4 - La4 - A4)),NA)
+           Y5  = ifelse(Y4==1, 1, ifelse(Y4==0, as.numeric(UY5 < 0.04*plogis(Lb4 - La4 - A4)),NA))
            )
   return(O)
 }
+##Updated above so that if Y(t-1)==1, Y(t)==1 armadillo
 
 SimDataIntervene.0 <- generate_data_intervene(100000, 0)
 
@@ -881,64 +882,50 @@ results_sim0 <- ltmle::ltmle(SimDataIntervene.0,
                      Anodes= c("A1", "A2", "A3", "A4"),
                      Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = 0,
+                     abar = c(0,0,0,0),
                      survivalOutcome = TRUE,
                      SL.library = SL.library 
 )
 
-results_sim0.gcomp <- ltmle(SimDataIntervene.0,
+results_sim0.gcomp <- ltmle::ltmle(SimDataIntervene.0,
                      Anodes= c("A1", "A2", "A3", "A4"),
                      Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = 0,
+                     abar = c(0,0,0,0),
                      survivalOutcome = TRUE,
                      gcomp = TRUE,
                      SL.library = SL.library 
 )
 
-# #estimate parameter using ltmleMSM function-
-# results2.MSM <- ltmle::ltmleMSM(df,
-#                      Anodes = c("A1", "A2", "A3", "A4"),
-#                      Lnodes = c("L1", "L2", "L3", "L4"),
-#                      Ynodes = c("Y2", "Y3", "Y4", "Y5"),
-#                      Cnodes = "C5",
-#                      working.msm = working.msm,
-#                      regimes = regimes,
-#                      summary.measures = summary.measures,
-#                      msm.weights = NULL,
-#                      survivalOutcome = TRUE)
-# 
-# sum.results2.MSM.tmle= summary(results2.MSM, "tmle")
-# sum.results2.MSM.tmle
-# 
-# sum.results2.MSM.iptw= summary(results2.MSM, "iptw")
-# sum.results2.MSM.iptw
-# 
-# results2.MSM.g <- ltmle::ltmleMSM(df,
-#                      Anodes = c("A1", "A2", "A3", "A4"),
-#                      Lnodes = c("L1", "L2", "L3", "L4"),
-#                      Ynodes = c("Y2", "Y3", "Y4", "Y5"),
-#                      Cnodes = "C5",
-#                      working.msm = working.msm,
-#                      regimes = regimes,
-#                      summary.measures = summary.measures,
-#                      msm.weights = NULL,
-#                      survivalOutcome = TRUE,
-#                      gcomp = TRUE)
-# 
-# sum.results2.MSM.g = summary(results2.MSM.g, "gcomp")
-# sum.results2.MSM.g
+results_sim1 <- ltmle::ltmle(SimDataIntervene.1,
+                     Anodes= c("A1", "A2", "A3", "A4"),
+                     Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
+                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
+                     abar = c(1,1,1,1),
+                     survivalOutcome = TRUE,
+                     SL.library = SL.library 
+)
 
+results_sim1.gcomp <- ltmle::ltmle(SimDataIntervene.1,
+                     Anodes= c("A1", "A2", "A3", "A4"),
+                     Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
+                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
+                     abar = c(1,1,1,1),
+                     survivalOutcome = TRUE,
+                     gcomp = TRUE,
+                     SL.library = SL.library 
+)
 
-sum4tmle_SL <- summary(results4, "tmle")
-sum4iptw_SL <- summary(results4, "iptw")
-sum4gcomp_SL <- summary(results4.gcomp, "gcomp")
-##only renamed above to make it clear they now use SL
+sim0tmle_SL <- summary(results_sim0, "tmle")
+sim1tmle_SL <- summary(results_sim1, "tmle")
+sim0iptw_SL <- summary(results_sim0, "iptw")
+sim1iptw_SL <- summary(results_sim1, "iptw")
+sim0gcomp_SL <- summary(results_sim0.gcomp, "gcomp")
+sim1gcomp_SL <- summary(results_sim1.gcomp, "gcomp")
 
-sum4tmle_SL$effect.measures$ATE$estimate
-sum4iptw_SL$effect.measures$ATE$estimate
-sum4gcomp_SL$effect.measures$ATE$estimate
-##ditto
+simtmle_ATE <- sim1tmle_SL$estimate - sim0tmle_SL$estimate; simtmle_ATE
+simiptw_ATE <- sim1iptw_SL$estimate - sim0iptw_SL$estimate; simiptw_ATE
+simgcomp_ATE <- sim1gcomp_SL$estimate - sim0gcomp_SL$estimate; simgcomp_ATE
 
 ```
 
