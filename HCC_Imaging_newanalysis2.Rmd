@@ -1,7 +1,7 @@
 ---
-title: "HCC_imaging_newanalysis"
+title: "Abdominal Imaging and HCC Risk"
 author: "Shelley \"the bomb\" Facente and Steph \"the badass\" Holm"
-date: "January 30, 2020"
+date: "February 12, 2020"
 output: pdf_document
 ---
 
@@ -44,7 +44,6 @@ StephandShelleyDataLoad2 <- function(filename)
 }
 
 ```
-
 
 ```{r Data_Cleaning, include = FALSE}
 
@@ -604,6 +603,8 @@ HCVData$ABD_IMAGING_YN_2018[HCVData$ABD_IMAGING_2018 > 0] <- 1
 # table(HCVData_imaging$HCC_2019)
 ```
 
+We have restricted our dataset to adult UCSF patients diagnosed with HCV who had no cirrhosis at baseline, and no HCC as of Dec 31, 2015. (n = 1560)
+
 ```{r demographics, include = FALSE, eval = TRUE}
 sex <- table(HCVData$Sex, useNA = "ifany")
 HCVData$race.ethnicity <- ifelse(HCVData$Race == "White or Caucasian" & HCVData$Ethnicity == "Not Hispanic or Latino", "W", ifelse(HCVData$Race == "Black or African American" & HCVData$Ethnicity == "Not Hispanic or Latino", "B", ifelse(HCVData$Ethnicity == "Hispanic or Latino", "L", ifelse(HCVData$Race == "Unknown" | HCVData$Race == "Declined" | HCVData$Race == "Unknown/Declined", NA, "O"))))
@@ -635,7 +636,7 @@ notmedicalp <- notmedical/n*100
 
 * \textbf{Race}. This is a categorical variable, which we have recategorized into White, Black/African American, Latinx, and Other for ease of analysis.
 
-* \textbf{SES}. We are using insurance type (Medi-Cal, or not Medi-Cal) as a marker of SES status, which is again a categorical variable.
+* \textbf{SES}. We are using insurance type (Medi-Cal, or not Medi-Cal) as a marker of SES status, which is again a dichotomous variable.
 
 The table below displays the demographic breakdown of the sample.
 
@@ -656,16 +657,15 @@ The table below displays the demographic breakdown of the sample.
 | TOTAL | | `r n` | 100% |
  
 
-
-From here on we're using code from prior labs, for data structure 3 (the survival structure)
-Data Structure 3: $O = (L(1), A(1), Y(2), L(2), A(2), Y(3))$
+<!-- From here on we're using code from prior labs, for data structure 3 (the survival structure) -->
+<!-- Data Structure 3: $O = (L(1), A(1), Y(2), L(2), A(2), Y(3))$ -->
 
 Here, $Y(t)$ is an indicator variable describing whether or not the patient has been diagnosed with HCC by time $t$; as such, it deterministically jumps to 1 and remains there once an individual has become ill. 
 
 ```{r Simulation Prep}
 
 #First just exploring our data distrubutions so our sims can match
-#Because A is the number imaging occurences in a year, A1 is imaging in 2015, A2 is in 2016...
+#Because A is the number imaging occurrences in a year, A1 is imaging in 2015, A2 is in 2016...
 summary(HCVData$ABD_IMAGING_YN_2015)
 summary(HCVData$ABD_IMAGING_YN_2016)
 summary(HCVData$ABD_IMAGING_YN_2017)
@@ -677,7 +677,7 @@ summary(HCVData$VISIT_COUNT_2016)
 summary(HCVData$VISIT_COUNT_2017)
 summary(HCVData$VISIT_COUNT_2018)
 
-#Because L_b is fib4 score, L_b1 is visits in 2015,...
+#Because L_b is fib4 score, L_b1 is FIB4 in 2015,...
 summary(HCVData$FIB4_by2015)
 summary(HCVData$FIB4_by2016)
 summary(HCVData$FIB4_by2017)
@@ -688,9 +688,6 @@ summary(HCVData$HCC_2016)
 summary(HCVData$HCC_2017)
 summary(HCVData$HCC_2018)
 summary(HCVData$HCC_2019)
-
-
-
 
 
 #So that our w's will represent the distributions in the population
@@ -726,7 +723,7 @@ w16 = racep4 * sexp2 * SESp2
 ```
 
 
-```{r Data Structure 3 Simulation From R Lab 1}
+```{r Data Structure 3 Simulation From R Lab 1, cache = TRUE}
 #2. write function to generate O = (L(1), A(1), Y(2), ...Y(3))
 generate_data  <- function(n) {
   U <- data.frame(UW = runif(n = n, min = 0, max = 1),
@@ -775,35 +772,32 @@ generate_data  <- function(n) {
            La2 = ifelse(Y2==0, La1 + 0.1*ULa2, NA),
            Lb2 = ifelse(Y2==0, as.integer(Lb1 + 0.1*ULb2), NA),
            A2  = ifelse(Y2==0, as.numeric(UA2 < 0.33* plogis((La2 + Lb2 + A1))),NA),
-           Y3  = ifelse(Y2==0, as.numeric(UY3 < 0.04*plogis(Lb2 - La2 - A2)),NA),
+           Y3  = ifelse(Y2==0, as.numeric(UY3 < 0.04*plogis(Lb2 - La2 - A2)),1),
            
            La3 = ifelse(Y3==0, La2 + 0.1*ULa3, NA),
            Lb3 = ifelse(Y3==0, as.integer(Lb2 + 0.1*ULb3), NA),
            A3  = ifelse(Y3==0, as.numeric(UA3 < 0.33* plogis((La3 + Lb3 + A2))),NA),
-           Y4  = ifelse(Y3==0, as.numeric(UY4 < 0.04*plogis(Lb3 - La3 - A3)),NA),
+           Y4  = ifelse(Y3==0, as.numeric(UY4 < 0.04*plogis(Lb3 - La3 - A3)),1),
            
            La4 = ifelse(Y4==0, La3 + 0.1*ULa4, NA),
            Lb4 = ifelse(Y4==0, as.integer(Lb3 + 0.1*ULb4), NA),
            A4  = ifelse(Y4==0, as.numeric(UA4 < 0.33* plogis((La4 + Lb4 + A3))),NA),
-           Y5  = ifelse(Y4==0, as.numeric(UY5 < 0.04*plogis(Lb4 - La4 - A4)),NA)
+           Y5  = ifelse(Y4==0, as.numeric(UY5 < 0.04*plogis(Lb4 - La4 - A4)),1)
            )
   return(O)
 }
 
-#These are just to explore the simulation to make sure it's tuned
-#SimData <- generate_data(1000)
+SimData <- generate_data(100000)
 #skimr::skim(SimData)
 ```
 
- Causal Question: How would the counterfactual probability of getting HCC differ by the end of the 5 year follow up under an intervention to get at least once a year every year for four years?
+Causal Question: How would the counterfactual probability of getting HCC differ by the end of the 5 year follow up under an intervention to get abdominal imaging at least once a year every year for four years?
  
- The target causal parameter is 
+The target causal parameter is $\psi^F (\mathcal{P}_{U,X}) = E_{U,X}(Y_{\bar{a}=1(5)}-Y_{\bar{a}=0(5)})$ 
 
-$\psi^F (\mathcal{P}_{U,X}) = E_{U,X}(Y_{\bar{a}=1(5)}-Y_{\bar{a}=0(5)})$ 
+the average treatment effect on HCC diagnosis in year 5 assuming that all patients had abdominal imaging every year for the 4 prior years ($Y_{\bar{a}=1}$), compared to HCC outcomes in year 5 if all patients did NOT have abdominal imaging at any time point during the preceding four years ($Y_{\bar{a}=0}$). 
 
-the average treatment effect, assuming that all patients had the intervention (imaging) every year ($Y_{\bar{a}=1}$) and the outcomes if all patients did NOT have the intervention at any time point ($Y_{\bar{a}=0}$). This looks at having had the outcome up until time 5, based on the Y(5) notation.
-
-```{r Intervene on Our Data structure}
+```{r Intervene on Our Data structure, cache = TRUE}
 # 3.3 - intervene on SCM/data generating function
 generate_data_intervene  <- function(n, a) {
   U <- data.frame(UW = runif(n = n, min = 0, max = 1),
@@ -848,21 +842,20 @@ generate_data_intervene  <- function(n, a) {
            La2 = ifelse(Y2==0, La1 + 0.1*ULa2, NA),
            Lb2 = ifelse(Y2==0, as.integer(Lb1 + 0.1*ULb2), NA),
            A2  = ifelse(Y2==0, a, NA),
-           Y3  = ifelse(Y2==1, 1, ifelse(Y2==0, as.numeric(UY3 < 0.04*plogis(Lb2 - La2 - A2)),NA)),
+           Y3  = ifelse(Y2==0, as.numeric(UY3 < 0.04*plogis(Lb2 - La2 - A2)),1),
            
            La3 = ifelse(Y3==0, La2 + 0.1*ULa3, NA),
            Lb3 = ifelse(Y3==0, as.integer(Lb2 + 0.1*ULb3), NA),
            A3  = ifelse(Y3==0, a, NA),
-           Y4  = ifelse(Y3==1, 1, ifelse(Y3==0, as.numeric(UY4 < 0.04*plogis(Lb3 - La3 - A3)),NA)),
+           Y4  = ifelse(Y3==0, as.numeric(UY4 < 0.04*plogis(Lb3 - La3 - A3)),1),
            
            La4 = ifelse(Y4==0, La3 + 0.1*ULa4, NA),
            Lb4 = ifelse(Y4==0, as.integer(Lb3 + 0.1*ULb4), NA),
            A4  = ifelse(Y4==0, a, NA),
-           Y5  = ifelse(Y4==1, 1, ifelse(Y4==0, as.numeric(UY5 < 0.04*plogis(Lb4 - La4 - A4)),NA))
+           Y5  = ifelse(Y4==0, as.numeric(UY5 < 0.04*plogis(Lb4 - La4 - A4)),1)
            )
   return(O)
 }
-##Updated above so that if Y(t-1)==1, Y(t)==1 armadillo
 
 SimDataIntervene.0 <- generate_data_intervene(100000, 0)
 
@@ -874,112 +867,284 @@ True.Psi.F= mean(SimDataIntervene.1$Y5-SimDataIntervene.0$Y5, na.rm = TRUE)
 True.Psi.F
 ```
 
-```{r ltmle run on our simulation with SuperLearner}
+```{r ltmle run on our simulation with SuperLearner, cache=TRUE}
 
-SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean") ##
+SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean") ## armadillo
 
-results_sim0 <- ltmle::ltmle(SimDataIntervene.0,
+results_sim <- ltmle::ltmle(SimData,
                      Anodes= c("A1", "A2", "A3", "A4"),
                      Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = c(0,0,0,0),
+                     abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
-                     SL.library = SL.library 
+                     SL.library = SL.library,
+                     attr(SL.library, "return.fit")
 )
 
-results_sim0.gcomp <- ltmle::ltmle(SimDataIntervene.0,
+results_sim.gcomp <- ltmle::ltmle(SimData,
                      Anodes= c("A1", "A2", "A3", "A4"),
                      Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = c(0,0,0,0),
-                     survivalOutcome = TRUE,
-                     gcomp = TRUE,
-                     SL.library = SL.library 
-)
-
-results_sim1 <- ltmle::ltmle(SimDataIntervene.1,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = c(1,1,1,1),
-                     survivalOutcome = TRUE,
-                     SL.library = SL.library 
-)
-
-results_sim1.gcomp <- ltmle::ltmle(SimDataIntervene.1,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = c(1,1,1,1),
+                     abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
                      gcomp = TRUE,
-                     SL.library = SL.library 
+                     SL.library = SL.library,
+                     attr(SL.library, "return.fit")
 )
 
-sim0tmle_SL <- summary(results_sim0, "tmle")
-sim1tmle_SL <- summary(results_sim1, "tmle")
-sim0iptw_SL <- summary(results_sim0, "iptw")
-sim1iptw_SL <- summary(results_sim1, "iptw")
-sim0gcomp_SL <- summary(results_sim0.gcomp, "gcomp")
-sim1gcomp_SL <- summary(results_sim1.gcomp, "gcomp")
+simtmle_SL <- summary(results_sim, "tmle")
+simiptw_SL <- summary(results_sim, "iptw")
+simgcomp_SL <- summary(results_sim.gcomp, "gcomp")
 
-simtmle_ATE <- sim1tmle_SL$estimate - sim0tmle_SL$estimate; simtmle_ATE
-simiptw_ATE <- sim1iptw_SL$estimate - sim0iptw_SL$estimate; simiptw_ATE
-simgcomp_ATE <- sim1gcomp_SL$estimate - sim0gcomp_SL$estimate; simgcomp_ATE
+simtmle_ATE <- simtmle_SL$effect.measures$ATE$estimate; simtmle_ATE
+simiptw_ATE <- simiptw_SL$effect.measures$ATE$estimate; simiptw_ATE
+simgcomp_ATE <- simgcomp_SL$effect.measures$ATE$estimate; simgcomp_ATE
+
+# performance of algorithms
+results_sim$fit
+results_sim.gcomp$fit
 
 ```
 
-```{r}
-Bias.g <- mean(estimates_Sim[,1]) - PsiF
-Variance.g <- var(estimates_Sim[,1])
-MSE.g <- mean((estimates_Sim[,1]- PsiF)^2)
+```{r Performance of estimators}
 
-Bias.iptw <- mean(estimates_Sim[,2]) - PsiF
-Variance.iptw <- var(estimates_Sim[,2])
-MSE.iptw <- mean((estimates_Sim[,2]- PsiF)^2)
+options(scipen = 999)
 
-Bias.tmle <- mean(estimates_Sim[,3]) - PsiF
-Variance.tmle <- var(estimates_Sim[,3])
-MSE.tmle <- mean((estimates_Sim[,3]- PsiF)^2)
+Bias.g <- simgcomp_ATE - True.Psi.F
+Variance.g <- (simgcomp_SL$effect.measures$ATE$std.dev)^2
+MSE.g <- Variance.g + Bias.g^2
+rVariance.g <- as.character(round(Variance.g, 5))
+rMSE.g <- as.character(round(MSE.g, 5))
+
+Bias.iptw <- simiptw_ATE - True.Psi.F
+Variance.iptw <- (simiptw_SL$effect.measures$ATE$std.dev)^2
+MSE.iptw <- Variance.iptw + Bias.iptw^2
+
+Bias.tmle <- simtmle_ATE - True.Psi.F
+Variance.tmle <- (simtmle_SL$effect.measures$ATE$std.dev)^2
+MSE.tmle <- Variance.tmle + Bias.tmle^2
+rVariance.tmle <- as.character(round(Variance.tmle, 5))
+rMSE.tmle <- as.character(round(MSE.tmle, 5))
+```
+
+When testing our estimators against a simulation of 100,000 patients roughly matching the variable distribution of our observed dataset, here is how they performed:
+
+|| G-Comp | IPTW | TMLE |
+|----------| ------ | ------ | ------ |
+| Bias | `r round(Bias.g, 5)` | `r round(Bias.iptw, 6)` | `r round(Bias.tmle, 5)` |
+| Variance | `r rVariance.g` | `r round(Variance.iptw, 6)` | `r rVariance.tmle` |
+| MSE | `r rMSE.g` | `r round(MSE.iptw, 6)` | `r rMSE.tmle` |
+
+
+```{r Reconfigure Dataset, warning = FALSE, message = FALSE, cache = TRUE}
+
+O <- as.data.frame(matrix(nrow=nrow(HCVData), NA))
+ 
+O$Y2 <- HCVData$HCC_2016
+O$Y3 <- HCVData$HCC_2017
+O$Y4 <- HCVData$HCC_2018
+O$Y5 <- HCVData$HCC_2019
+
+O$A1 <- HCVData$ABD_IMAGING_YN_2015
+O$A2 <- HCVData$ABD_IMAGING_YN_2016
+O$A3 <- HCVData$ABD_IMAGING_YN_2017
+O$A4 <- HCVData$ABD_IMAGING_YN_2018
+
+O$La1 <- ifelse(HCVData$VISIT_COUNT_2015>0,1,0)
+O$La2 <- ifelse(HCVData$VISIT_COUNT_2016>0,1,0)
+O$La3 <- ifelse(HCVData$VISIT_COUNT_2017>0,1,0)
+O$La4 <- ifelse(HCVData$VISIT_COUNT_2018>0,1,0)
+
+O$Lb1 <- HCVData$FIB4_by2015
+O$Lb2 <- HCVData$FIB4_by2016
+O$Lb3 <- HCVData$FIB4_by2017
+O$Lb4 <- HCVData$FIB4_by2018
+
+O$Lb1lm <- HCVData$YearsSinceFib4_2015
+O$Lb2lm <- HCVData$YearsSinceFib4_2016
+O$Lb3lm <- HCVData$YearsSinceFib4_2017
+O$Lb4lm <- HCVData$YearsSinceFib4_2018
+
+O$SES <- HCVData$PayorType
+O$Sex <- HCVData$Sex
+O$Race <- HCVData$race.ethnicity
+  
+#O$C5 <- ifelse(O$A5 == 0, 1, 0)  armadillo
+  
+#remove NAs for now, until we impute -- armadillo
+  O <- subset(O, !is.na(O$SES))
+  O <- subset(O, !is.na(O$Race))
+  
+  O <- O %>% dplyr::select(SES, Race, Sex, La1, Lb1, A1, 
+                           La2, Lb2, A2, Y2, 
+                           La3, Lb3, A3, Y3, 
+                           La4, Lb4, A4, Y4, 
+                           Y5)
+
 ```
 
 
-# Note add in superlearner once working
-# 
-# ```{r Superlearner}
-# #8 - Incorporating SuperLearner
-# SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean")
-# 
-# #Obtain estimates under A1 = 1 using TMLE and IPTW
-# EY1_ltmle_t_SL <- ltmle(data = ObsData, Anodes = Anodes, 
-#                         Lnodes = Lnodes, Ynodes = Ynodes, 
-#                         abar = 1, variance.method = "ic", 
-#                         SL.library = SL.library)
-# #Obtain estimates under A1 = 1 using G-comp and IPTW
-# EY1_ltmle_g_SL <- ltmle(data = ObsData, Anodes = Anodes, 
-#                         Lnodes = Lnodes, Ynodes = Ynodes, 
-#                         abar = 1, variance.method = "ic", 
-#                         gcomp = TRUE, SL.library = SL.library)
-# #Store the estimates
-# EY1_hat_tmle_SL <- EY1_ltmle_t_SL$estimates["tmle"]; EY1_hat_tmle_SL
-# EY1_hat_iptw_SL <- EY1_ltmle_t_SL$estimates["iptw"]; EY1_hat_iptw_SL
-# EY1_hat_gcomp_SL <- EY1_ltmle_g_SL$estimates["gcomp"]; EY1_hat_gcomp_SL
-# ```
-# 
-# # 9 Estimating additive treatment effect using ltmle() for g-computation, IPTW, and TMLE estimators 
-# 
-# ```{r Estimating additive treatment}
-# #Obtain estimates under A1 = 1 using TMLE and IPTW
-# EY1_ltmle_t_add <- ltmle(data = ObsData, Anodes = Anodes, 
-#                          Lnodes = Lnodes, Ynodes = Ynodes, 
-#                          abar = list(1,0), variance.method = "ic",
-#                          SL.library = SL.library)
-# #Obtain estimates under A1 = 1 using G-comp and IPTW
-# EY1_ltmle_g_add <- ltmle(data = ObsData, Anodes = Anodes, 
-#                          Lnodes = Lnodes, Ynodes = Ynodes, 
-#                          abar = list(1,0), variance.method = "ic",
-#                          gcomp = TRUE, SL.library = SL.library)
-# #Print the summary
-# summary(EY1_ltmle_t_add, "tmle")
-# summary(EY1_ltmle_t_add, "iptw")
-# summary(EY1_ltmle_g_add, "gcomp")
+```{r ltmle run on our DATA with SuperLearner, cache=TRUE}
+
+results <- ltmle::ltmle(O,
+                     Anodes= c("A1", "A2", "A3", "A4"),
+                     Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
+                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
+                     abar = list(c(1,1,1,1), c(0,0,0,0)),
+                     survivalOutcome = TRUE,
+                     SL.library = SL.library,
+                     attr(SL.library, "return.fit")
+)
+
+results.gcomp <- ltmle::ltmle(O,
+                     Anodes= c("A1", "A2", "A3", "A4"),
+                     Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
+                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
+                     abar = list(c(1,1,1,1), c(0,0,0,0)),
+                     survivalOutcome = TRUE,
+                     gcomp = TRUE,
+                     SL.library = SL.library,
+                     attr(SL.library, "return.fit")
+)
+
+
+
+```
+
+```{r rerun with dataset including cirrhosis at baseline}
+
+O2 <- as.data.frame(matrix(nrow=nrow(HCVData), NA))
+ 
+O2$Y2 <- HCVData$HCC_2016
+O2$Y3 <- HCVData$HCC_2017
+O2$Y4 <- HCVData$HCC_2018
+O2$Y5 <- HCVData$HCC_2019
+
+O2$A1 <- HCVData$ABD_IMAGING_YN_2015
+O2$A2 <- HCVData$ABD_IMAGING_YN_2016
+O2$A3 <- HCVData$ABD_IMAGING_YN_2017
+O2$A4 <- HCVData$ABD_IMAGING_YN_2018
+
+O2$La1 <- ifelse(HCVData$VISIT_COUNT_2015>0,1,0)
+O2$La2 <- ifelse(HCVData$VISIT_COUNT_2016>0,1,0)
+O2$La3 <- ifelse(HCVData$VISIT_COUNT_2017>0,1,0)
+O2$La4 <- ifelse(HCVData$VISIT_COUNT_2018>0,1,0)
+
+O2$Lb1 <- HCVData$FIB4_by2015
+O2$Lb2 <- HCVData$FIB4_by2016
+O2$Lb3 <- HCVData$FIB4_by2017
+O2$Lb4 <- HCVData$FIB4_by2018
+
+O2$Lb1lm <- HCVData$YearsSinceFib4_2015
+O2$Lb2lm <- HCVData$YearsSinceFib4_2016
+O2$Lb3lm <- HCVData$YearsSinceFib4_2017
+O2$Lb4lm <- HCVData$YearsSinceFib4_2018
+
+O2$SES <- HCVData$PayorType
+O2$Sex <- HCVData$Sex
+O2$Race <- HCVData$race.ethnicity
+  
+#O2$C5 <- ifelse(O$A5 == 0, 1, 0)  armadillo
+  
+#remove NAs for now, until we impute -- armadillo
+  O2 <- subset(O2, !is.na(O$SES))
+  O2 <- subset(O2, !is.na(O$Race))
+  
+  O2 <- O %>% dplyr::select(SES, Race, Sex, La1, Lb1, A1, 
+                           La2, Lb2, A2, Y2, 
+                           La3, Lb3, A3, Y3, 
+                           La4, Lb4, A4, Y4, 
+                           Y5)
+
+results_withcirr <- ltmle::ltmle(O2,
+                     Anodes= c("A1", "A2", "A3", "A4"),
+                     Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
+                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
+                     abar = list(c(1,1,1,1), c(0,0,0,0)),
+                     survivalOutcome = TRUE,
+                     SL.library = SL.library,
+                     attr(SL.library, "return.fit")
+)
+
+results.gcomp_withcirr <- ltmle::ltmle(O2,
+                     Anodes= c("A1", "A2", "A3", "A4"),
+                     Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
+                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
+                     abar = list(c(1,1,1,1), c(0,0,0,0)),
+                     survivalOutcome = TRUE,
+                     gcomp = TRUE,
+                     SL.library = SL.library,
+                     attr(SL.library, "return.fit")
+)
+
+  
+```
+
+
+```{r results_nocirrhosis}
+
+tmle_SL <- summary(results, "tmle")
+iptw_SL <- summary(results, "iptw")
+gcomp_SL <- summary(results.gcomp, "gcomp")
+
+tmle_ATE <- exp(tmle_SL$effect.measures$ATE$estimate); tmle_ATE
+iptw_ATE <- exp(iptw_SL$effect.measures$ATE$estimate); iptw_ATE
+gcomp_ATE <- exp(gcomp_SL$effect.measures$ATE$estimate); gcomp_ATE
+tmle_low <- exp(tmle_SL$effect.measures$treatment$CI[1])
+tmle_high <- exp(tmle_SL$effect.measures$treatment$CI[2])
+iptw_low <- exp(iptw_SL$effect.measures$treatment$CI[1])
+iptw_high <- exp(iptw_SL$effect.measures$treatment$CI[2])
+gcomp_low <- exp(gcomp_SL$effect.measures$treatment$CI[1])
+gcomp_high <- exp(gcomp_SL$effect.measures$treatment$CI[2])
+
+# performance of algorithms
+results$fit
+results.gcomp$fit
+
+#NNT
+NNTdenom <- gcomp_ATE/100
+NNT <- round(1/(gcomp_ATE/100), 0)
+```
+
+```{r results_withcirrhosis}
+
+tmle_SL_withcirr <- summary(results_withcirr, "tmle")
+iptw_SL_withcirr <- summary(results_withcirr, "iptw")
+gcomp_SL_withcirr <- summary(results.gcomp_withcirr, "gcomp")
+
+tmle_ATE_withcirr <- exp(tmle_SL_withcirr$effect.measures$ATE$estimate); tmle_ATE_withcirr
+iptw_ATE_withcirr <- exp(iptw_SL_withcirr$effect.measures$ATE$estimate); iptw_ATE_withcirr
+gcomp_ATE_withcirr <- exp(gcomp_SL_withcirr$effect.measures$ATE$estimate); gcomp_ATE_withcirr
+tmle_low_withcirr <- exp(tmle_SL_withcirr$effect.measures$treatment$CI[1])
+tmle_high_withcirr <- exp(tmle_SL_withcirr$effect.measures$treatment$CI[2])
+iptw_low_withcirr <- exp(iptw_SL_withcirr$effect.measures$treatment$CI[1])
+iptw_high_withcirr <- exp(iptw_SL_withcirr$effect.measures$treatment$CI[2])
+gcomp_low_withcirr <- exp(gcomp_SL_withcirr$effect.measures$treatment$CI[1])
+gcomp_high_withcirr <- exp(gcomp_SL_withcirr$effect.measures$treatment$CI[2])
+
+# performance of algorithms
+results_withcirr$fit
+results.gcomp_withcirr$fit
+
+#NNT
+NNT_withcirr <- round(1/(gcomp_ATE_withcirr/100), 0)
+```
+
+Ultimately, implementing \textit{ltmle} with \textit{Super Learner} on our observed data produced the following estimates for the risk difference of developing HCC in year 5 when receiving abdominal imaging at least once per year for the 4 preceding years, compared to not receiving abdominal imaging during that time, when controlling for the number of hepatology or primary care visits, FIB-4 score, sex, race, and SES was:
+
+| G-Comp (95% CI) | IPTW (95% CI) | TMLE (95% CI) |
+| ------------- | ------------- | ------------- |
+| `r round(gcomp_ATE, 3)` (`r round(gcomp_low, 3)`, `r round(gcomp_high, 3)`) | `r round(iptw_ATE, 3)` (`r round(iptw_low, 3)`, `r round(iptw_high, 3)`) | `r round(tmle_ATE, 3)` (`r round(tmle_low, 3)`, `r round(tmle_high, 3)`) |
+
+If we use the G-computation estimate, this means that over the five years under study, patients with no cirrhosis at baseline were `r round(gcomp_ATE, 1)`% less likely to develop HCC by year 5 when they had abdominal imaging each year for the 4 previous years, compared to patients who had no abdominal imaging, when controlling for liver cirrhosis, number of primary care or hepatology visits, sex, race, and SES. **This represents a number needed to treat (NNT) of 92**: <!--`r NNT`**: for every `r NNT`-->for every 92 people who receive annual abdominal imaging despite no evidence of cirrhosis at baseline, 1 case of HHC could be prevented over 5 years.
+
+
+<!--
+If this analysis is repeated including people who had cirrhosis at baseline (with all other inclusion criteria remaining the same), the findings are:
+
+| G-Comp (95% CI) | IPTW (95% CI) | TMLE (95% CI) |
+| ------------- | ------------- | ------------- |
+| `r round(gcomp_ATE_withcirr, 3)` (`r round(gcomp_low_withcirr, 3)`, `r round(gcomp_high_withcirr, 3)`) | `r round(iptw_ATE_withcirr, 3)` (`r round(iptw_low_withcirr, 3)`, `r round(iptw_high_withcirr, 3)`) | `r round(tmle_ATE_withcirr, 3)` (`r round(tmle_low_withcirr, 3)`, `r round(tmle_high_withcirr, 3)`) |
+
+If we again use the G-computation estimate, this means that over the five years under study, patients (regardless of cirrhosis at baseline) were `r round(gcomp_ATE_withcirr, 1)`% less likely to develop HCC by year 5 when they had abdominal imaging each year for the 4 previous years, compared to patients who had no abdominal imaging, when controlling for liver cirrhosis, number of primary care or hepatology visits, sex, race, and SES. **This represents a number needed to treat (NNT) of `r NNT_withcirr`**: for every `r NNT_withcirr` people who receive annual abdominal imaging regardless of cirrhosis at baseline, 1 case of HHC could be prevented over 5 years. This is slightly higher than in the case where people with cirrhosis at baseline were excluded, which makes sense because people with cirrhosis are more likely to develop HCC within 5 years regardless of the imaging they receive.
+-->
