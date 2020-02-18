@@ -572,10 +572,10 @@ impute3 <- complete(imputation, 3)
 impute4 <- complete(imputation, 4)
 impute5 <- complete(imputation, 5)
 HCVData1 <- merge(impute1, HCVData[, !(names(HCVData) %in% keeps)], by = "PtID")
-HCVData2 <- merge(impute2, HCVData[, !(namesHCVData %in% keeps)], by = "PtID")
-HCVData3 <- merge(impute3, HCVData[, !(namesHCVData %in% keeps)], by = "PtID")
-HCVData4 <- merge(impute4, HCVData[, !(namesHCVData %in% keeps)], by = "PtID")
-HCVData5 <- merge(impute5, HCVData[, !(namesHCVData %in% keeps)], by = "PtID")
+HCVData2 <- merge(impute2, HCVData[, !(names(HCVData) %in% keeps)], by = "PtID")
+HCVData3 <- merge(impute3, HCVData[, !(names(HCVData) %in% keeps)], by = "PtID")
+HCVData4 <- merge(impute4, HCVData[, !(names(HCVData) %in% keeps)], by = "PtID")
+HCVData5 <- merge(impute5, HCVData[, !(names(HCVData) %in% keeps)], by = "PtID")
 
 # imputed <- rbindlist(list(impute1, impute2, impute3, impute4, impute5))[,lapply(.SD,mean), list(PtID)]
 # 
