@@ -20,7 +20,7 @@ library(ggpubr)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
 
-# First, load the data
+# First, set up data loading functions
 StephandShelleyDataLoad <- function(filename) 
 {
   if(Sys.info()['sysname']=="Darwin"){
@@ -468,15 +468,17 @@ HCVData <-  HCVData %>% mutate(FIB4_by2014 = FIB4_2014, YearsSinceFib4_2014 = 0)
 HCVData <-  HCVData %>% mutate(FIB4_by2014 = ifelse(is.na(FIB4_2014)== "TRUE", FIB4_by2013, FIB4_by2014),
                                YearsSinceFib4_2014 = ifelse(is.na(FIB4_2014)== "TRUE", YearsSinceFib4_2013 + 1, 0))
 
+ 
+#Imputing as the median value for those without a FIB4 by 2014
+##Armadillo! Shelley to add in some MICEy goodness here. Remember to also impute SES and race
+HCVData <-  HCVData %>% mutate(YearsSinceFib4_2014 = ifelse(is.na(FIB4_by2014)== "TRUE", 0, YearsSinceFib4_2014),
+                               ImputedFIB4_2014 = ifelse(is.na(FIB4_by2014)== "TRUE", 1, 0),
+                               FIB4_by2014 = ifelse(is.na(FIB4_by2014)== "TRUE", median(HCVData$FIB4_by2014,na.rm= "TRUE"), FIB4_by2014))
+
 HCVData <-  HCVData %>% mutate(FIB4_by2015 = FIB4_2015, YearsSinceFib4_2015 = 0)
 HCVData <-  HCVData %>% mutate(FIB4_by2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, FIB4_by2015),
-                               YearsSinceFib4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", YearsSinceFib4_2014 + 1, 0))
-
- 
-#Imputing as the median value for those without a FIB4 by 2015
-HCVData <-  HCVData %>% mutate(YearsSinceFib4_2015 = ifelse(is.na(FIB4_by2015)== "TRUE", 0, YearsSinceFib4_2015),
-                               ImputedFIB4_2015 = ifelse(is.na(FIB4_by2015)== "TRUE", 1, 0),
-                               FIB4_by2015 = ifelse(is.na(FIB4_by2015)== "TRUE", median(HCVData$FIB4_by2015,na.rm= "TRUE"), FIB4_by2015))
+                               YearsSinceFib4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", YearsSinceFib4_2014 + 1, 0),
+                               ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", ImputedFIB4_2014, 0))
 
 
 HCVData <-  HCVData %>% mutate(FIB4_by2016 = FIB4_2016, YearsSinceFib4_2016 = 0)
@@ -561,14 +563,14 @@ HCVData$InSystemBy2015 <- ifelse(as.POSIXct(HCVData$First.Hep.Appt) <'2015-12-31
                                    !is.na(HCVData$PLATELET_2014) |
                                    !is.na(HCVData$PLATELET_2015), 1, 0)
 
-#Filtering to those who had some visits in 2011-2019, were adults at the start of the data and didn't have HCC before 12/31/15
+#Filtering to those who had some visits in 2015-2019, were adults at the start of 2015 and didn't have HCC before 12/31/14
 HCVData_inclcirr<- HCVData %>% filter(TotalVisits != 0) %>%
-                      filter(AGE_2011 >18) %>%
-                      filter(HCC_2015 == 0) %>%
+                      filter(AGE_2015 >18) %>%
+                      filter(HCC_2014 == 0) %>%
                       filter(InSystemBy2015 ==1)
  
 #Filtering to those with no cirrhosis at baseline
-HCVData <- HCVData_inclcirr %>% filter(FIB4_by2015 < 3.25)
+HCVData <- HCVData_inclcirr %>% filter(ImputedFIB4_2014 < 3.25)
 
 #Changing abdominal imaging variables to be zero if it's NA
 HCVData$ABD_IMAGING_2015[is.na(HCVData$ABD_IMAGING_2015)] <-0
@@ -603,7 +605,11 @@ HCVData$ABD_IMAGING_YN_2018[HCVData$ABD_IMAGING_2018 > 0] <- 1
 # table(HCVData_imaging$HCC_2019)
 ```
 
-We have restricted our dataset to adult UCSF patients diagnosed with HCV who had no cirrhosis at baseline, and no HCC as of Dec 31, 2015. (n = 1560)
+We have restricted our dataset to adult UCSF patients diagnosed with HCV who, prior to the start of follow up (ie. as of 12/31/14) had no cirrhosis and no HCC. (n = `r nrow(HCVData)`) For those who had been in the system prior to 2015, historical data back to 2011 was used to calculate their FIB-4 score at the beinning of follow up (ie. by the end of 2014), for those who did not yet have those data, the FIB-4 score in 2014 was imputed using the median value. 
+
+<!-- armadillo- update this paragraph if imputation  changes.-->
+
+<!-- reminder that if someone had no data through 2014, and first showed up in 2015, they're still in this dataset even if they had, say, cirrhosis diagnosed elsewhere prior to 2015. So we should be careful to describe the dataset as those in the system, 'not known to have cirrhosis' prior to 1/1/2015 or sth similar-->
 
 ```{r demographics, include = FALSE, eval = TRUE}
 sex <- table(HCVData$Sex, useNA = "ifany")
@@ -682,6 +688,14 @@ summary(HCVData$FIB4_by2015)
 summary(HCVData$FIB4_by2016)
 summary(HCVData$FIB4_by2017)
 summary(HCVData$FIB4_by2018)
+
+    #In case we're curious, this shows what percent of the FIB4 scores are using the imputed values
+    summary(HCVData$ImputedFIB4_2015)
+    summary(HCVData$ImputedFIB4_2016)
+    summary(HCVData$ImputedFIB4_2017)
+    summary(HCVData$ImputedFIB4_2018)
+    #and what percent among the cases
+    HCVData %>% filter(HCC_2019 == 1) %>% summarise(n(), mean(ImputedFIB4_2015), mean(ImputedFIB4_2018))
 
 #Because Y is HCC occurence, Y2 is HCV diagnoses in 2016...
 summary(HCVData$HCC_2016)
@@ -767,22 +781,22 @@ generate_data  <- function(n) {
            La1 = ULa1,
            Lb1 = ULb1,
            A1 = as.numeric(UA1 < 0.33* plogis(La1 + Lb1)),
-           Y2 = as.numeric(UY2 < 0.04*plogis(Lb1 - La1 - A1)),
+           Y2 = as.numeric(UY2 < 0.07*plogis(Lb1 - La1 - A1)),
            
            La2 = ifelse(Y2==0, La1 + 0.1*ULa2, NA),
            Lb2 = ifelse(Y2==0, as.integer(Lb1 + 0.1*ULb2), NA),
            A2  = ifelse(Y2==0, as.numeric(UA2 < 0.33* plogis((La2 + Lb2 + A1))),NA),
-           Y3  = ifelse(Y2==0, as.numeric(UY3 < 0.04*plogis(Lb2 - La2 - A2)),1),
+           Y3  = ifelse(Y2==0, as.numeric(UY3 < 0.07*plogis(Lb2 - La2 - A2)),1),
            
            La3 = ifelse(Y3==0, La2 + 0.1*ULa3, NA),
            Lb3 = ifelse(Y3==0, as.integer(Lb2 + 0.1*ULb3), NA),
            A3  = ifelse(Y3==0, as.numeric(UA3 < 0.33* plogis((La3 + Lb3 + A2))),NA),
-           Y4  = ifelse(Y3==0, as.numeric(UY4 < 0.04*plogis(Lb3 - La3 - A3)),1),
+           Y4  = ifelse(Y3==0, as.numeric(UY4 < 0.07*plogis(Lb3 - La3 - A3)),1),
            
            La4 = ifelse(Y4==0, La3 + 0.1*ULa4, NA),
            Lb4 = ifelse(Y4==0, as.integer(Lb3 + 0.1*ULb4), NA),
            A4  = ifelse(Y4==0, as.numeric(UA4 < 0.33* plogis((La4 + Lb4 + A3))),NA),
-           Y5  = ifelse(Y4==0, as.numeric(UY5 < 0.04*plogis(Lb4 - La4 - A4)),1)
+           Y5  = ifelse(Y4==0, as.numeric(UY5 < 0.07*plogis(Lb4 - La4 - A4)),1)
            )
   return(O)
 }
@@ -837,22 +851,22 @@ generate_data_intervene  <- function(n, a) {
            La1 = ULa1,
            Lb1 = ULb1,
            A1 = a,
-           Y2 = as.numeric(UY2 < 0.04*plogis(Lb1 - La1 - A1)),
+           Y2 = as.numeric(UY2 < 0.07*plogis(Lb1 - La1 - A1)),
            
            La2 = ifelse(Y2==0, La1 + 0.1*ULa2, NA),
            Lb2 = ifelse(Y2==0, as.integer(Lb1 + 0.1*ULb2), NA),
            A2  = ifelse(Y2==0, a, NA),
-           Y3  = ifelse(Y2==0, as.numeric(UY3 < 0.04*plogis(Lb2 - La2 - A2)),1),
+           Y3  = ifelse(Y2==0, as.numeric(UY3 < 0.07*plogis(Lb2 - La2 - A2)),1),
            
            La3 = ifelse(Y3==0, La2 + 0.1*ULa3, NA),
            Lb3 = ifelse(Y3==0, as.integer(Lb2 + 0.1*ULb3), NA),
            A3  = ifelse(Y3==0, a, NA),
-           Y4  = ifelse(Y3==0, as.numeric(UY4 < 0.04*plogis(Lb3 - La3 - A3)),1),
+           Y4  = ifelse(Y3==0, as.numeric(UY4 < 0.07*plogis(Lb3 - La3 - A3)),1),
            
            La4 = ifelse(Y4==0, La3 + 0.1*ULa4, NA),
            Lb4 = ifelse(Y4==0, as.integer(Lb3 + 0.1*ULb4), NA),
            A4  = ifelse(Y4==0, a, NA),
-           Y5  = ifelse(Y4==0, as.numeric(UY5 < 0.04*plogis(Lb4 - La4 - A4)),1)
+           Y5  = ifelse(Y4==0, as.numeric(UY5 < 0.07*plogis(Lb4 - La4 - A4)),1)
            )
   return(O)
 }
@@ -869,7 +883,7 @@ True.Psi.F
 
 ```{r ltmle run on our simulation with SuperLearner, cache=TRUE}
 
-SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean") ## armadillo
+SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean") ## armadillo - need to discuss furhter
 
 results_sim <- ltmle::ltmle(SimData,
                      Anodes= c("A1", "A2", "A3", "A4"),
@@ -976,9 +990,9 @@ O$Race <- HCVData$race.ethnicity
   O <- subset(O, !is.na(O$Race))
   
   O <- O %>% dplyr::select(SES, Race, Sex, La1, Lb1, A1, 
-                           La2, Lb2, A2, Y2, 
-                           La3, Lb3, A3, Y3, 
-                           La4, Lb4, A4, Y4, 
+                           Y2, La2, Lb2, A2, 
+                           Y3, La3, Lb3, A3,
+                           Y4, La4, Lb4, A4, 
                            Y5)
 
 ```
@@ -1051,9 +1065,9 @@ O2$Race <- HCVData$race.ethnicity
   O2 <- subset(O2, !is.na(O$Race))
   
   O2 <- O %>% dplyr::select(SES, Race, Sex, La1, Lb1, A1, 
-                           La2, Lb2, A2, Y2, 
-                           La3, Lb3, A3, Y3, 
-                           La4, Lb4, A4, Y4, 
+                           Y2, La2, Lb2, A2,  
+                           Y3, La3, Lb3, A3,  
+                           Y4, La4, Lb4, A4,  
                            Y5)
 
 results_withcirr <- ltmle::ltmle(O2,
@@ -1136,7 +1150,7 @@ Ultimately, implementing \textit{ltmle} with \textit{Super Learner} on our obser
 | ------------- | ------------- | ------------- |
 | `r round(gcomp_ATE, 3)` (`r round(gcomp_low, 3)`, `r round(gcomp_high, 3)`) | `r round(iptw_ATE, 3)` (`r round(iptw_low, 3)`, `r round(iptw_high, 3)`) | `r round(tmle_ATE, 3)` (`r round(tmle_low, 3)`, `r round(tmle_high, 3)`) |
 
-If we use the G-computation estimate, this means that over the five years under study, patients with no cirrhosis at baseline were `r round(gcomp_ATE, 1)`% less likely to develop HCC by year 5 when they had abdominal imaging each year for the 4 previous years, compared to patients who had no abdominal imaging, when controlling for liver cirrhosis, number of primary care or hepatology visits, sex, race, and SES. **This represents a number needed to treat (NNT) of 92**: <!--`r NNT`**: for every `r NNT`-->for every 92 people who receive annual abdominal imaging despite no evidence of cirrhosis at baseline, 1 case of HHC could be prevented over 5 years.
+If we use the G-computation estimate, this means that over the five years under study, patients with no cirrhosis at baseline were `r round(gcomp_ATE, 1)`% less likely to develop HCC by year 5 when they had abdominal imaging each year for the 4 previous years, compared to patients who had no abdominal imaging, when controlling for liver cirrhosis, number of primary care or hepatology visits, sex, race, and SES. **This represents a number needed to treat (NNT) of `r round(1/(round(gcomp_ATE, 1)/100),0)` **: for every `r round(1/(round(gcomp_ATE, 1)/100),0)` people who receive annual abdominal imaging despite no evidence of cirrhosis at baseline, 1 case of HHC could be prevented over 5 years.
 
 
 <!--
