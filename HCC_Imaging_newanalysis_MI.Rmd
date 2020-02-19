@@ -566,7 +566,10 @@ HCVData$PayorType <- as.factor(HCVData$PayorType)
 HCVData$race.ethnicity <- as.factor(HCVData$race.ethnicity)
 impute <- c("PtID", "PayorType", "race.ethnicity", "FIB4_by2014")
 keeps <- c("PayorType", "race.ethnicity", "FIB4_by2014")
-imputation <- mice(HCVData[, (names(HCVData) %in% impute)], m=5, maxit=5, nnet.MaxNWts=10000, printFlag=TRUE, seed = 252)
+
+###commenting out imputation to save computation time###
+#imputation <- mice(HCVData[, (names(HCVData) %in% impute)], m=5, maxit=5, nnet.MaxNWts=10000, printFlag=TRUE, seed = 252)
+load("imputation.Rdata")
 
 impute1 <- complete(imputation, 1)
 impute2 <- complete(imputation, 2)
@@ -1351,7 +1354,7 @@ results4 <- ltmle::ltmle(O4a,
 
 results.gcomp4 <- ltmle::ltmle(O4a,
                      Anodes= c("A1", "A2", "A3", "A4"),
-                     c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
+                     Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
                      abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
