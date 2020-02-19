@@ -562,9 +562,11 @@ HCVData$ABD_IMAGING_YN_2018[HCVData$ABD_IMAGING_2018 > 0] <- 1
 
 
 #impute FIB4, SES, Race
+HCVData$PayorType <- as.factor(HCVData$PayorType)
+HCVData$race.ethnicity <- as.factor(HCVData$race.ethnicity)
 impute <- c("PtID", "PayorType", "race.ethnicity", "FIB4_by2014")
 keeps <- c("PayorType", "race.ethnicity", "FIB4_by2014")
-imputation <- mice(HCVData[, (names(HCVData) %in% impute)], m=5, maxit=5, printFlag=TRUE, seed = 252)
+imputation <- mice(HCVData[, (names(HCVData) %in% impute)], m=5, maxit=5, nnet.MaxNWts=10000, printFlag=TRUE, seed = 252)
 
 impute1 <- complete(imputation, 1)
 impute2 <- complete(imputation, 2)
@@ -627,7 +629,7 @@ HCVData5 <- HCVData5 %>% filter(FIB4_by2014 < 3.25)
 HCVData1 <-  HCVData1 %>% mutate(FIB4_by2015 = FIB4_2015, YearsSinceFib4_2015 = 0)
 HCVData1 <-  HCVData1 %>% mutate(FIB4_by2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, FIB4_by2015),
                                YearsSinceFib4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", YearsSinceFib4_2014 + 1, 0),
-                               ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", ImputedFIB4_2014, 0))
+                               ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, 0))
 HCVData1 <-  HCVData1 %>% mutate(FIB4_by2016 = FIB4_2016, YearsSinceFib4_2016 = 0)
 HCVData1 <-  HCVData1 %>% mutate(FIB4_by2016 = ifelse(is.na(FIB4_2016)== "TRUE", FIB4_by2015, FIB4_by2016),
                                YearsSinceFib4_2016 = ifelse(is.na(FIB4_2016)== "TRUE", YearsSinceFib4_2015 + 1, 0),
@@ -648,7 +650,7 @@ HCVData1 <-  HCVData1 %>% mutate(FIB4_by2019 = ifelse(is.na(FIB4_2019)== "TRUE",
 HCVData2 <-  HCVData2 %>% mutate(FIB4_by2015 = FIB4_2015, YearsSinceFib4_2015 = 0)
 HCVData2 <-  HCVData2 %>% mutate(FIB4_by2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, FIB4_by2015),
                                YearsSinceFib4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", YearsSinceFib4_2014 + 1, 0),
-                               ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", ImputedFIB4_2014, 0))
+                               ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, 0))
 HCVData2 <-  HCVData2 %>% mutate(FIB4_by2016 = FIB4_2016, YearsSinceFib4_2016 = 0)
 HCVData2 <-  HCVData2 %>% mutate(FIB4_by2016 = ifelse(is.na(FIB4_2016)== "TRUE", FIB4_by2015, FIB4_by2016),
                                YearsSinceFib4_2016 = ifelse(is.na(FIB4_2016)== "TRUE", YearsSinceFib4_2015 + 1, 0),
@@ -669,7 +671,7 @@ HCVData2 <-  HCVData2 %>% mutate(FIB4_by2019 = ifelse(is.na(FIB4_2019)== "TRUE",
 HCVData3 <-  HCVData3 %>% mutate(FIB4_by2015 = FIB4_2015, YearsSinceFib4_2015 = 0)
 HCVData3 <-  HCVData3 %>% mutate(FIB4_by2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, FIB4_by2015),
                                YearsSinceFib4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", YearsSinceFib4_2014 + 1, 0),
-                               ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", ImputedFIB4_2014, 0))
+                               ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, 0))
 HCVData3 <-  HCVData3 %>% mutate(FIB4_by2016 = FIB4_2016, YearsSinceFib4_2016 = 0)
 HCVData3 <-  HCVData3 %>% mutate(FIB4_by2016 = ifelse(is.na(FIB4_2016)== "TRUE", FIB4_by2015, FIB4_by2016),
                                YearsSinceFib4_2016 = ifelse(is.na(FIB4_2016)== "TRUE", YearsSinceFib4_2015 + 1, 0),
@@ -690,7 +692,7 @@ HCVData3 <-  HCVData3 %>% mutate(FIB4_by2019 = ifelse(is.na(FIB4_2019)== "TRUE",
 HCVData4 <-  HCVData4 %>% mutate(FIB4_by2015 = FIB4_2015, YearsSinceFib4_2015 = 0)
 HCVData4 <-  HCVData4 %>% mutate(FIB4_by2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, FIB4_by2015),
                                YearsSinceFib4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", YearsSinceFib4_2014 + 1, 0),
-                               ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", ImputedFIB4_2014, 0))
+                               ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, 0))
 HCVData4 <-  HCVData4 %>% mutate(FIB4_by2016 = FIB4_2016, YearsSinceFib4_2016 = 0)
 HCVData4 <-  HCVData4 %>% mutate(FIB4_by2016 = ifelse(is.na(FIB4_2016)== "TRUE", FIB4_by2015, FIB4_by2016),
                                YearsSinceFib4_2016 = ifelse(is.na(FIB4_2016)== "TRUE", YearsSinceFib4_2015 + 1, 0),
@@ -711,7 +713,7 @@ HCVData4 <-  HCVData4 %>% mutate(FIB4_by2019 = ifelse(is.na(FIB4_2019)== "TRUE",
 HCVData5 <-  HCVData5 %>% mutate(FIB4_by2015 = FIB4_2015, YearsSinceFib4_2015 = 0)
 HCVData5 <-  HCVData5 %>% mutate(FIB4_by2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, FIB4_by2015),
                                YearsSinceFib4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", YearsSinceFib4_2014 + 1, 0),
-                               ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", ImputedFIB4_2014, 0))
+                               ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, 0))
 HCVData5 <-  HCVData5 %>% mutate(FIB4_by2016 = FIB4_2016, YearsSinceFib4_2016 = 0)
 HCVData5 <-  HCVData5 %>% mutate(FIB4_by2016 = ifelse(is.na(FIB4_2016)== "TRUE", FIB4_by2015, FIB4_by2016),
                                YearsSinceFib4_2016 = ifelse(is.na(FIB4_2016)== "TRUE", YearsSinceFib4_2015 + 1, 0),
@@ -1005,8 +1007,8 @@ True.Psi.F
 ```
 
 ```{r ltmle run on our simulation with SuperLearner, cache=TRUE}
-
-SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean") ## armadillo - need to discuss further
+SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean")
+#SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.step.forward", "SL.step.interaction", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") ## armadillo 
 
 results_sim <- ltmle::ltmle(SimData,
                      Anodes= c("A1", "A2", "A3", "A4"),
