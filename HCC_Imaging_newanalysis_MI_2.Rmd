@@ -569,7 +569,7 @@ keeps <- c("PayorType", "race.ethnicity", "FIB4_by2014")
 
 ###commenting out imputation to save computation time###
 #imputation <- mice(HCVData[, (names(HCVData) %in% impute)], m=5, maxit=5, nnet.MaxNWts=10000, printFlag=TRUE, seed = 252)
-load("imputation.Rdata")
+load("ImputedData.Rdata")
 
 impute1 <- complete(imputation, 1)
 impute2 <- complete(imputation, 2)
