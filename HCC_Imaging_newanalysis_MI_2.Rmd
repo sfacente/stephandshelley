@@ -3,12 +3,14 @@ title: "Abdominal Imaging and HCC Risk"
 author: "Shelley \"the bomb\" Facente and Steph \"the badass\" Holm"
 date: "February 17, 2020"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 
 ```{r setup, include=FALSE}
 library(pacman)
-p_load(tidyverse, readxl, skimr, knitr, xlsx, lubridate, MASS, ggplot2, ggpubr, data.table, mice)
+p_load(tidyverse, readxl, skimr, knitr, xlsx, lubridate, MASS, ggplot2, ggpubr, data.table, mice, ltmle, SuperLearner, arm, gam)
 #library(Hmisc)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
@@ -630,9 +632,10 @@ HCVData5 <- HCVData5 %>% filter(FIB4_by2014 < 3.25)
 
 #Pulling forward FIB4s post-2014
 HCVData1 <-  HCVData1 %>% mutate(FIB4_by2015 = FIB4_2015, YearsSinceFib4_2015 = 0)
-HCVData1 <-  HCVData1 %>% mutate(FIB4_by2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, FIB4_by2015),
-                               YearsSinceFib4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", YearsSinceFib4_2014 + 1, 0),
-                               ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, 0))
+HCVData1 <-  HCVData1 %>% mutate(
+  FIB4_by2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, FIB4_by2015),
+  YearsSinceFib4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", YearsSinceFib4_2014 + 1, 0),
+  ImputedFIB4_2015 = ifelse(is.na(FIB4_2015)== "TRUE", FIB4_by2014, 0))
 HCVData1 <-  HCVData1 %>% mutate(FIB4_by2016 = FIB4_2016, YearsSinceFib4_2016 = 0)
 HCVData1 <-  HCVData1 %>% mutate(FIB4_by2016 = ifelse(is.na(FIB4_2016)== "TRUE", FIB4_by2015, FIB4_by2016),
                                YearsSinceFib4_2016 = ifelse(is.na(FIB4_2016)== "TRUE", YearsSinceFib4_2015 + 1, 0),
@@ -812,18 +815,18 @@ summary(HCVData$VISIT_COUNT_2017)
 summary(HCVData$VISIT_COUNT_2018)
 
 #Because L_b is fib4 score, L_b1 is FIB4 in 2015,...
-summary(HCVData$FIB4_by2015)
-summary(HCVData$FIB4_by2016)
-summary(HCVData$FIB4_by2017)
-summary(HCVData$FIB4_by2018)
+summary(HCVData1$FIB4_by2015)
+summary(HCVData1$FIB4_by2016)
+summary(HCVData1$FIB4_by2017)
+summary(HCVData1$FIB4_by2018)
 
     #In case we're curious, this shows what percent of the FIB4 scores are using the imputed values
-    summary(HCVData$ImputedFIB4_2015)
-    summary(HCVData$ImputedFIB4_2016)
-    summary(HCVData$ImputedFIB4_2017)
-    summary(HCVData$ImputedFIB4_2018)
+    summary(HCVData1$ImputedFIB4_2015)
+    summary(HCVData1$ImputedFIB4_2016)
+    summary(HCVData1$ImputedFIB4_2017)
+    summary(HCVData1$ImputedFIB4_2018)
     #and what percent among the cases
-    HCVData %>% filter(HCC_2019 == 1) %>% summarise(n(), mean(ImputedFIB4_2015), mean(ImputedFIB4_2018))
+    HCVData1 %>% filter(HCC_2019 == 1) %>% summarise(n(), mean(ImputedFIB4_2015), mean(ImputedFIB4_2018))
 
 #Because Y is HCC occurence, Y2 is HCV diagnoses in 2016...
 summary(HCVData$HCC_2016)
@@ -834,14 +837,14 @@ summary(HCVData$HCC_2019)
 
 #So that our w's will represent the distributions in the population
 
-racep1 = race[1]/nrow(HCVData)
-racep2 = race[2]/nrow(HCVData)
-racep4 = race[4]/nrow(HCVData)
-racep3 = (race[3]+ race[5])/nrow(HCVData)
-sexp1 = sex[1]/nrow(HCVData)
-sexp2 = sex[2]/nrow(HCVData)
-SESp1 = SES[1]/nrow(HCVData)
-SESp2 = SES[2]/nrow(HCVData)
+racep1 = race[1]/nrow(HCVData1)
+racep2 = race[2]/nrow(HCVData1)
+racep3 = race[3]/nrow(HCVData1)
+racep4 = race[4]/nrow(HCVData1)
+sexp1 = sex[1]/nrow(HCVData1)
+sexp2 = sex[2]/nrow(HCVData1)
+SESp1 = SES[1]/nrow(HCVData1)
+SESp2 = SES[2]/nrow(HCVData1)
 
 w1 = racep1 * sexp1 * SESp1
 w2 = racep1 * sexp1 * SESp2
@@ -1055,6 +1058,7 @@ options(scipen = 999)
 Bias.g <- simgcomp_ATE - True.Psi.F
 Variance.g <- (simgcomp_SL$effect.measures$ATE$std.dev)^2
 MSE.g <- Variance.g + Bias.g^2
+rBias.g <- as.character(round(Bias.g, 5))
 rVariance.g <- as.character(round(Variance.g, 5))
 rMSE.g <- as.character(round(MSE.g, 5))
 
@@ -1276,13 +1280,15 @@ O5a$Race <- HCVData5$race.ethnicity
 
 ```{r ltmle run on our DATA with SuperLearner, cache=TRUE}
 
+SL.library2 <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.step.forward", "SL.step.interaction", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") ## armadillo 
+
 results1 <- ltmle::ltmle(O1a,
                      Anodes= c("A1", "A2", "A3", "A4"),
                      Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
                      abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
-                     SL.library = SL.library,
+                     SL.library = SL.library2,
                      attr(SL.library, "return.fit")
 )
 
@@ -1293,7 +1299,7 @@ results.gcomp1 <- ltmle::ltmle(O1a,
                      abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
                      gcomp = TRUE,
-                     SL.library = SL.library,
+                     SL.library = SL.library2,
                      attr(SL.library, "return.fit")
 )
 
@@ -1304,7 +1310,7 @@ results2 <- ltmle::ltmle(O2a,
                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
                      abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
-                     SL.library = SL.library,
+                     SL.library = SL.library2,
                      attr(SL.library, "return.fit")
 )
 
@@ -1315,7 +1321,7 @@ results.gcomp2 <- ltmle::ltmle(O2a,
                      abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
                      gcomp = TRUE,
-                     SL.library = SL.library,
+                     SL.library = SL.library2,
                      attr(SL.library, "return.fit")
 )
 
@@ -1326,7 +1332,7 @@ results3 <- ltmle::ltmle(O3a,
                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
                      abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
-                     SL.library = SL.library,
+                     SL.library = SL.library2,
                      attr(SL.library, "return.fit")
 )
 
@@ -1337,7 +1343,7 @@ results.gcomp3 <- ltmle::ltmle(O3a,
                      abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
                      gcomp = TRUE,
-                     SL.library = SL.library,
+                     SL.library = SL.library2,
                      attr(SL.library, "return.fit")
 )
 
@@ -1348,7 +1354,7 @@ results4 <- ltmle::ltmle(O4a,
                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
                      abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
-                     SL.library = SL.library,
+                     SL.library = SL.library2,
                      attr(SL.library, "return.fit")
 )
 
@@ -1359,7 +1365,7 @@ results.gcomp4 <- ltmle::ltmle(O4a,
                      abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
                      gcomp = TRUE,
-                     SL.library = SL.library,
+                     SL.library = SL.library2,
                      attr(SL.library, "return.fit")
 )
 
@@ -1370,7 +1376,7 @@ results5 <- ltmle::ltmle(O5a,
                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
                      abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
-                     SL.library = SL.library,
+                     SL.library = SL.library2,
                      attr(SL.library, "return.fit")
 )
 
@@ -1381,10 +1387,20 @@ results.gcomp5 <- ltmle::ltmle(O5a,
                      abar = list(c(1,1,1,1), c(0,0,0,0)),
                      survivalOutcome = TRUE,
                      gcomp = TRUE,
-                     SL.library = SL.library,
+                     SL.library = SL.library2,
                      attr(SL.library, "return.fit")
 )
 
+save(results1, file = "results1.Rdata")
+save(results.gcomp1, file = "results_gcomp1.Rdata")
+save(results2, file = "results2.Rdata")
+save(results.gcomp2, file = "results_gcomp2.Rdata")
+save(results3, file = "results3.Rdata")
+save(results.gcomp3, file = "results_gcomp3.Rdata")
+save(results4, file = "results4.Rdata")
+save(results.gcomp4, file = "results_gcomp4.Rdata")
+save(results5, file = "results5.Rdata")
+save(results.gcomp5, file = "results_gcomp5.Rdata")
 ```
 
 ```{r rerun with dataset including cirrhosis at baseline}
@@ -1550,17 +1566,9 @@ Ultimately, implementing \textit{ltmle} with \textit{Super Learner} on our obser
 
 | G-Comp (95% CI) | IPTW (95% CI) | TMLE (95% CI) |
 | ------------- | ------------- | ------------- |
-| `r round(gcomp_ATE, 3)` (`r round(gcomp_low, 3)`, `r round(gcomp_high, 3)`) | `r round(iptw_ATE, 3)` (`r round(iptw_low, 3)`, `r round(iptw_high, 3)`) | `r round(tmle_ATE, 3)` (`r round(tmle_low, 3)`, `r round(tmle_high, 3)`) |
+| `r round(gcomp_ATE, 3)` | `r round(iptw_ATE, 3)` | `r round(tmle_ATE, 3)` |
+*Note that 95% CIs have not yet been computed in this draft but will be fixed.*
 
-If we use the G-computation estimate, this means that over the five years under study, patients with no cirrhosis at baseline were `r round(gcomp_ATE, 1)`% less likely to develop HCC by year 5 when they had abdominal imaging each year for the 4 previous years, compared to patients who had no abdominal imaging, when controlling for liver cirrhosis, number of primary care or hepatology visits, sex, race, and SES. **This represents a number needed to treat (NNT) of `r round(1/(round(gcomp_ATE, 1)/100),0)` **: for every `r round(1/(round(gcomp_ATE, 1)/100),0)` people who receive annual abdominal imaging despite no evidence of cirrhosis at baseline, 1 case of HHC could be prevented over 5 years.
+If we use the G-computation estimate, this means that over the five years under study, patients with no cirrhosis at baseline were `r round(gcomp_ATE, 1)`% less likely to develop HCC by year 5 when they had abdominal imaging each year for the 4 previous years, compared to patients who had no abdominal imaging, when controlling for liver cirrhosis, number of primary care or hepatology visits, sex, race, and SES. **This represents a number needed to treat (NNT) of `r NNT`**: for every `r NNT` people who receive annual abdominal imaging despite no evidence of cirrhosis at baseline, 1 case of HCC could be prevented over 5 years.
 
 
-<!--
-If this analysis is repeated including people who had cirrhosis at baseline (with all other inclusion criteria remaining the same), the findings are:
-
-| G-Comp (95% CI) | IPTW (95% CI) | TMLE (95% CI) |
-| ------------- | ------------- | ------------- |
-| `r round(gcomp_ATE_withcirr, 3)` (`r round(gcomp_low_withcirr, 3)`, `r round(gcomp_high_withcirr, 3)`) | `r round(iptw_ATE_withcirr, 3)` (`r round(iptw_low_withcirr, 3)`, `r round(iptw_high_withcirr, 3)`) | `r round(tmle_ATE_withcirr, 3)` (`r round(tmle_low_withcirr, 3)`, `r round(tmle_high_withcirr, 3)`) |
-
-If we again use the G-computation estimate, this means that over the five years under study, patients (regardless of cirrhosis at baseline) were `r round(gcomp_ATE_withcirr, 1)`% less likely to develop HCC by year 5 when they had abdominal imaging each year for the 4 previous years, compared to patients who had no abdominal imaging, when controlling for liver cirrhosis, number of primary care or hepatology visits, sex, race, and SES. **This represents a number needed to treat (NNT) of `r NNT_withcirr`**: for every `r NNT_withcirr` people who receive annual abdominal imaging regardless of cirrhosis at baseline, 1 case of HHC could be prevented over 5 years. This is slightly higher than in the case where people with cirrhosis at baseline were excluded, which makes sense because people with cirrhosis are more likely to develop HCC within 5 years regardless of the imaging they receive.
--->
