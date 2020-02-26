@@ -10,7 +10,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 library(pacman)
-p_load(tidyverse, readxl, skimr, knitr, xlsx, lubridate, MASS, ggplot2, ggpubr, data.table, mice, ltmle, SuperLearner, arm, gam)
+p_load(tidyverse, readxl, skimr, knitr, xlsx, lubridate, MASS, ggplot2, ggpubr, data.table, mice, ltmle, SuperLearner, arm, gam, randomForest, earth)
 #library(Hmisc)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
@@ -1016,26 +1016,31 @@ True.Psi.F
 SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean")
 #SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.step.forward", "SL.step.interaction", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") ## armadillo 
 
-results_sim <- ltmle::ltmle(SimData,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = list(c(1,1,1,1), c(0,0,0,0)),
-                     survivalOutcome = TRUE,
-                     SL.library = SL.library,
-                     attr(SL.library, "return.fit")
-)
+# results_sim <- ltmle::ltmle(SimData,
+#                      Anodes= c("A1", "A2", "A3", "A4"),
+#                      Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
+#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
+#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
+#                      survivalOutcome = TRUE,
+#                      SL.library = SL.library,
+#                      attr(SL.library, "return.fit")
+# )
+# 
+# results_sim.gcomp <- ltmle::ltmle(SimData,
+#                      Anodes= c("A1", "A2", "A3", "A4"),
+#                      Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
+#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
+#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
+#                      survivalOutcome = TRUE,
+#                      gcomp = TRUE,
+#                      SL.library = SL.library,
+#                      attr(SL.library, "return.fit")
+# )
 
-results_sim.gcomp <- ltmle::ltmle(SimData,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = list(c(1,1,1,1), c(0,0,0,0)),
-                     survivalOutcome = TRUE,
-                     gcomp = TRUE,
-                     SL.library = SL.library,
-                     attr(SL.library, "return.fit")
-)
+#loading results pre-run with simple SL library for knitting, etc.
+load("results_sim.Rdata") 
+load("results_sim_gcomp.Rdata") 
+#need to update sim results using larger SL library! armadillo
 
 simtmle_SL <- summary(results_sim, "tmle")
 simiptw_SL <- summary(results_sim, "iptw")
@@ -1280,127 +1285,127 @@ O5a$Race <- HCVData5$race.ethnicity
 
 ```{r ltmle run on our DATA with SuperLearner, cache=TRUE}
 
-SL.library2 <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.step.forward", "SL.step.interaction", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") ## armadillo 
-
-results1 <- ltmle::ltmle(O1a,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = list(c(1,1,1,1), c(0,0,0,0)),
-                     survivalOutcome = TRUE,
-                     SL.library = SL.library2,
-                     attr(SL.library, "return.fit")
-)
-
-results.gcomp1 <- ltmle::ltmle(O1a,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = list(c(1,1,1,1), c(0,0,0,0)),
-                     survivalOutcome = TRUE,
-                     gcomp = TRUE,
-                     SL.library = SL.library2,
-                     attr(SL.library, "return.fit")
-)
-
-
-results2 <- ltmle::ltmle(O2a,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = list(c(1,1,1,1), c(0,0,0,0)),
-                     survivalOutcome = TRUE,
-                     SL.library = SL.library2,
-                     attr(SL.library, "return.fit")
-)
-
-results.gcomp2 <- ltmle::ltmle(O2a,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = list(c(1,1,1,1), c(0,0,0,0)),
-                     survivalOutcome = TRUE,
-                     gcomp = TRUE,
-                     SL.library = SL.library2,
-                     attr(SL.library, "return.fit")
-)
-
-
-results3 <- ltmle::ltmle(O3a,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = list(c(1,1,1,1), c(0,0,0,0)),
-                     survivalOutcome = TRUE,
-                     SL.library = SL.library2,
-                     attr(SL.library, "return.fit")
-)
-
-results.gcomp3 <- ltmle::ltmle(O3a,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = list(c(1,1,1,1), c(0,0,0,0)),
-                     survivalOutcome = TRUE,
-                     gcomp = TRUE,
-                     SL.library = SL.library2,
-                     attr(SL.library, "return.fit")
-)
-
-
-results4 <- ltmle::ltmle(O4a,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = list(c(1,1,1,1), c(0,0,0,0)),
-                     survivalOutcome = TRUE,
-                     SL.library = SL.library2,
-                     attr(SL.library, "return.fit")
-)
-
-results.gcomp4 <- ltmle::ltmle(O4a,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = list(c(1,1,1,1), c(0,0,0,0)),
-                     survivalOutcome = TRUE,
-                     gcomp = TRUE,
-                     SL.library = SL.library2,
-                     attr(SL.library, "return.fit")
-)
-
-
-results5 <- ltmle::ltmle(O5a,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = list(c(1,1,1,1), c(0,0,0,0)),
-                     survivalOutcome = TRUE,
-                     SL.library = SL.library2,
-                     attr(SL.library, "return.fit")
-)
-
-results.gcomp5 <- ltmle::ltmle(O5a,
-                     Anodes= c("A1", "A2", "A3", "A4"),
-                     Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
-                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
-                     abar = list(c(1,1,1,1), c(0,0,0,0)),
-                     survivalOutcome = TRUE,
-                     gcomp = TRUE,
-                     SL.library = SL.library2,
-                     attr(SL.library, "return.fit")
-)
-
-save(results1, file = "results1.Rdata")
-save(results.gcomp1, file = "results_gcomp1.Rdata")
-save(results2, file = "results2.Rdata")
-save(results.gcomp2, file = "results_gcomp2.Rdata")
-save(results3, file = "results3.Rdata")
-save(results.gcomp3, file = "results_gcomp3.Rdata")
-save(results4, file = "results4.Rdata")
-save(results.gcomp4, file = "results_gcomp4.Rdata")
-save(results5, file = "results5.Rdata")
-save(results.gcomp5, file = "results_gcomp5.Rdata")
+# SL.library2 <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.step.forward", "SL.step.interaction", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") ## armadillo 
+# 
+# results1 <- ltmle::ltmle(O1a,
+#                      Anodes= c("A1", "A2", "A3", "A4"),
+#                      Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
+#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
+#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
+#                      survivalOutcome = TRUE,
+#                      SL.library = SL.library2,
+#                      attr(SL.library, "return.fit")
+# )
+# 
+# results.gcomp1 <- ltmle::ltmle(O1a,
+#                      Anodes= c("A1", "A2", "A3", "A4"),
+#                      Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
+#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
+#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
+#                      survivalOutcome = TRUE,
+#                      gcomp = TRUE,
+#                      SL.library = SL.library2,
+#                      attr(SL.library, "return.fit")
+# )
+# 
+# 
+# results2 <- ltmle::ltmle(O2a,
+#                      Anodes= c("A1", "A2", "A3", "A4"),
+#                      Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
+#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
+#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
+#                      survivalOutcome = TRUE,
+#                      SL.library = SL.library2,
+#                      attr(SL.library, "return.fit")
+# )
+# 
+# results.gcomp2 <- ltmle::ltmle(O2a,
+#                      Anodes= c("A1", "A2", "A3", "A4"),
+#                      Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
+#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
+#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
+#                      survivalOutcome = TRUE,
+#                      gcomp = TRUE,
+#                      SL.library = SL.library2,
+#                      attr(SL.library, "return.fit")
+# )
+# 
+# 
+# results3 <- ltmle::ltmle(O3a,
+#                      Anodes= c("A1", "A2", "A3", "A4"),
+#                      Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
+#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
+#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
+#                      survivalOutcome = TRUE,
+#                      SL.library = SL.library2,
+#                      attr(SL.library, "return.fit")
+# )
+# 
+# results.gcomp3 <- ltmle::ltmle(O3a,
+#                      Anodes= c("A1", "A2", "A3", "A4"),
+#                      Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
+#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
+#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
+#                      survivalOutcome = TRUE,
+#                      gcomp = TRUE,
+#                      SL.library = SL.library2,
+#                      attr(SL.library, "return.fit")
+# )
+# 
+# 
+# results4 <- ltmle::ltmle(O4a,
+#                      Anodes= c("A1", "A2", "A3", "A4"),
+#                      Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
+#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
+#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
+#                      survivalOutcome = TRUE,
+#                      SL.library = SL.library2,
+#                      attr(SL.library, "return.fit")
+# )
+# 
+# results.gcomp4 <- ltmle::ltmle(O4a,
+#                      Anodes= c("A1", "A2", "A3", "A4"),
+#                      Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
+#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
+#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
+#                      survivalOutcome = TRUE,
+#                      gcomp = TRUE,
+#                      SL.library = SL.library2,
+#                      attr(SL.library, "return.fit")
+# )
+# 
+# 
+# results5 <- ltmle::ltmle(O5a,
+#                      Anodes= c("A1", "A2", "A3", "A4"),
+#                      Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
+#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
+#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
+#                      survivalOutcome = TRUE,
+#                      SL.library = SL.library2,
+#                      attr(SL.library, "return.fit")
+# )
+# 
+# results.gcomp5 <- ltmle::ltmle(O5a,
+#                      Anodes= c("A1", "A2", "A3", "A4"),
+#                      Lnodes = c("La1", "Lb1", "Lb1lm", "La2", "Lb2", "Lb2lm", "La3", "Lb3", "Lb3lm", "La4", "Lb4", "Lb4lm"),
+#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
+#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
+#                      survivalOutcome = TRUE,
+#                      gcomp = TRUE,
+#                      SL.library = SL.library2,
+#                      attr(SL.library, "return.fit")
+# )
+# 
+# save(results1, file = "results1.Rdata")
+# save(results.gcomp1, file = "results_gcomp1.Rdata")
+# save(results2, file = "results2.Rdata")
+# save(results.gcomp2, file = "results_gcomp2.Rdata")
+# save(results3, file = "results3.Rdata")
+# save(results.gcomp3, file = "results_gcomp3.Rdata")
+# save(results4, file = "results4.Rdata")
+# save(results.gcomp4, file = "results_gcomp4.Rdata")
+# save(results5, file = "results5.Rdata")
+# save(results.gcomp5, file = "results_gcomp5.Rdata")
 ```
 
 ```{r rerun with dataset including cirrhosis at baseline}
@@ -1474,6 +1479,18 @@ save(results.gcomp5, file = "results_gcomp5.Rdata")
 
 
 ```{r results_nocirrhosis}
+
+#loading results pre-run with SL2 library for knitting, etc.
+load("results1.Rdata") 
+load("results_gcomp1.Rdata")
+load("results2.Rdata") 
+load("results_gcomp2.Rdata") 
+load("results3.Rdata") 
+load("results_gcomp3.Rdata") 
+load("results4.Rdata") 
+load("results_gcomp4.Rdata") 
+load("results5.Rdata") 
+load("results_gcomp5.Rdata") 
 
 tmle_SL1 <- summary(results1, "tmle")
 iptw_SL1 <- summary(results1, "iptw")
