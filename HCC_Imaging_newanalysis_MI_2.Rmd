@@ -1013,8 +1013,8 @@ True.Psi.F
 ```
 
 ```{r ltmle run on our simulation with SuperLearner, cache=TRUE}
-SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean")
-#SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.step.forward", "SL.step.interaction", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") ## armadillo 
+#SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean")
+# #SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.step.forward", "SL.step.interaction", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") ## armadillo 
 
 # results_sim <- ltmle::ltmle(SimData,
 #                      Anodes= c("A1", "A2", "A3", "A4"),
@@ -1036,6 +1036,10 @@ SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean")
 #                      SL.library = SL.library,
 #                      attr(SL.library, "return.fit")
 # )
+# 
+# save(results_sim, file = "results_sim.Rdata")
+# save(results_sim.gcomp, file = "results_sim_gcomp.Rdata")
+
 
 #loading results pre-run with simple SL library for knitting, etc.
 load("results_sim.Rdata") 
@@ -1082,7 +1086,7 @@ When testing our estimators against a simulation of 100,000 patients roughly mat
 
 || G-Comp | IPTW | TMLE |
 |----------| ------ | ------ | ------ |
-| Bias | `r round(Bias.g, 5)` | `r round(Bias.iptw, 6)` | `r round(Bias.tmle, 5)` |
+| Bias | `r rBias.g` | `r round(Bias.iptw, 6)` | `r round(Bias.tmle, 5)` |
 | Variance | `r rVariance.g` | `r round(Variance.iptw, 6)` | `r rVariance.tmle` |
 | MSE | `r rMSE.g` | `r round(MSE.iptw, 6)` | `r rMSE.tmle` |
 
