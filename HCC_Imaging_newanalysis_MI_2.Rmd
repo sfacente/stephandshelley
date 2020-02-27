@@ -1014,37 +1014,36 @@ True.Psi.F
 
 ```{r ltmle run on our simulation with SuperLearner, cache=TRUE}
 #SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean")
-# #SL.library <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.step.forward", "SL.step.interaction", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") ## armadillo 
+SL.library <- c("SL.glm", "SL.step", "SL.step.forward", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") ## armadillo - note I removed SL.step.interaction and SL.glm.interaction from Veronica's list because I'm not very worried about interaction in this model, and when those wrappers were used on the real data the Coef was almost universally zero in every case.
 
-# results_sim <- ltmle::ltmle(SimData,
-#                      Anodes= c("A1", "A2", "A3", "A4"),
-#                      Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
-#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
-#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
-#                      survivalOutcome = TRUE,
-#                      SL.library = SL.library,
-#                      attr(SL.library, "return.fit")
-# )
+results_sim <- ltmle::ltmle(SimData,
+                     Anodes= c("A1", "A2", "A3", "A4"),
+                     Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
+                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
+                     abar = list(c(1,1,1,1), c(0,0,0,0)),
+                     survivalOutcome = TRUE,
+                     SL.library = SL.library,
+                     attr(SL.library, "return.fit")
+)
+
+results_sim.gcomp <- ltmle::ltmle(SimData,
+                     Anodes= c("A1", "A2", "A3", "A4"),
+                     Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
+                     Ynodes = c("Y2","Y3", "Y4", "Y5"),
+                     abar = list(c(1,1,1,1), c(0,0,0,0)),
+                     survivalOutcome = TRUE,
+                     gcomp = TRUE,
+                     SL.library = SL.library,
+                     attr(SL.library, "return.fit")
+)
+
+save(results_sim, file = "results_sim.Rdata")
+save(results_sim.gcomp, file = "results_sim_gcomp.Rdata")
 # 
-# results_sim.gcomp <- ltmle::ltmle(SimData,
-#                      Anodes= c("A1", "A2", "A3", "A4"),
-#                      Lnodes = c("La1", "Lb1", "La2", "Lb2", "La3", "Lb3", "La4", "Lb4"),
-#                      Ynodes = c("Y2","Y3", "Y4", "Y5"),
-#                      abar = list(c(1,1,1,1), c(0,0,0,0)),
-#                      survivalOutcome = TRUE,
-#                      gcomp = TRUE,
-#                      SL.library = SL.library,
-#                      attr(SL.library, "return.fit")
-# )
 # 
-# save(results_sim, file = "results_sim.Rdata")
-# save(results_sim.gcomp, file = "results_sim_gcomp.Rdata")
-
-
-#loading results pre-run with simple SL library for knitting, etc.
-load("results_sim.Rdata") 
-load("results_sim_gcomp.Rdata") 
-#need to update sim results using larger SL library! armadillo
+# #loading results pre-run with simple SL library for knitting, etc.
+# load("results_sim.Rdata") 
+# load("results_sim_gcomp.Rdata") 
 
 simtmle_SL <- summary(results_sim, "tmle")
 simiptw_SL <- summary(results_sim, "iptw")
@@ -1289,6 +1288,7 @@ O5a$Race <- HCVData5$race.ethnicity
 
 ```{r ltmle run on our DATA with SuperLearner, cache=TRUE}
 
+# SL.library <- c("SL.glm", "SL.step", "SL.step.forward", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") 
 # SL.library2 <- c("SL.glm", "SL.glm.interaction", "SL.step", "SL.step.forward", "SL.step.interaction", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") ## armadillo 
 # 
 # results1 <- ltmle::ltmle(O1a,
@@ -1590,6 +1590,21 @@ Ultimately, implementing \textit{ltmle} with \textit{Super Learner} on our obser
 | `r round(gcomp_ATE, 3)` | `r round(iptw_ATE, 3)` | `r round(tmle_ATE, 3)` |
 *Note that 95% CIs have not yet been computed in this draft but will be fixed.*
 
+<!-- armadillo
+| G-Comp (95% CI) | IPTW (95% CI) | TMLE (95% CI) |
+| ------------- | ------------- | ------------- |
+| `r round(gcomp_ATE, 3)` (`r round(gcomp_low, 3)`, `r round(gcomp_high, 3)`) | `r round(iptw_ATE, 3)` (`r round(iptw_low, 3)`, `r round(iptw_high, 3)`) | `r round(tmle_ATE, 3)` (`r round(tmle_low, 3)`, `r round(tmle_high, 3)`) |
+-->
+
 If we use the G-computation estimate, this means that over the five years under study, patients with no cirrhosis at baseline were `r round(gcomp_ATE, 1)`% less likely to develop HCC by year 5 when they had abdominal imaging each year for the 4 previous years, compared to patients who had no abdominal imaging, when controlling for liver cirrhosis, number of primary care or hepatology visits, sex, race, and SES. **This represents a number needed to treat (NNT) of `r NNT`**: for every `r NNT` people who receive annual abdominal imaging despite no evidence of cirrhosis at baseline, 1 case of HCC could be prevented over 5 years.
 
+<!--
+If this analysis is repeated including people who had cirrhosis at baseline (with all other inclusion criteria remaining the same), the findings are:
+
+| G-Comp (95% CI) | IPTW (95% CI) | TMLE (95% CI) |
+| ------------- | ------------- | ------------- |
+| `r round(gcomp_ATE_withcirr, 3)` (`r round(gcomp_low_withcirr, 3)`, `r round(gcomp_high_withcirr, 3)`) | `r round(iptw_ATE_withcirr, 3)` (`r round(iptw_low_withcirr, 3)`, `r round(iptw_high_withcirr, 3)`) | `r round(tmle_ATE_withcirr, 3)` (`r round(tmle_low_withcirr, 3)`, `r round(tmle_high_withcirr, 3)`) |
+
+If we again use the G-computation estimate, this means that over the five years under study, patients (regardless of cirrhosis at baseline) were `r round(gcomp_ATE_withcirr, 1)`% less likely to develop HCC by year 5 when they had abdominal imaging each year for the 4 previous years, compared to patients who had no abdominal imaging, when controlling for liver cirrhosis, number of primary care or hepatology visits, sex, race, and SES. **This represents a number needed to treat (NNT) of `r NNT_withcirr`**: for every `r NNT_withcirr` people who receive annual abdominal imaging regardless of cirrhosis at baseline, 1 case of HHC could be prevented over 5 years. This is slightly higher than in the case where people with cirrhosis at baseline were excluded, which makes sense because people with cirrhosis are more likely to develop HCC within 5 years regardless of the imaging they receive.
+-->
 
