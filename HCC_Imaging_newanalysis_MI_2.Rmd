@@ -1014,7 +1014,7 @@ True.Psi.F
 
 ```{r ltmle run on our simulation with SuperLearner, cache=TRUE}
 #SL.library <- c("SL.glm", "SL.bayesglm", "SL.mean")
-SL.library <- c("SL.glm", "SL.step", "SL.step.forward", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") ## armadillo - note I removed SL.step.interaction and SL.glm.interaction from Veronica's list because I'm not very worried about interaction in this model, and when those wrappers were used on the real data the Coef was almost universally zero in every case.
+SL.library <- c("SL.glm", "SL.step", "SL.step.forward", "SL.earth", "SL.gam", "SL.nnet", "SL.mean", "SL.bayesglm", "SL.randomForest") ## armadillo - note I removed SL.step.interaction and SL.glm.interaction from Veronica's list to save computation time because I'm not very worried about interaction in this model, and when those wrappers were used on the real data the Coef was almost universally zero in every case.
 
 results_sim <- ltmle::ltmle(SimData,
                      Anodes= c("A1", "A2", "A3", "A4"),
