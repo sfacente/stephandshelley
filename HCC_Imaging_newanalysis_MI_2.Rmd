@@ -10,7 +10,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 library(pacman)
-p_load(tidyverse, readxl, skimr, knitr, xlsx, lubridate, MASS, ggplot2, ggpubr, data.table, mice, ltmle, SuperLearner, arm, gam, randomForest, earth)
+p_load(tidyverse, readxl, skimr, knitr, xslx, lubridate, MASS, ggplot2, ggpubr, data.table, mice, ltmle, SuperLearner, arm, gam, randomForest, earth)
 #library(Hmisc)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
