@@ -1093,8 +1093,9 @@ HCVData5$race.ethnicity <- relevel(HCVData5$race.ethnicity, "W")
 
 fit.glm5_base <- glm(HCC_2019 ~ Yearsof2VwI + race.ethnicity + Sex + PayorType, family = binomial(log), HCVData5)
 fit.glm5 <- glm(HCC_2019 ~ Yearsof2VwI + TotalVisits5years + FIB4_by2019 + race.ethnicity + Sex + PayorType, family = binomial(log), data = HCVData5, start=c(fit.glm5_base$coefficients[1:2],0,0,fit.glm5_base$coefficients[3:7]))
+```
 
-
+```{r results}
 Yearsof2VwI_1 <- exp(fit.glm1$coefficients[2])
 Yearsof2VwI_2 <- exp(fit.glm2$coefficients[2])
 Yearsof2VwI_3 <- exp(fit.glm3$coefficients[2])
