@@ -1100,12 +1100,12 @@ Yearsof2VwI_2 <- exp(fit.glm2$coefficients[2])
 Yearsof2VwI_3 <- exp(fit.glm3$coefficients[2])
 Yearsof2VwI_4 <- exp(fit.glm4$coefficients[2])
 Yearsof2VwI_5 <- exp(fit.glm5$coefficients[2])
-Yearsof2VwI_ptest <- as.vector(c(Yearsof2VwI_1, Yearsof2VwI_2, Yearsof2VwI_3, Yearsof2VwI_4, Yearsof2VwI_5))
-Yearsof2VwI_ptest <- mean(Yearsof2VwI_ptest); Yearsof2VwI_ptest
+Yearsof2VwI_pt.est <- as.vector(c(Yearsof2VwI_1, Yearsof2VwI_2, Yearsof2VwI_3, Yearsof2VwI_4, Yearsof2VwI_5))
+Yearsof2VwI_pt.est <- mean(Yearsof2VwI_ptest); Yearsof2VwI_ptest
 
 #NNT
-NNTdenom <- Yearsof2VwI_ptest/100
-NNT <- round(1/(Yearsof2VwI_ptest/100), 0); NNT
+NNTdenom <- Yearsof2VwI_pt.est/100
+NNT <- round(1/(Yearsof2VwI_pt.est/100), 0); NNT
 ```
 
 <!--armadillo-->
