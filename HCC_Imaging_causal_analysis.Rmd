@@ -735,19 +735,29 @@ HCVData5 <-  HCVData5 %>% mutate(FIB4_by2019 = FIB4_2019, YearsSinceFib4_2019 = 
 HCVData5 <-  HCVData5 %>% mutate(FIB4_by2019 = ifelse(is.na(FIB4_2019)== "TRUE", FIB4_by2018, FIB4_by2019),
                                YearsSinceFib4_2019 = ifelse(is.na(FIB4_2019)== "TRUE", YearsSinceFib4_2018 + 1, 0),
                                ImputedFIB4_2019 = ifelse(is.na(FIB4_2019)== "TRUE", ImputedFIB4_2018, 0))
+
+#check for years with visits but no imaging
+HCVData1$noimage2014 <- ifelse(HCVData1$VISIT_COUNT_2014 > 0 & (HCVData1$ABD_IMAGING_2014==0 | is.na(HCVData1$ABD_IMAGING_2014)), 1, 0)
+HCVData1$noimage2015 <- ifelse(HCVData1$VISIT_COUNT_2015 > 0 & (HCVData1$ABD_IMAGING_2015==0 | is.na(HCVData1$ABD_IMAGING_2015)), 1, 0)
+HCVData1$noimage2016 <- ifelse(HCVData1$VISIT_COUNT_2016 > 0 & (HCVData1$ABD_IMAGING_2016==0 | is.na(HCVData1$ABD_IMAGING_2016)), 1, 0)
+HCVData1$noimage2017 <- ifelse(HCVData1$VISIT_COUNT_2017 > 0 & (HCVData1$ABD_IMAGING_2017==0 | is.na(HCVData1$ABD_IMAGING_2017)), 1, 0)
+HCVData1$noimage2018 <- ifelse(HCVData1$VISIT_COUNT_2018 > 0 & (HCVData1$ABD_IMAGING_2018==0 | is.na(HCVData1$ABD_IMAGING_2018)), 1, 0)
+HCVData1$noimages <- ifelse((HCVData1$noimage2014 + HCVData1$noimage2015 + HCVData1$noimage2016 + HCVData1$noimage2017 + HCVData1$noimage2018) < 5, 1, 0)
+PctNoImages <- round(sum(HCVData1$noimages)/nrow(HCVData1)*100, 1)
+                       
 ```
 
 # 1. Background
 ## A. Brief Introduction
 Hepatocellular carcinoma (HCC), a type of liver cancer, is the second most common cause of liver-related death throughout the world (Bosetti et al 2014). HCC is a major complication of infection with hepatitis C (HCV) virus, occuring in 1%-4% of people with liver cirrhosis each year (Omland et al 2010). HCV becomes chronic infection for about 80% of adults, and if left untreated can cause increasing cirrhosis over a period of 20-30 years of often asymptomatic disease, until damage is severe and major complications are irreversable (El-Serag 2012). Certain HCV viral genotypes (particularly genotype 3) are associated with higher risk of HCC, as is continued smoking (Chuang et al 2010) and alcohol use (Donato et al 2002), as well as concurrent diabetes or obesity (Huang et al 2017, Calle et al 2003). 
 
-Since 2014, direct-acting antiviral (DAA) therapy has dramatically improved prognosis for people living with HCV; 8-12 weeks of well-tolerated oral therapy leads to cure in more than 90% of patients (Burstow et al 2017), halting cirrhosis progression and apparently reducing the elevated risk of HCC (Axley et al 2017). Patients whose HCV has already caused some cirrhosis continue to be at some increased risk of HCC even post-cure, and given the high mortality risk it is recommended that people with HCV infection receive systematic monitoring with liver ultrasound (EASL 2015). However, despite having evidence of visits with a primary care physician or hepatologist, some UCSF patients chronically infected with HCV do not have evidence of abdominal imaging at least once per year. In this study we aimed to estimate the longitudinal association of abdominal imaging on HCC risk using causal inference methods. We hypothesized that patients with no cirrhosis at baseline would be less likely to develop HCC within 5 years when they had evidence of abdominal imaging at least once per year for 5 years, compared to patients who did not have annual abdominal imaging.
+Since 2014, direct-acting antiviral (DAA) therapy has dramatically improved prognosis for people living with HCV; 8-12 weeks of well-tolerated oral therapy leads to cure in more than 90% of patients (Burstow et al 2017), halting cirrhosis progression and apparently reducing the elevated risk of HCC (Axley et al 2017). Patients whose HCV has already caused some cirrhosis continue to be at some increased risk of HCC even post-cure, and given the high mortality risk it is recommended that people with HCV infection receive systematic monitoring with liver ultrasound; the European Association for Study of the Liver currently recommends screening twice per year (EASL 2015). However, many UCSF patients chronically infected with HCV do not have evidence of abdominal imaging at least once per year. In this study we aimed to estimate the longitudinal association of abdominal imaging on HCC risk using causal inference methods. We hypothesized that patients with no cirrhosis at baseline would be less likely to develop HCC within 5 years when they had evidence of abdominal imaging at least once per year for 5 years, compared to patients who did not have annual abdominal imaging.
 
 ## B. Description of our Dataset
 
 We are using a dataset of chronic hepatitis C patients receiving care in the UCSF system since 2009. There are `r nrow(HCVData)` patients, who were adults seen in the UCSF system by the end of 2015 and have been seen in a variety of primary care clinics and the hepatology (liver) clinic between 2015 and 2019. These data come from a query of Apex, the UCSF-specific build of the electronic medical record system Epic.
 
-We restricted our dataset to adult UCSF patients diagnosed with HCV who, prior to the start of follow up (ie. as of 12/31/14) were not known to have indications of cirrhosis or HCC. (n = `r nrow(HCVData1)`) For those who had been in the system prior to 2015, historical data back to 2011 was used to calculate their FIB-4 score at the beinning of follow up (ie. by the end of 2014). For those who did not yet have those data, the FIB-4 score in 2014 was imputed using multiple imputation (m=5). 
+We restricted our dataset to adult UCSF patients diagnosed with HCV who, prior to the start of follow up (ie. as of 12/31/14) were not known to have indications of cirrhosis (FIB-4 score > 3.25) or HCC. (n = `r nrow(HCVData1)`) For those who had been in the system prior to 2015, historical data back to 2011 was used to calculate their FIB-4 score at the beinning of follow up (ie. by the end of 2014). For those who did not yet have those data, the FIB-4 score in 2014 was imputed using multiple imputation (m=5). 
 
 <!-- reminder that if someone had no data through 2014, and first showed up in 2015, they're still in this dataset even if they had, say, cirrhosis diagnosed elsewhere prior to 2015. So we should be careful to describe the dataset as those in the system, 'not known to have cirrhosis' prior to 1/1/2015 or sth similar-->
 
@@ -789,10 +799,16 @@ HCVData1$HCC <- ifelse(is.na(HCVData1$Cancer.Diagnosis.Name), 0, 1)
 HCCpercent <- mean(HCVData1$HCC)*100
 ```
 
+**Presence of Abdominal Imaging**
+
+In years where they had at least one visit with a primary care physician or hepatologist, `r PctNoImages`% of UCSF patients chronically infected with HCV had no evidence of abdominal imaging at least one of those years for the 5 years under study.
+
+**Diagnosis of HCC by 2019**
+
 `r sum(HCVData1$HCC)` people (`r round(HCCpercent, 1)`%) developed the outcome of interest (were diagnosed with HCC during the course of the study). The figure below shows the number of people diagnosed with HCC in each year, and cumulatively, throughout the study period (\textbf{note} that 2019 is an incomplete year of data.)
 
 
-```{r HCCplots, include = TRUE, echo = FALSE, warning = FALSE, message = FALSE, fig.width=11, fig.height=6.5}
+```{r HCCplots, include = TRUE, echo = FALSE, warning = FALSE, message = FALSE, fig.width=11, fig.height=7}
 
 HCCyearly <- HCVData1 %>% dplyr::select(HCC_2016only, HCC_2017only, HCC_2018only, HCC_2019only)
 colnames(HCCyearly) <- c("2016", "2017", "2018", "2019")
@@ -822,9 +838,11 @@ Fib25 <- round(quantile(FIBLong$value, na.rm = TRUE)[2],4)
 Fib75 <- round(quantile(FIBLong$value, na.rm = TRUE)[4],4)
 ```
 
-FIB-4 scores are calculated with inputs of age, platelet count, AST, and ALT. Scores of <1.45 are considered to be strongly suggestive of no liver fibrosis, and scores >3.25 are indicative of advanced fibrosis and/or cirrhosis. 
+FIB-4 scores (Sterling, 2006) are calculated with inputs of age, platelet count, AST, and ALT. Scores of <1.45 are considered to be strongly suggestive of no liver fibrosis, and scores >3.25 are indicative of advanced fibrosis and/or cirrhosis. 
 
 FIB-4 scores in this dataset range of `r minFib` to `r maxFib`, with an IQR of `r FibIQR` (`r Fib25`-`r Fib75`), indicating the FIB-4 score of 45 is a substantial outlier. `r cirrhosis` FIB-4 scores are >3.25 throughout all years of follow-up on all patients, indicating likely cirrhosis and increased risk of HCC at those timepoints.  There are `r outliers` instances where a patient's FIB-4 score was calculated to be greater than 9.
+
+Given that FIB-4 scores could not be measured every year for every patient, after 2014 when test results were not available for a new FIB-4 calculation, the prior year's FIB-4 score was carried forward; the number of years since FIB-4 was measured was also included as a longitudinal covariate in our model.
   
 \vspace{12pt}
 
@@ -833,9 +851,7 @@ FIB-4 scores in this dataset range of `r minFib` to `r maxFib`, with an IQR of `
 \vspace{-6pt}
 
 * \textbf{Sex}. This is a dichotomous variable, with two categories (male, female), as UCSF has not been capturing other gender categories within Epic.
-
 * \textbf{Race}. This is a categorical variable, which recategorized into White, Black/African American, Latinx, and Other for ease of analysis given the bias introduced into causal analyses by practical positivity violations.
-
 * \textbf{SES}. We used insurance type (Medi-Cal, or not Medi-Cal) as a marker of SES status, which is again a dichotomous variable.
 
 The table below displays the demographic breakdown of the sample.
@@ -862,15 +878,13 @@ We defined our **exposure** as the total number of abdominal imaging results rep
 
 We defined our **outcome** as diagnosis of HCC, by the final year (2019). 
 
-We included 6 **covariates** in our model: race, sex, and SES as defined above, as well as:
+We included 6 **covariates** in our model: race, sex, and SES as defined above, as well as 3 longitudinal covariates assessed annually:
 
 \vspace{-8pt}
 
-* Total number of primary care or hepatology visits in the UCSF system, annually from 2015 - 2019.
-
-* FIB-4 score (a validated measure used for prediction of cirrhosis (Khan et al 2017), which uses age, platelet count and liver transaminases), 
-
-* Years since FIB-4 score was last measured
+* Total number of primary care or hepatology visits in the UCSF system, annually from 2015 - 2019,
+* FIB-4 score (a validated measure used for prediction of cirrhosis (Khan et al 2017), which uses age, platelet count and liver transaminases), and
+* Years since FIB-4 score was last measured.
 
 This is a survival analysis, with a Structural Causal Model $O= \{W, L(t), Y(t), A(t)\}$ where:
 
@@ -1606,8 +1620,45 @@ NNT <- round(1/(gcomp_ATE/100), 0)
 
 Ultimately, implementing \textit{ltmle} with \textit{Super Learner} on our observed data produced the following estimates for the risk difference of developing HCC in year 5 when receiving abdominal imaging at least once per year for the 4 preceding years, compared to not receiving abdominal imaging during that time, when controlling for the number of hepatology or primary care visits, FIB-4 score, sex, race, and SES was:
 
+\vspace{12pt}
+
 | **G-Comp** (95% CI) | **IPTW** (95% CI) | **TMLE** (95% CI) |
 | ------------- | ------------- | ------------- |
 | `r round(gcomp_ATE, 3)` (`r gcomp_low`, `r gcomp_high`) | `r round(iptw_ATE, 3)` (`r iptw_low`, `r iptw_high`) | `r round(tmle_ATE, 3)` (`r tmle_low`, `r tmle_high`) |
 
-Using any of our estimators, we found that over the five years under study, patients with no cirrhosis at baseline were `r round(gcomp_ATE, 1)`% less likely to develop HCC by year 5 when they had abdominal imaging each year for the 4 previous years, compared to patients who had no abdominal imaging, when controlling for liver cirrhosis, number of primary care or hepatology visits, sex, race, and SES. While a `r round(gcomp_ATE, 1)`% decrease in HCC risk over 5 years sounds clinically non-significant at first glance, **this represents a number needed to treat (NNT) of `r NNT`**: for every `r NNT` people who receive annual abdominal imaging despite no evidence of cirrhosis at baseline, 1 case of HCC could be prevented over 5 years. Given that abdominal imaging is a non-invasive and relatively inexpensive intervention, this underscores the potential impact of an intervention to educate primary care and hepatology providers about the importance of ensuring their chronically HCV-infected patients receive abdominal imaging at least once per year, regardless of liver cirrhosis.
+\newpage
+
+## G. Interpretation
+
+Using any of our estimators, we found that over the five years under study, patients with no cirrhosis at baseline were `r round(gcomp_ATE, 1)`% less likely to develop HCC by year 5 when they had abdominal imaging each year for the 4 previous years, compared to patients who had no abdominal imaging, when controlling for liver cirrhosis, number of primary care or hepatology visits, sex, race, and SES. While a `r round(gcomp_ATE, 1)`% decrease in HCC risk over 5 years sounds non-significant at first glance, this as a clinically meaningful finding given that we excluded patients with evidence of cirrhosis at baseline and only followed patients for 5 years. **This represents a number needed to treat (NNT) of `r NNT`**: for every `r NNT` people who receive annual abdominal imaging despite no evidence of cirrhosis at baseline, 1 case of HCC could be prevented over only 5 years. Given that abdominal imaging is a non-invasive and relatively inexpensive intervention, this underscores the potential impact of an intervention to educate primary care and hepatology providers about the importance of ensuring their chronically HCV-infected patients receive abdominal imaging at least once per year, regardless of liver cirrhosis.
+
+## H. References
+
+Axley P, Ahmed Z, Ravi S, Singal AK. Hepatitis C Virus and Hepatocellular Carcinoma: A Narrative Review. J Clin Transl Hepatol. 2018 Mar 28; 6(1): 79-84.
+
+Bosetti C, Turati F, La Vecchia C. Hepatocellular carcinoma epidemiology.Best Pract Res Clin Gastroenterol. 2014 Oct; 28(5):753-70.
+
+<!--
+Burman BE, Bacchetti P, Khalili M. Moderate Alcohol Use and Insulin Action in Chronic Hepatitis C Infection. Dig Dis Sci. 2016;61(8):2417-2425. doi:10.1007/s10620-016-4119-0-->
+
+Burstow NJ, Mohamed Z, Gomaa AI, et al. Hepatitis C treatment: where are we now? Int J Gen Med 2017; 10:39-52.
+
+Calle EE, Rodriguez C, Walker-Thurmond K, Thun MJ. Overweight, obesity, and mortality from cancer in a prospectively studied cohort of U.S. adults. N Engl J Med. 2003 Apr 24; 348(17):1625-38.
+
+Chuang SC, Lee YC, Hashibe M, Dai M, Zheng T, Boffetta P. Interaction between cigarette smoking and hepatitis B and C virus infection on the risk of liver cancer: a meta-analysis. Cancer Epidemiol Biomarkers Prev. 2010 May; 19(5):1261-8.
+
+Donato F, Tagger A, Gelatti U, Parrinello G, Boffetta P, Albertini A, Decarli A, Trevisi P, Ribero ML, Martelli C, Porru S, Nardi G. Alcohol and hepatocellular carcinoma: the effect of lifetime intake and hepatitis virus infections in men and women. Am J Epidemiol. 2002 Feb 15; 155(4):323-31.
+
+El-Serag HB. Epidemiology of viral hepatitis and hepatocellular carcinoma. Gastroenterology. 2012 May; 142(6):1264-1273.e1.
+
+European Association for Study of Liver (EASL). EASL Recommendations on Treatment of Hepatitis C 2015. 
+J Hepatol. 2015 Jul; 63(1):199-236.
+
+Huang TS, Lin CL, Lu MJ, Yeh CT, Liang KH, Sun CC, Shyu YC, Chien RN. Diabetes, hepatocellular carcinoma, and mortality in hepatitis C-infected patients: A population-based cohort study.
+J Gastroenterol Hepatol. 2017 Jul; 32(7):1355-1362.
+
+Khan MQ, Anand V, Hessefort N, Hassan A, Ahsan A, Sonnenberg A, Fimmel CJ. Utility of Electronic Medical record-based Fibrosis Scores in Predicting Advanced Cirrhosis in Patients with Hepatitic C Virus Infection. J Transl Int Med. 2017 Mar; 5(1): 43-48.
+
+Omland LH, Krarup H, Jepsen P, Georgsen J, Harritsh?j LH, Riisom K, Jacobsen SE, Schouenborg P, Christensen PB, S?rensen HT, Obel N, DANVIR Cohort Study. Mortality in patients with chronic and cleared hepatitis C viral infection: a nationwide cohort study. J Hepatol. 2010 Jul; 53(1):36-42.
+
+Sterling, R. K., Lissen, E. , Clumeck, N. , Sola, R. , Correa, M. C., Montaner, J. , S. Sulkowski, M. , Torriani, F. J., Dieterich, D. T., Thomas, D. L., Messinger, D. and Nelson, M. (2006), Development of a simple noninvasive index to predict significant fibrosis in patients with HIV/HCV coinfection. Hepatology, 43: 1317-1325. doi:10.1002/hep.21178
