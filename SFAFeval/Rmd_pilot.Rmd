@@ -1,0 +1,208 @@
+---
+title: "SFAF Evaluation 1819_Rmdpilot"
+author: "Shelley Facente"
+date: "7/21/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+#setwd("C:/Users/dbhatta/Desktop/Evaluation1819") #Dharma
+setwd("~/GitHub/stephandshelley/SFAFeval") #Shelley
+
+combineQ1 <- read.csv("combined1819Q1csv.csv",stringsAsFactors = F,header=T, na.strings=c("","NA"))
+combineQ2 <- read.csv("combined1819Q2csv.csv",stringsAsFactors = F,header=T, na.strings=c("","NA"))  
+combineQ3 <- read.csv("combined1819Q3csv.csv",stringsAsFactors = F,header=T, na.strings=c("","NA"))  
+combineQ4 <- read.csv("combined1819Q4csv.csv",stringsAsFactors = F,header=T, na.strings=c("","NA"))  
+
+library(epiDisplay)
+library(dplyr)
+```
+
+```{r recode_variables, include=FALSE}
+#Recode age 50+
+combineQ1$agecat1 <- recode(combineQ1$Age.Bucket, `13-19`="13-19",`20-29`="20-29",`30-39`="30-39",`40-49`="40-49",`50-59`="50+",`60 and over`="50+")
+combineQ2$agecat1 <- recode(combineQ2$Age.Bucket, `13-19`="13-19",`20-29`="20-29",`30-39`="30-39",`40-49`="40-49",`50-59`="50+",`60 and over`="50+")
+combineQ3$agecat1 <- recode(combineQ3$Age.Bucket, `13-19`="13-19",`20-29`="20-29",`30-39`="30-39",`40-49`="40-49",`50-59`="50+",`60 and over`="50+")
+combineQ4$agecat1 <- recode(combineQ4$Age.Bucket, `13-19`="13-19",`20-29`="20-29",`30-39`="30-39",`40-49`="40-49",`50-59`="50+",`60 and over`="50+")
+
+#Recode Race, if Hispanic or latinx reported Hispanic or Latinx and others = Hispanic or Latinx
+combineQ1$raeth <- ifelse((combineQ1$Race.Exclusive=="American Indian or Alaska Native"),1,
+                 ifelse((combineQ1$Race.Exclusive=="Asian"),2,
+                 ifelse((combineQ1$Race.Exclusive=="Black or African American"),3,
+                 ifelse((combineQ1$Race.Exclusive=="Declined"),4,
+                 ifelse((combineQ1$Race.Exclusive=="Hispanic or Latinx"),5,
+                 ifelse(!is.na(combineQ1$Hispanic.or.Latinx==1)&(combineQ1$Race.Exclusive=="Multiple"),5,
+                 ifelse((combineQ1$Race.Exclusive=="Middle Eastern or North African"),6,
+                 ifelse((combineQ1$Race.Exclusive=="Multiple"),7,
+                 ifelse((combineQ1$Race.Exclusive=="Native Hawaiian or Other Pacific Islander"),8,
+                 ifelse((combineQ1$Race.Exclusive=="Other Race"),9,
+                 ifelse((combineQ1$Race.Exclusive=="Unknown"),10, 
+                 ifelse((combineQ1$Race.Exclusive=="White"),11,NA))))))))))))
+combineQ1$raeth <- as.factor(combineQ1$raeth)
+levels(combineQ1$raeth)<-list("American Indian or Alaska Native"=1,"Asian"=2,"Black or African American"=3,"Declined"=4,"Hispanic or Latinx"=5,"Middle Eastern or North African"=6,"Multiple"=7,"Native Hawaiian or Other Pacific Islander"=8,"Other Race"=9,"Unknown"=10,"White"=11)
+combineQ2$raeth <- ifelse((combineQ2$Race.Exclusive=="American Indian or Alaska Native"),1,
+                 ifelse((combineQ2$Race.Exclusive=="Asian"),2,
+                 ifelse((combineQ2$Race.Exclusive=="Black or African American"),3,
+                 ifelse((combineQ2$Race.Exclusive=="Declined"),4,
+                 ifelse((combineQ2$Race.Exclusive=="Hispanic or Latinx"),5,
+                 ifelse(!is.na(combineQ2$Hispanic.or.Latinx==1)&(combineQ2$Race.Exclusive=="Multiple"),5,
+                 ifelse((combineQ2$Race.Exclusive=="Middle Eastern or North African"),6,
+                 ifelse((combineQ2$Race.Exclusive=="Multiple"),7,
+                 ifelse((combineQ2$Race.Exclusive=="Native Hawaiian or Other Pacific Islander"),8,
+                 ifelse((combineQ2$Race.Exclusive=="Other Race"),9,
+                 ifelse((combineQ2$Race.Exclusive=="Unknown"),10, 
+                 ifelse((combineQ2$Race.Exclusive=="White"),11,NA))))))))))))
+combineQ2$raeth <- as.factor(combineQ2$raeth)
+levels(combineQ2$raeth)<-list("American Indian or Alaska Native"=1,"Asian"=2,"Black or African American"=3,"Declined"=4,"Hispanic or Latinx"=5,"Middle Eastern or North African"=6,"Multiple"=7,"Native Hawaiian or Other Pacific Islander"=8,"Other Race"=9,"Unknown"=10,"White"=11)
+combineQ3$raeth <- ifelse((combineQ3$Race.Exclusive=="American Indian or Alaska Native"),1,
+                 ifelse((combineQ3$Race.Exclusive=="Asian"),2,
+                 ifelse((combineQ3$Race.Exclusive=="Black or African American"),3,
+                 ifelse((combineQ3$Race.Exclusive=="Declined"),4,
+                 ifelse((combineQ3$Race.Exclusive=="Hispanic or Latinx"),5,
+                 ifelse(!is.na(combineQ3$Hispanic.or.Latinx==1)&(combineQ3$Race.Exclusive=="Multiple"),5,
+                 ifelse((combineQ3$Race.Exclusive=="Middle Eastern or North African"),6,
+                 ifelse((combineQ3$Race.Exclusive=="Multiple"),7,
+                 ifelse((combineQ3$Race.Exclusive=="Native Hawaiian or Other Pacific Islander"),8,
+                 ifelse((combineQ3$Race.Exclusive=="Other Race"),9,
+                 ifelse((combineQ3$Race.Exclusive=="Unknown"),10, 
+                 ifelse((combineQ3$Race.Exclusive=="White"),11,NA))))))))))))
+combineQ3$raeth <- as.factor(combineQ3$raeth)
+levels(combineQ3$raeth)<-list("American Indian or Alaska Native"=1,"Asian"=2,"Black or African American"=3,"Declined"=4,"Hispanic or Latinx"=5,"Middle Eastern or North African"=6,"Multiple"=7,"Native Hawaiian or Other Pacific Islander"=8,"Other Race"=9,"Unknown"=10,"White"=11)
+combineQ4$raeth <- ifelse((combineQ4$Race.Exclusive=="American Indian or Alaska Native"),1,
+                 ifelse((combineQ4$Race.Exclusive=="Asian"),2,
+                 ifelse((combineQ4$Race.Exclusive=="Black or African American"),3,
+                 ifelse((combineQ4$Race.Exclusive=="Declined"),4,
+                 ifelse((combineQ4$Race.Exclusive=="Hispanic or Latinx"),5,
+                 ifelse(!is.na(combineQ4$Hispanic.or.Latinx==1)&(combineQ4$Race.Exclusive=="Multiple"),5,
+                 ifelse((combineQ4$Race.Exclusive=="Middle Eastern or North African"),6,
+                 ifelse((combineQ4$Race.Exclusive=="Multiple"),7,
+                 ifelse((combineQ4$Race.Exclusive=="Native Hawaiian or Other Pacific Islander"),8,
+                 ifelse((combineQ4$Race.Exclusive=="Other Race"),9,
+                 ifelse((combineQ4$Race.Exclusive=="Unknown"),10, 
+                 ifelse((combineQ4$Race.Exclusive=="White"),11,NA))))))))))))
+combineQ4$raeth <- as.factor(combineQ4$raeth)
+levels(combineQ4$raeth)<-list("American Indian or Alaska Native"=1,"Asian"=2,"Black or African American"=3,"Declined"=4,"Hispanic or Latinx"=5,"Middle Eastern or North African"=6,"Multiple"=7,"Native Hawaiian or Other Pacific Islander"=8,"Other Race"=9,"Unknown"=10,"White"=11)
+
+
+#Recode People of Color (POC)
+combineQ1$poc <- recode(combineQ1$Race.Exclusive,`American Indian or Alaska Native`="POC",Asian="POC",`Black or African American`="POC",
+                      `Hispanic or Latinx`="POC",`Middle Eastern or North African`="POC",Multiple="POC",`Native Hawaiian or Other Pacific Islander`="POC",`Other Race`="POC",White="WHITE",.default = NA_character_)
+combineQ2$poc <- recode(combineQ2$Race.Exclusive,`American Indian or Alaska Native`="POC",Asian="POC",`Black or African American`="POC",
+                      `Hispanic or Latinx`="POC",`Middle Eastern or North African`="POC",Multiple="POC",`Native Hawaiian or Other Pacific Islander`="POC",`Other Race`="POC",White="WHITE",.default = NA_character_)
+combineQ3$poc <- recode(combineQ3$Race.Exclusive,`American Indian or Alaska Native`="POC",Asian="POC",`Black or African American`="POC",
+                      `Hispanic or Latinx`="POC",`Middle Eastern or North African`="POC",Multiple="POC",`Native Hawaiian or Other Pacific Islander`="POC",`Other Race`="POC",White="WHITE",.default = NA_character_)
+combineQ4$poc <- recode(combineQ4$Race.Exclusive,`American Indian or Alaska Native`="POC",Asian="POC",`Black or African American`="POC",
+                      `Hispanic or Latinx`="POC",`Middle Eastern or North African`="POC",Multiple="POC",`Native Hawaiian or Other Pacific Islander`="POC",`Other Race`="POC",White="WHITE",.default = NA_character_)
+
+#Recode MSMT
+combineQ1$MSMT <- replace(combineQ1$MSMT,is.na(combineQ1$MSMT),0)
+combineQ1$MSMT <- factor(combineQ1$MSMT,levels = c(1,0),labels = c("Yes", "No"))
+combineQ2$MSMT <- replace(combineQ2$MSMT,is.na(combineQ2$MSMT),0)
+combineQ2$MSMT <- factor(combineQ2$MSMT,levels = c(1,0),labels = c("Yes", "No"))
+combineQ3$MSMT <- replace(combineQ3$MSMT,is.na(combineQ3$MSMT),0)
+combineQ3$MSMT <- factor(combineQ3$MSMT,levels = c(1,0),labels = c("Yes", "No"))
+combineQ4$MSMT <- replace(combineQ4$MSMT,is.na(combineQ4$MSMT),0)
+combineQ4$MSMT <- factor(combineQ4$MSMT,levels = c(1,0),labels = c("Yes", "No"))
+
+## Recode PWID
+combineQ1$PWID <- replace(combineQ1$PWID,is.na(combineQ1$PWID),0)
+combineQ1$PWID <- factor(combineQ1$PWID,levels = c("Yes", 0),labels = c("Yes", "No"))
+combineQ2$PWID <- replace(combineQ2$PWID,is.na(combineQ2$PWID),0)
+combineQ2$PWID <- factor(combineQ2$PWID,levels = c("Yes", 0),labels = c("Yes", "No"))
+combineQ3$PWID <- replace(combineQ3$PWID,is.na(combineQ3$PWID),0)
+combineQ3$PWID <- factor(combineQ3$PWID,levels = c("Yes", 0),labels = c("Yes", "No"))
+combineQ4$PWID <- replace(combineQ4$PWID,is.na(combineQ4$PWID),0)
+combineQ4$PWID <- factor(combineQ4$PWID,levels = c("Yes", 0),labels = c("Yes", "No"))
+
+## Recode TGNC
+combineQ1$TGNC <- replace(combineQ1$TGNC,is.na(combineQ1$TGNC),0)
+combineQ1$TGNC <- factor(combineQ1$TGNC,levels = c(1,0),labels = c("Yes", "No"))
+combineQ2$TGNC <- replace(combineQ2$TGNC,is.na(combineQ2$TGNC),0)
+combineQ2$TGNC <- factor(combineQ2$TGNC,levels = c(1,0),labels = c("Yes", "No"))
+combineQ3$TGNC <- replace(combineQ3$TGNC,is.na(combineQ3$TGNC),0)
+combineQ3$TGNC <- factor(combineQ3$TGNC,levels = c(1,0),labels = c("Yes", "No"))
+combineQ4$TGNC <- replace(combineQ4$TGNC,is.na(combineQ4$TGNC),0)
+combineQ4$TGNC <- factor(combineQ4$TGNC,levels = c(1,0),labels = c("Yes", "No"))
+
+##Current rART last 12 months
+combineQ1$rart <- replace(combineQ1$rart,is.na(combineQ1$rart),0)
+combineQ1$rart <- factor(combineQ1$rart,levels = c("Yes", 0),labels = c("Yes", "No"))
+combineQ2$rart <- replace(combineQ2$rart,is.na(combineQ2$rart),0)
+combineQ2$rart <- factor(combineQ2$rart,levels = c("Yes", 0),labels = c("Yes", "No"))
+combineQ3$rart <- replace(combineQ3$rart,is.na(combineQ3$rart),0)
+combineQ3$rart <- factor(combineQ3$rart,levels = c("Yes", 0),labels = c("Yes", "No"))
+combineQ4$rart <- replace(combineQ4$rart,is.na(combineQ4$rart),0)
+combineQ4$rart <- factor(combineQ4$rart,levels = c("Yes", 0),labels = c("Yes", "No"))
+```
+
+# SFAF FY18-19 Indicators
+
+## Goal 1. People living with HIV will have equal rate of viral suppression regardless of race and ethnicity.
+
+#A. Number of HIV rapid ART starts, by site, BRP, and race/ethnicity
+```{r 1a, include=FALSE}
+# new HIV diagnoses
+new_dx_Q1 <- combineQ1 %>%
+  group_by(HIV.Diagnosis) %>%
+  filter(HIV.Diagnosis=="New")
+num_new_dx_Q1 <- nrow(new_dx_Q1)
+new_dx_Q2 <- combineQ2 %>%
+  group_by(HIV.Diagnosis) %>%
+  filter(HIV.Diagnosis=="New")
+num_new_dx_Q2 <- nrow(new_dx_Q2)
+new_dx_Q3 <- combineQ1 %>%
+  group_by(HIV.Diagnosis) %>%
+  filter(HIV.Diagnosis=="New")
+num_new_dx_Q3 <- nrow(new_dx_Q3)
+new_dx_Q4 <- combineQ1 %>%
+  group_by(HIV.Diagnosis) %>%
+  filter(HIV.Diagnosis=="New")
+num_new_dx_Q4 <- nrow(new_dx_Q4)
+
+# rART by site
+rART_by_site_Q1 <- table(combineQ1$rartlvf, combineQ1$rart)
+rART_by_site_Q2 <- table(combineQ2$rartlvf, combineQ2$rart)
+rART_by_site_Q3 <- table(combineQ3$rartlvf, combineQ3$rart)
+rART_by_site_Q4 <- table(combineQ4$rartlvf, combineQ4$rart)
+
+#rART by BRP
+rART_by_BRP_Q1 <- table(combineQ1$BRP, combineQ1$rart)
+rART_by_BRP_Q2 <- table(combineQ2$BRP, combineQ2$rart)
+rART_by_BRP_Q3 <- table(combineQ3$BRP, combineQ3$rart)
+rART_by_BRP_Q4 <- table(combineQ4$BRP, combineQ4$rart)
+
+#rART by race/ethnicity
+rART_by_race_Q1 <- table(combineQ1$raeth, combineQ1$rart)
+rART_by_race_Q2 <- table(combineQ2$raeth, combineQ2$rart)
+rART_by_race_Q3 <- table(combineQ3$raeth, combineQ3$rart)
+rART_by_race_Q4 <- table(combineQ4$raeth, combineQ4$rart)
+```
+
+# Number of Rapid ART Starts and New HIV Diagnoses at SFAF, FY1819
+```{r plot1a_total, include=TRUE}
+#line plot here of HIV Rapid ART starts per quarter, and new HIV diagnoses per quarter (two lines)
+```
+
+Shelley will write sample text here telling the story behind the curve.
+
+# Number of Rapid ART Starts by Site
+```{r plot1a_site, include=TRUE}
+#single bar here showing total count of starts by site (adding to total starts) (ignore quarters)
+```
+
+Shelley will write sample text here telling the story behind the curve.
+
+# Number of Rapid ART Starts by BRP
+```{r plot1a_brp, include=TRUE}
+#single bar here showing total counts of starts by BRP (adding to total starts) (ignore quarters)
+```
+
+Shelley will write sample text here telling the story behind the curve.
+
+# Number of Rapid ART Starts by Race/Ethnicity
+```{r plot1a_race, include=TRUE}
+#line plot here of number of starts each quarter by racial/ethnic group
+```
+
+Shelley will write sample text here telling the story behind the curve.
