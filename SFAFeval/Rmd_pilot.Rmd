@@ -1,15 +1,14 @@
 ---
 title: "SFAF Evaluation 1819_Rmdpilot"
-author: "Shelley Facente"
-date: "7/21/2020"
+date: "7/23/2020"
 output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE)
-#setwd("C:/Users/dbhatta/Desktop/Evaluation1819") #Dharma
+setwd("C:/Users/dbhatta/Desktop/Evaluation1819") #Dharma
 #setwd("~/GitHub/stephandshelley/SFAFeval") #Shelley
-setwd("~/Documents/GitHub/stephandshelley/SFAFeval") #Steph
+#setwd("~/Documents/GitHub/stephandshelley/SFAFeval") #Steph
 
 #Load the packages needed
 library(tidyverse) #allows us to use tidyverse syntax (like pipes %>%) as well as ggplot
@@ -18,7 +17,7 @@ library(viridis) #uses colorblind friendly color palettes
 ```
 
 ```{r datasets}
-#This chunk you will want to manually edit each time you use this report so that you are using the appropriate datasets
+#This chunk you will want to manually edit each time you use this report so that you are using the appropriate datasets. That could mean adding future quarters to what's here, using the same code, if you just want to keep adding and adding.
 
 #read in each of your datasets (quarterly)
 combineQ1 <- read.csv("combined1819Q1csv.csv",stringsAsFactors = F,header=T, na.strings=c("","NA"))
@@ -33,13 +32,13 @@ combineQ3 <- combineQ3 %>% mutate(Quarter = "Q3", Year = "FY 18-19")
 combineQ4 <- combineQ4 %>% mutate(Quarter = "Q4", Year = "FY 18-19")
 
 #this section is for correcting any variables that have the incorrect variable type
-#When I first attempted to combine the datasets, it errored because this SVR12ReTx variable was a character variable in the Q3 dataset but a logical variable in all the other quarters, so I have made it a logical variable too
+#When I first attempted to combine the datasets, it errored because this SVR12ReTx variable was a character variable in the Q3 dataset but a logical variable in all the other quarters, so I have made it a logical variable too. You can use this place to add any other similar variable fixes that are needed as things progress.
 combineQ3$SVR12ReTx <-as.logical(combineQ3$SVR12ReTx)
 
 #Finally we create new dataset by merging all of the ones entered above
 dataset<- full_join(combineQ1, combineQ2) %>% 
                             full_join(combineQ3) %>%
-                            full_join(combineQ4) #you can add additional piped rows here to join more datasets
+                            full_join(combineQ4) #you can add additional piped rows here to join more datasets when you add additional quarters. 
 ```
 
 ```{r recode_variables}
@@ -47,7 +46,7 @@ dataset<- full_join(combineQ1, combineQ2) %>%
 dataset$agecat1 <- recode(dataset$Age.Bucket, `13-19`="13-19",`20-29`="20-29",`30-39`="30-39",`40-49`="40-49",`50-59`="50+",`60 and over`="50+")
 
 
-#Recode Race, if Hispanic or latinx reported Hispanic or Latinx and others = Hispanic or Latinx
+#Recode Race, if Hispanic or Latinx reported Hispanic or Latinx and others = Hispanic or Latinx
 dataset$raeth <- ifelse((dataset$Race.Exclusive=="American Indian or Alaska Native"),1,
                  ifelse((dataset$Race.Exclusive=="Asian"),2,
                  ifelse((dataset$Race.Exclusive=="Black or African American"),3,
@@ -100,17 +99,17 @@ dataset$TGNC <- factor(dataset$TGNC,levels = c(1,0),labels = c("Yes", "No"))
 dataset$rart <- replace(dataset$rart,is.na(dataset$rart),0)
 dataset$rart <- factor(dataset$rart,levels = c("Yes", 0),labels = c("Yes", "No"))
 
+
 ## Explicitly state missing in BRP variable if the value is missing
 dataset$BRP <- forcats::fct_explicit_na(dataset$BRP, na_level = "(Missing)") #added to make missing values explicit
-
 
 ```
 
 # SFAF FY18-19 Indicators
 
-## Goal 1. People living with HIV will have equal rate of viral suppression regardless of race and ethnicity.
+# Goal 1. People living with HIV will have equal rate of viral suppression regardless of race and ethnicity.
 
-#A. Number of HIV rapid ART starts, by site, BRP, and race/ethnicity
+## A. Tables: Number of HIV rapid ART starts, by site, BRP, and race/ethnicity 
 
 ```{r NewHIV and rART, include=FALSE}
 # new HIV diagnoses 
@@ -136,7 +135,7 @@ rART_by_site <- dataset %>%
                 group_by(Year, Quarter, rartlvf) %>% 
                 tally() %>%
                 pivot_wider(names_from = Quarter, values_from =  n) %>% #makes the dataset "wide" instead of "long"
-                replace(is.na(.), 0)   #these NAs were generated moving the data to wide format, but they should be zeroes
+                replace(is.na(.), 0)   #these NAs were generated moving the data to wide format, but they should be zeroes, so this fixes it
               
 print(as.data.frame(rART_by_site)) #calls table so the results are printed
 ```
@@ -164,8 +163,11 @@ rART_by_BRP <- dataset %>%
                        Q3_Yes, Q3_Total, Q3_Pct,
                        Q4_Yes, Q4_Total, Q4_Pct) 
   
-print(as.data.frame(rART_by_BRP))
+print(as.data.frame(rART_by_BRP[,2:5])) # I have set this to print all the rows and the second through fifth columns of the full table (leaving off the year but keeping the rest of the Q1 info), because it's so long if you print all 4 quarters that it breaks across the page. Here it demonstrates you can print just a subset of rows and/or columns depending on what you want to show someone. 
+
 ```
+
+<!-- This is how you write an internal comment in a text section (outside a code chunk). I wanted to note there are also ways to make tables much prettier than this if you're really interested in making a table, but I haven't spent time on that yet (we can discuss if you want).-->
 
 *by race/ethnicity*
 
@@ -184,18 +186,18 @@ rART_by_race <- dataset %>%
                        Q2_Pct=round((Q2_Yes/Q2_Total)*100,2),  
                        Q3_Pct=round((Q3_Yes/Q3_Total)*100,2), 
                        Q4_Pct=round((Q4_Yes/Q4_Total)*100,2)) %>% 
-                dplyr::select(Q1_Yes, Q1_Total, Q1_Pct, #have to explicitly call dplyr::select function bc there are multiple
+                dplyr::select(Q1_Yes, Q1_Total, Q1_Pct, #have to explicitly call dplyr::select function bc there are multiple 'select' functions in different packages
                        Q2_Yes, Q2_Total, Q2_Pct,
                        Q3_Yes, Q3_Total, Q3_Pct, 
                        Q4_Yes, Q4_Total, Q4_Pct)
  
-print(as.data.frame(rART_by_race))
+print(as.data.frame(rART_by_race[,2:5])) #Also printing just the subset of Q1 here without the year label or the other quarters, just for brevity.
+
 ```
 
+# Plots
 
-
-
-# Number of Rapid ART Starts and New HIV Diagnoses at SFAF, FY1819
+## Number of Rapid ART Starts and New HIV Diagnoses at SFAF, FY1819
 
 ```{r plot1a_total, include=TRUE, fig.height = 3}
 
@@ -221,9 +223,11 @@ Plot1a_Total <- Plot1aTotaldata %>% ggplot(aes(x=FiscalYearandQuarter, y=value, 
 Plot1a_Total
 ```
 
-Shelley will write sample text here telling the story behind the curve.
+This matches the first four datapoints of the first chart in the Excel file. Note that the color scheme here is a colorblind-friendly scheme (but you can pick any color palette). Also, while the green line (# of rART starts) matches the data in the excel file, the # of new HIV diagnoses does not match at all. *Not sure why???*
 
-# Number of Rapid ART Starts by Site
+\vspace{10pt}
+
+## Number of Rapid ART Starts by Site
 
 ```{r plot1a_site, include=TRUE, fig.height = 3}
 rART_by_site <- rART_by_site %>% 
@@ -233,7 +237,7 @@ rART_by_site <- rART_by_site %>%
 #single bar here showing total count of starts by site (adding to total starts) (ignore quarters)
 Plot1a_site <- rART_by_site %>%
                 ggplot(aes(x = Year, y = Annual, fill = rartlvf)) +
-                geom_bar(stat = "identity", position = "stack") +
+                geom_bar(stat = "identity", position = "stack", width=0.3) +
                 geom_text(aes(label = Annual),size = 3, position = position_stack(vjust = 0.5)) +
                 xlab(NULL) + ylab(NULL) + 
                 scale_fill_viridis_d() + 
@@ -245,21 +249,22 @@ Plot1a_site
 
 ```
 
-Shelley will write sample text here telling the story behind the curve.
+This only has one bar, because I only had data for one year, but you can obviously add other bars like is in the excel. You can also adjust the width, gap between bars, total height or width of the plot, color palette, etc. \textcolor{blue}{This is where you could write the story behind the curve, which I'm doing here in blue just to demonstrate you can change the text color, or {\LARGE size}, or \fontfamily{pbk}\selectfont font to whatever you want.}
 
-# Number of Rapid ART Starts by BRP
+## Number of Rapid ART Starts by BRP
 
 ```{r plot1a_brp, include=TRUE, fig.height = 3}
 #single bar here showing total counts of starts by BRP (adding to total starts) (ignore quarters)
 rART_by_BRP <- rART_by_BRP %>% 
                 mutate(Annual = Q1_Yes+Q2_Yes+Q3_Yes+Q4_Yes) 
+rART_by_BRP$BRP <- factor(rART_by_BRP$BRP, levels=c("MSM","MSM PWID", "PWID", "TFSM", "TF NoSexMen", "TFSM PWID", "Partner Positive", "Partner PWID", "No Risk", "(Missing)")) #reordering the BRP categories so they aren't alphabetical but instead are in what seemed like a logical order to me. You can obviously change. 
 
 
 #single bar here showing total count of starts by site (adding to total starts) (ignore quarters)
 Plot1a_BRP <- rART_by_BRP %>% filter(Annual>0) %>%
                 ggplot(aes(x = Year, y = Annual, fill = BRP)) +
-                geom_bar(stat = "identity", position = "stack") +
-                geom_text(aes(label = Annual),size = 3, position = position_stack(vjust = 0.5)) +
+                geom_bar(stat = "identity", position = position_stack(reverse = TRUE), width=0.3) +
+                geom_text(aes(label = Annual),size = 3, position = position_stack(reverse = TRUE, vjust = 0.5)) +
                 xlab(NULL) + ylab(NULL) + 
                 scale_fill_viridis_d(begin=0.2, end =1) + 
                 coord_flip() +
@@ -269,31 +274,32 @@ Plot1a_BRP <- rART_by_BRP %>% filter(Annual>0) %>%
 Plot1a_BRP
 ```
 
-Shelley will write sample text here telling the story behind the curve.
+Though there are potentially 9 different BRP categories, only 4 of them had rapid ART starts during FY 18-19. This might be the place where you would explain why so many say "No Risk" when they obviously had some risk, but you don't know what it was, or similar things.
 
-# Number of Rapid ART Starts by Race/Ethnicity
+\vspace{24pt}
+
+## Number of Rapid ART Starts by Race/Ethnicity
 
 ```{r plot1a_race, include=TRUE,fig.height = 3}
 #line plot here of number of starts each quarter by racial/ethnic group
 
 Plot1aracedata <- rART_by_race %>% 
+                  filter(raeth!="Declined" & raeth!="(Missing)" & raeth!="Unknown") %>%
                   dplyr::select(Year, raeth,Q1_Yes, Q2_Yes, Q3_Yes, Q4_Yes) %>% 
                   filter(Q1_Yes>0 | Q2_Yes >0 | Q3_Yes>0 | Q4_Yes >0) %>%
-              pivot_longer(c(Q1_Yes, Q2_Yes, Q3_Yes, Q4_Yes))  %>% #ggplot works best with data in long format
-              mutate(Quarter = substr(name,0,2)) %>%
-              mutate(FiscalYearandQuarter = paste(Year, Quarter, sep = " ")) %>%
-              dplyr::select(FiscalYearandQuarter, raeth, value)
+                  pivot_longer(c(Q1_Yes, Q2_Yes, Q3_Yes, Q4_Yes))  %>% #ggplot works best with data in long format
+                  mutate(Quarter = substr(name,0,2)) %>%
+                  mutate(FiscalYearandQuarter = paste(Year, Quarter, sep = " ")) %>%
+                  dplyr::select(FiscalYearandQuarter, raeth, value)
 
 yAxisMax <-max(Plot1aracedata$value) + 3
 FYQMax <- max(Plot1aracedata$FiscalYearandQuarter)
+Plot1aracedata$raeth <- factor(Plot1aracedata$raeth, levels=c("Asian", "Black or African American", "Hispanic or Latinx", "White", "Multiple")) #reordering the levels of raeth for this plot so the legend appears in the order I want
 
 #line plot here of HIV Rapid ART starts per quarter, and new HIV diagnoses per quarter (two lines)
 Plot1a_race <- Plot1aracedata %>% ggplot(aes(x=FiscalYearandQuarter, y=value, group=raeth, color = raeth)) + 
-                        geom_line() +
+                        geom_line(size=1) +
                         geom_point() +
-                        #geom_text(data = subset(Plot1aracedata, FiscalYearandQuarter == FYQMax),
-                                  #aes(label = raeth, colour = raeth), hjust = -.1, show.legend = FALSE) + 
-                        #took this line out because the labels overlap too much
                         scale_color_viridis_d() +
                         theme_minimal() +
                         ylab(NULL) + ylim(c(0,yAxisMax)) +
@@ -303,7 +309,9 @@ Plot1a_race <- Plot1aracedata %>% ggplot(aes(x=FiscalYearandQuarter, y=value, gr
 
 Plot1a_race
 
+#If I know I want to talk specifically about the highest point on the chart, Q3 rARTs for Latinx, I can do this
+Latinx_rART_Q3 <- Plot1aracedata$value[Plot1aracedata$FiscalYearandQuarter == "FY 18-19 Q3" & Plot1aracedata$raeth=="Hispanic or Latinx"]
 
 ```
 
-Shelley will write sample text here telling the story behind the curve.
+We discussed earlier that this plot might be better as annual points (grouped by year, not by quarter) but for purposes of this demonstration I just recreated what was in the last version of the excel Indicators document I saw. If I wanted to say something about the highest point on the chart, I could note that throughout all of FY 18-19, the highest number of rARTs was in Q3 among Latinx, when there were `r Latinx_rART_Q3` rARTs. I could also put the code right in the text like this (`r Plot1aracedata$value[Plot1aracedata$FiscalYearandQuarter == "FY 18-19 Q3" & Plot1aracedata$raeth=="Hispanic or Latinx"]`) if I wanted to do it on the fly. Hope this helps you see the kind of thing you can do!
