@@ -1,0 +1,28 @@
+---
+title: "forSteph_tohelp"
+author: "Shelley Facente"
+date: "8/7/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r data}
+load("HIV_care.Rdata")
+
+#This file was created using the code below
+
+#HIV_care <- dataset %>% 
+#  group_by(Acct.Number) %>% select(HIV_Care, Visit.Date.Time) %>%
+#  arrange(Acct.Number, Visit.Date.Time)
+```
+
+The question is, how can I change HIV_care$HIV_Care so that when a single person (Acct.Number) has HIV_Care=="yes" AFTER HIV_Care=="no" (i.e. on a later visit they are in care, despite not being in care earlier) it recodes to "Linked" (i.e. linked to care), and similarly if they are "yes" but then at a later visit change to "no" it sets HIV_Care to "Lost"?
+
+So in the end I would expect "Yes" (always in care), "No" (never in care), "Linked" (started out of care, then entered care during the timeframe of the dataset), and "Lost" (started in care, then fell out of care during the timeframe of the dataset).
+
+Please help??? I'm sure there is dplyr magic but I don't know it. Blech.
+
