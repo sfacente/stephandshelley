@@ -26,3 +26,42 @@ So in the end I would expect "Yes" (always in care), "No" (never in care), "Link
 
 Please help??? I'm sure there is dplyr magic but I don't know it. Blech.
 
+```{r From Steph}
+HIV_Care <- HIV_Care %>%
+                group_by(Acct.Number) %>%
+                mutate(VisitNumber = 1:n()) %>% #just makes a visit number index bc using dates as column names is messy
+                pivot_wider(names_from = VisitNumber, values_from = c(HIV_Care, Visit.Date.Time)) #makes one row per subject
+
+#The combo of mutate and case_when allows you to create variables, based on conditions contained in the other variables. Coding always and never is easy, as you can see I've coded lost and linked based on the only 3 variations that can exist for that, based on only having four visits. There may be some general way of doing this for a higher number of visits automatically but I'd have to think more about that. 
+
+HIV_Care <- HIV_Care %>%
+                mutate( CareStatus = case_when(
+                  (HIV_Care_1 == "Yes" | is.na(HIV_Care_1) ==TRUE) &  
+                    (HIV_Care_2 == "Yes" | is.na(HIV_Care_2) ==TRUE) & 
+                      (HIV_Care_3 == "Yes" | is.na(HIV_Care_3) ==TRUE) &
+                        (HIV_Care_4 == "Yes" | is.na(HIV_Care_4) ==TRUE) ~ "Always",
+                  (HIV_Care_1 == "No" | is.na(HIV_Care_1) ==TRUE) &  
+                    (HIV_Care_2 == "No" | is.na(HIV_Care_2) ==TRUE) & 
+                      (HIV_Care_3 == "No" | is.na(HIV_Care_3) ==TRUE) &
+                        (HIV_Care_4 == "No" | is.na(HIV_Care_4) ==TRUE) ~ "Never",
+                  (HIV_Care_1 == "Yes") &  
+                    (HIV_Care_2 == "No" | is.na(HIV_Care_2) ==TRUE) | 
+                      (HIV_Care_3 == "No" | is.na(HIV_Care_3) ==TRUE) |
+                        (HIV_Care_4 == "No" | is.na(HIV_Care_4) ==TRUE) ~ "Lost",
+                  (HIV_Care_2 == "Yes") &  
+                      (HIV_Care_3 == "No" | is.na(HIV_Care_3) ==TRUE) |
+                        (HIV_Care_4 == "No" | is.na(HIV_Care_4) ==TRUE) ~ "Lost",
+                  (HIV_Care_3 == "Yes") &  
+                        (HIV_Care_4 == "No" | is.na(HIV_Care_4) ==TRUE) ~ "Lost",
+                  (HIV_Care_1 == "No") &  
+                    (HIV_Care_2 == "Yes" | is.na(HIV_Care_2) ==TRUE) | 
+                      (HIV_Care_3 == "Yes" | is.na(HIV_Care_3) ==TRUE) |
+                        (HIV_Care_4 == "Yes" | is.na(HIV_Care_4) ==TRUE) ~ "Linked",
+                  (HIV_Care_2 == "No") &  
+                      (HIV_Care_3 == "Yes" | is.na(HIV_Care_3) ==TRUE) |
+                        (HIV_Care_4 == "Yes" | is.na(HIV_Care_4) ==TRUE) ~ "Linked",
+                  (HIV_Care_3 == "No") &  
+                        (HIV_Care_4 == "Yes" | is.na(HIV_Care_4) ==TRUE) ~ "Linked"))
+
+```
+
