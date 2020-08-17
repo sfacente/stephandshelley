@@ -26,42 +26,76 @@ So in the end I would expect "Yes" (always in care), "No" (never in care), "Link
 
 Please help??? I'm sure there is dplyr magic but I don't know it. Blech.
 
-```{r From Steph}
-HIV_Care <- HIV_Care %>%
-                group_by(Acct.Number) %>%
-                mutate(VisitNumber = 1:n()) %>% #just makes a visit number index bc using dates as column names is messy
-                pivot_wider(names_from = VisitNumber, values_from = c(HIV_Care, Visit.Date.Time)) #makes one row per subject
+```{r Hard-coded up to 4 visits-commented out}
+##This Version only worked for datasets up to 4 visits
 
-#The combo of mutate and case_when allows you to create variables, based on conditions contained in the other variables. Coding always and never is easy, as you can see I've coded lost and linked based on the only 3 variations that can exist for that, based on only having four visits. There may be some general way of doing this for a higher number of visits automatically but I'd have to think more about that. 
-
-HIV_Care <- HIV_Care %>%
-                mutate( CareStatus = case_when(
-                  (HIV_Care_1 == "Yes" | is.na(HIV_Care_1) ==TRUE) &  
-                    (HIV_Care_2 == "Yes" | is.na(HIV_Care_2) ==TRUE) & 
-                      (HIV_Care_3 == "Yes" | is.na(HIV_Care_3) ==TRUE) &
-                        (HIV_Care_4 == "Yes" | is.na(HIV_Care_4) ==TRUE) ~ "Always",
-                  (HIV_Care_1 == "No" | is.na(HIV_Care_1) ==TRUE) &  
-                    (HIV_Care_2 == "No" | is.na(HIV_Care_2) ==TRUE) & 
-                      (HIV_Care_3 == "No" | is.na(HIV_Care_3) ==TRUE) &
-                        (HIV_Care_4 == "No" | is.na(HIV_Care_4) ==TRUE) ~ "Never",
-                  (HIV_Care_1 == "Yes") &  
-                    (HIV_Care_2 == "No" | is.na(HIV_Care_2) ==TRUE) | 
-                      (HIV_Care_3 == "No" | is.na(HIV_Care_3) ==TRUE) |
-                        (HIV_Care_4 == "No" | is.na(HIV_Care_4) ==TRUE) ~ "Lost",
-                  (HIV_Care_2 == "Yes") &  
-                      (HIV_Care_3 == "No" | is.na(HIV_Care_3) ==TRUE) |
-                        (HIV_Care_4 == "No" | is.na(HIV_Care_4) ==TRUE) ~ "Lost",
-                  (HIV_Care_3 == "Yes") &  
-                        (HIV_Care_4 == "No" | is.na(HIV_Care_4) ==TRUE) ~ "Lost",
-                  (HIV_Care_1 == "No") &  
-                    (HIV_Care_2 == "Yes" | is.na(HIV_Care_2) ==TRUE) | 
-                      (HIV_Care_3 == "Yes" | is.na(HIV_Care_3) ==TRUE) |
-                        (HIV_Care_4 == "Yes" | is.na(HIV_Care_4) ==TRUE) ~ "Linked",
-                  (HIV_Care_2 == "No") &  
-                      (HIV_Care_3 == "Yes" | is.na(HIV_Care_3) ==TRUE) |
-                        (HIV_Care_4 == "Yes" | is.na(HIV_Care_4) ==TRUE) ~ "Linked",
-                  (HIV_Care_3 == "No") &  
-                        (HIV_Care_4 == "Yes" | is.na(HIV_Care_4) ==TRUE) ~ "Linked"))
+# HIV_Care <- HIV_Care %>%
+#                 group_by(Acct.Number) %>%
+#                 mutate(VisitNumber = 1:n()) %>% #just makes a visit number index bc using dates as column names is messy
+#                 pivot_wider(names_from = VisitNumber, values_from = c(HIV_Care, Visit.Date.Time)) #makes one row per subject
+# 
+# #The combo of mutate and case_when allows you to create variables, based on conditions contained in the other variables. Coding always and never is easy, as you can see I've coded lost and linked based on the only 3 variations that can exist for that, based on only having four visits. There may be some general way of doing this for a higher number of visits automatically but I'd have to think more about that. 
+# 
+# HIV_Care <- HIV_Care %>%
+#                 mutate( CareStatus = case_when(
+#                   (HIV_Care_1 == "Yes" | is.na(HIV_Care_1) ==TRUE) &  
+#                     (HIV_Care_2 == "Yes" | is.na(HIV_Care_2) ==TRUE) & 
+#                       (HIV_Care_3 == "Yes" | is.na(HIV_Care_3) ==TRUE) &
+#                         (HIV_Care_4 == "Yes" | is.na(HIV_Care_4) ==TRUE) ~ "Always",
+#                   (HIV_Care_1 == "No" | is.na(HIV_Care_1) ==TRUE) &  
+#                     (HIV_Care_2 == "No" | is.na(HIV_Care_2) ==TRUE) & 
+#                       (HIV_Care_3 == "No" | is.na(HIV_Care_3) ==TRUE) &
+#                         (HIV_Care_4 == "No" | is.na(HIV_Care_4) ==TRUE) ~ "Never",
+#                   (HIV_Care_1 == "Yes") &  
+#                     (HIV_Care_2 == "No" | is.na(HIV_Care_2) ==TRUE) | 
+#                       (HIV_Care_3 == "No" | is.na(HIV_Care_3) ==TRUE) |
+#                         (HIV_Care_4 == "No" | is.na(HIV_Care_4) ==TRUE) ~ "Lost",
+#                   (HIV_Care_2 == "Yes") &  
+#                       (HIV_Care_3 == "No" | is.na(HIV_Care_3) ==TRUE) |
+#                         (HIV_Care_4 == "No" | is.na(HIV_Care_4) ==TRUE) ~ "Lost",
+#                   (HIV_Care_3 == "Yes") &  
+#                         (HIV_Care_4 == "No" | is.na(HIV_Care_4) ==TRUE) ~ "Lost",
+#                   (HIV_Care_1 == "No") &  
+#                     (HIV_Care_2 == "Yes" | is.na(HIV_Care_2) ==TRUE) | 
+#                       (HIV_Care_3 == "Yes" | is.na(HIV_Care_3) ==TRUE) |
+#                         (HIV_Care_4 == "Yes" | is.na(HIV_Care_4) ==TRUE) ~ "Linked",
+#                   (HIV_Care_2 == "No") &  
+#                       (HIV_Care_3 == "Yes" | is.na(HIV_Care_3) ==TRUE) |
+#                         (HIV_Care_4 == "Yes" | is.na(HIV_Care_4) ==TRUE) ~ "Linked",
+#                   (HIV_Care_3 == "No") &  
+#                         (HIV_Care_4 == "Yes" | is.na(HIV_Care_4) ==TRUE) ~ "Linked"))
 
 ```
 
+```{r Generalizable regardless of visit number}
+
+#This solution is generalizable regardless of the number of visits
+
+HIV_Care <- HIV_Care %>%
+                 group_by(Acct.Number) %>% #so that R is doing manipulations within a single "account"'s set pf data
+                 mutate(VisitNumber = 1:n())  #just makes a visit number index 
+
+LastNotNAVisit <- HIV_Care %>%
+            filter(!is.na(HIV_Care)) %>% #filter out NA rows
+            mutate(LastNotNAVisit = case_when( VisitNumber == max(VisitNumber) ~ "Last")) %>% 
+            #Marks the visit with the highest visit number, by creating a variable with that value, only when those conditions are met.
+            filter(LastNotNAVisit == "Last") %>% #filters to only the last visit rows
+            select(Acct.Number, VisitNumber, LastNotNAVisit) #makes just a little helper dataset to mark which is the last not NA visit
+
+Care_Status <- left_join(HIV_Care, LastNotNAVisit) #left join means it keeps all the rows in HIV_Care, so basically we've just added a column to HIV_Care that says whether a particular row is the last non-NA visit or not.
+
+rm(LastNotNAVisit) #just getting rid of this helper dataset
+
+Care_Status <- Care_Status %>%
+                 mutate(CareStatus = case_when( #again this creates a variable, and assigns it values based on other variables
+                      LastNotNAVisit == "Last" & HIV_Care == "Yes" & all(HIV_Care == "Yes", na.rm = TRUE) ~ "Always",
+                      LastNotNAVisit == "Last" & HIV_Care == "Yes" & any(HIV_Care == "No", na.rm = TRUE) ~ "Linked",
+                      LastNotNAVisit == "Last" & HIV_Care == "No" & all(HIV_Care == "No", na.rm = TRUE) ~ "Never",
+                      LastNotNAVisit == "Last" & HIV_Care == "No" & any(HIV_Care == "Yes", na.rm = TRUE) ~ "Lost")) %>%
+                  select(Acct.Number, CareStatus) %>%
+                  filter(!is.na(CareStatus))
+
+#This leaves you with a minimal dataset that has acct number and care status, that you can merge back in to whatever you'd like. eg.
+HIV_Care <- left_join(HIV_Care, Care_Status)
+
+```
