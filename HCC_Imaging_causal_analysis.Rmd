@@ -9,7 +9,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 library(pacman)
-p_load(tidyverse, readxl, skimr, knitr, xslx, lubridate, MASS, ggplot2, ggpubr, data.table, mice, ltmle, SuperLearner, arm, gam, randomForest, earth, Amelia)
+p_load(tidyverse, readxl, skimr, knitr, xslx, lubridate, MASS, ggplot2, ggpubr, data.table, mice, ltmle, SuperLearner, arm, gam, randomForest, earth, Amelia, survminer, survival, car)
 #library(Hmisc)
 
 knitr::opts_chunk$set(include = FALSE, cache = TRUE)
@@ -1616,6 +1616,97 @@ NNTdenom <- gcomp_ATE/100
 NNT <- round(1/(gcomp_ATE/100), 0)
 ```
 
+```{r PH Regression}
+HCVData1$race.ethnicity <- relevel(HCVData1$race.ethnicity, "W")
+HCVData1$PayorType <- relevel(HCVData1$PayorType, "NotMediCal")
+keep <- c("PtID", "VISIT_COUNT_2014", "VISIT_COUNT_2015", "VISIT_COUNT_2016", "VISIT_COUNT_2017", "VISIT_COUNT_2018", "VISIT_COUNT_2019", "ABD_IMAGING_2014", "ABD_IMAGING_2015", "ABD_IMAGING_2016", "ABD_IMAGING_2017", "ABD_IMAGING_2018", "ABD_IMAGING_2019", "FIB4_by2014", "FIB4_by2015", "FIB4_by2016", "FIB4_by2017", "FIB4_by2018", "FIB4_by2019", "HCC_2014only", "HCC_2015only", "HCC_2016only", "HCC_2017only", "HCC_2018only", "HCC_2019only")
+add <- c("PtID", "PayorType", "race.ethnicity", "Sex")
+HCVData1_long <- HCVData1[keep]
+HCVData1_adds <- HCVData1[add]
+HCVData1_long <- reshape(HCVData1_long, idvar = "PtID", varying = list(c("VISIT_COUNT_2014", "VISIT_COUNT_2015", "VISIT_COUNT_2016", "VISIT_COUNT_2017", "VISIT_COUNT_2018", "VISIT_COUNT_2019"), c("ABD_IMAGING_2014", "ABD_IMAGING_2015", "ABD_IMAGING_2016", "ABD_IMAGING_2017", "ABD_IMAGING_2018", "ABD_IMAGING_2019"), c("FIB4_by2014", "FIB4_by2015", "FIB4_by2016", "FIB4_by2017", "FIB4_by2018", "FIB4_by2019"), c("HCC_2014only", "HCC_2015only", "HCC_2016only", "HCC_2017only", "HCC_2018only", "HCC_2019only")), timevar = "YEAR", v.names = c("VISIT_COUNT", "ABD_IMAGING", "FIB4", "HCC"), times = c(2014, 2015, 2016, 2017, 2018, 2019), direction = "long")
+HCVData1_long <- merge(HCVData1_long, HCVData1_adds, by = "PtID")
+HCVData1_long$ABD_IMAGING <- ifelse(is.na(HCVData1_long$ABD_IMAGING), 0, HCVData1_long$ABD_IMAGING)
+HCVData1_long$VISIT_COUNT <- ifelse(is.na(HCVData1_long$VISIT_COUNT), 0, HCVData1_long$VISIT_COUNT)
+#Change years to days for survival analysis
+HCVData1_long$YEAR <- replace(c(2014, 2015, 2016, 2017, 2018, 2019), values = c(365, 730, 1096, 1461, 1826, 2191))
+
+fit_weib1 <- survreg(Surv(YEAR, HCC) ~ ABD_IMAGING + VISIT_COUNT + FIB4 + race.ethnicity + Sex + PayorType, 
+data=HCVData1_long, dist="weibull")
+summary(fit_weib1)
+
+# alpha estimates
+aw1 <- c(coef(fit_weib1), log(fit_weib1$scale))
+v.aw1 <- vcov(fit_weib1) # Covariance matrix of alphas
+names(aw1) <- c(paste("a", 1:(length(aw1)-1), sep=""), "lscale")
+rownames(v.aw1) <- colnames(v.aw1) <- names(aw1)
+gw <- c("-a2/exp(lscale)","-a3/exp(lscale)","-a4/exp(lscale)", "-a5/exp(lscale)", "-a6/exp(lscale)", "-a7/exp(lscale)", "-a8/exp(lscale)", "-a9/exp(lscale)") 
+
+# Calculate ln(HR) and SEs:
+lnhr.se.fit1 <- rbind(deltaMethod(aw1, gw[1], vcov=v.aw1), deltaMethod(aw1, gw[2], vcov=v.aw1), deltaMethod(aw1, gw[3], vcov=v.aw1), deltaMethod(aw1, gw[4], vcov=v.aw1), deltaMethod(aw1, gw[5], vcov=v.aw1), deltaMethod(aw1, gw[6], vcov=v.aw1), deltaMethod(aw1, gw[7], vcov=v.aw1), deltaMethod(aw1, gw[8], vcov=v.aw1))
+lnhr.se.fit1
+
+# HR and 95% CIs:
+weib1 <- round(exp(lnhr.se.fit1),2)
+row.names(weib1) <- c("ABD_IMAGING", "VISIT_COUNT", "FIB4", "race.ethnicityB", "race.ethnicityL", "race.ethnicityO", "SexMale", "PayorTypeMediCal")
+weib1
+
+#Cox Model, to verify what I did is right because wow (also trying stratification by race/ethnicity)
+cox1 <- coxph(Surv(YEAR, HCC) ~ ABD_IMAGING + VISIT_COUNT + FIB4 + Sex + PayorType + strata(race.ethnicity), data=HCVData1_long, method="efron")
+summary(cox1)
+summary(survfit(cox1))
+coxcoef <- coef(cox1)
+coxCI <- confint(cox1)
+coxSE <-sqrt(diag(vcov(cox1)))
+coxfit1 <- surv_fit(cox1, data = HCVData1_long)
+lines <- c("solid", "twodash", "longdash", "dotted")
+coxplot <- ggsurvplot(coxfit1, conf.int = FALSE, palette = "grey", 
+           censor = FALSE, surv.median.line = "hv", ylim = c(.98,1), ylab = "Survival probability (No HCC)", legend.labs = c("White", "Black", "Latinx", "Other"), linetype = c("strata"))
+coxplot$plot <- coxplot$plot + scale_linetype_manual(values = lines); coxplot
+```
+
+```{r Weibull dichotomized}
+HCVData1$race.ethnicity <- relevel(HCVData1$race.ethnicity, "W")
+HCVData1$PayorType <- relevel(HCVData1$PayorType, "NotMediCal")
+HCVData1_dic <- HCVData1
+HCVData1_dic$ABD_IMAGING_2014 <- ifelse(HCVData1_dic$ABD_IMAGING_2014 > 0, 1, 0)
+HCVData1_dic$ABD_IMAGING_2015 <- ifelse(HCVData1_dic$ABD_IMAGING_2015 > 0, 1, 0)
+HCVData1_dic$ABD_IMAGING_2016 <- ifelse(HCVData1_dic$ABD_IMAGING_2016 > 0, 1, 0)
+HCVData1_dic$ABD_IMAGING_2017 <- ifelse(HCVData1_dic$ABD_IMAGING_2017 > 0, 1, 0)
+HCVData1_dic$ABD_IMAGING_2018 <- ifelse(HCVData1_dic$ABD_IMAGING_2018 > 0, 1, 0)
+HCVData1_dic$ABD_IMAGING_2019 <- ifelse(HCVData1_dic$ABD_IMAGING_2019 > 0, 1, 0)
+keep <- c("PtID", "VISIT_COUNT_2014", "VISIT_COUNT_2015", "VISIT_COUNT_2016", "VISIT_COUNT_2017", "VISIT_COUNT_2018", "VISIT_COUNT_2019", "ABD_IMAGING_2014", "ABD_IMAGING_2015", "ABD_IMAGING_2016", "ABD_IMAGING_2017", "ABD_IMAGING_2018", "ABD_IMAGING_2019", "FIB4_by2014", "FIB4_by2015", "FIB4_by2016", "FIB4_by2017", "FIB4_by2018", "FIB4_by2019", "HCC_2014only", "HCC_2015only", "HCC_2016only", "HCC_2017only", "HCC_2018only", "HCC_2019only")
+add <- c("PtID", "PayorType", "race.ethnicity", "Sex")
+HCVData1_dic_long <- HCVData1_dic[keep]
+HCVData1_dic_adds <- HCVData1_dic[add]
+HCVData1_dic_long <- reshape(HCVData1_dic_long, idvar = "PtID", varying = list(c("VISIT_COUNT_2014", "VISIT_COUNT_2015", "VISIT_COUNT_2016", "VISIT_COUNT_2017", "VISIT_COUNT_2018", "VISIT_COUNT_2019"), c("ABD_IMAGING_2014", "ABD_IMAGING_2015", "ABD_IMAGING_2016", "ABD_IMAGING_2017", "ABD_IMAGING_2018", "ABD_IMAGING_2019"), c("FIB4_by2014", "FIB4_by2015", "FIB4_by2016", "FIB4_by2017", "FIB4_by2018", "FIB4_by2019"), c("HCC_2014only", "HCC_2015only", "HCC_2016only", "HCC_2017only", "HCC_2018only", "HCC_2019only")), timevar = "YEAR", v.names = c("VISIT_COUNT", "ABD_IMAGING", "FIB4", "HCC"), times = c(2014, 2015, 2016, 2017, 2018, 2019), direction = "long")
+HCVData1_dic_long <- merge(HCVData1_dic_long, HCVData1_dic_adds, by = "PtID")
+HCVData1_dic_long$ABD_IMAGING <- ifelse(is.na(HCVData1_dic_long$ABD_IMAGING), 0, HCVData1_dic_long$ABD_IMAGING)
+HCVData1_dic_long$VISIT_COUNT <- ifelse(is.na(HCVData1_dic_long$VISIT_COUNT), 0, HCVData1_dic_long$VISIT_COUNT)
+#Change years to days for survival analysis
+HCVData1_dic_long$YEAR <- replace(c(2014, 2015, 2016, 2017, 2018, 2019), values = c(365, 730, 1096, 1461, 1826, 2191))
+
+fit_weib1_dic <- survreg(Surv(YEAR, HCC) ~ ABD_IMAGING + VISIT_COUNT + FIB4 + race.ethnicity + Sex + PayorType, 
+data=HCVData1_dic_long, dist="weibull")
+summary(fit_weib1_dic)
+
+# alpha estimates
+aw1 <- c(coef(fit_weib1_dic), log(fit_weib1_dic$scale))
+v.aw1 <- vcov(fit_weib1_dic) # Covariance matrix of alphas
+names(aw1) <- c(paste("a", 1:(length(aw1)-1), sep=""), "lscale")
+rownames(v.aw1) <- colnames(v.aw1) <- names(aw1)
+gw <- c("-a2/exp(lscale)","-a3/exp(lscale)","-a4/exp(lscale)", "-a5/exp(lscale)", "-a6/exp(lscale)", "-a7/exp(lscale)", "-a8/exp(lscale)", "-a9/exp(lscale)") 
+
+# Calculate ln(HR) and SEs:
+lnhr.se.fit1 <- rbind(deltaMethod(aw1, gw[1], vcov=v.aw1), deltaMethod(aw1, gw[2], vcov=v.aw1), deltaMethod(aw1, gw[3], vcov=v.aw1), deltaMethod(aw1, gw[4], vcov=v.aw1), deltaMethod(aw1, gw[5], vcov=v.aw1), deltaMethod(aw1, gw[6], vcov=v.aw1), deltaMethod(aw1, gw[7], vcov=v.aw1), deltaMethod(aw1, gw[8], vcov=v.aw1))
+lnhr.se.fit1
+
+# HR and 95% CIs:
+weib1 <- round(exp(lnhr.se.fit1),2)
+row.names(weib1) <- c("ABD_IMAGING", "VISIT_COUNT", "FIB4", "race.ethnicityB", "race.ethnicityL", "race.ethnicityO", "SexMale", "PayorTypeMediCal")
+weib1
+```
+
+
 ## F. Findings
 
 Ultimately, implementing \textit{ltmle} with \textit{Super Learner} on our observed data produced the following estimates for the risk difference of developing HCC in year 5 when receiving abdominal imaging at least once per year for the 4 preceding years, compared to not receiving abdominal imaging during that time, when controlling for the number of hepatology or primary care visits, FIB-4 score, sex, race, and SES was:
@@ -1627,6 +1718,12 @@ Ultimately, implementing \textit{ltmle} with \textit{Super Learner} on our obser
 | `r round(gcomp_ATE, 3)` (`r gcomp_low`, `r gcomp_high`) | `r round(iptw_ATE, 3)` (`r iptw_low`, `r iptw_high`) | `r round(tmle_ATE, 3)` (`r tmle_low`, `r tmle_high`) |
 
 \newpage
+
+RE SURVIVAL STRUCTURE:
+
+It’s unusual that minorities show lower risk of diseases, but it’s not out of the question—weird relationships have been documented elsewhere (African-American women have a lower risk of breast cancer, but higher probability of dying once diagnosed).
+
+•	Your data structure is technically time to event, but your time variable is pretty discrete (vs. continuous): you only assess events at the year level (survival methods are really best for more granular time data). 
 
 ## G. Interpretation
 
@@ -1662,3 +1759,32 @@ Khan MQ, Anand V, Hessefort N, Hassan A, Ahsan A, Sonnenberg A, Fimmel CJ. Utili
 Omland LH, Krarup H, Jepsen P, Georgsen J, Harritsh?j LH, Riisom K, Jacobsen SE, Schouenborg P, Christensen PB, S?rensen HT, Obel N, DANVIR Cohort Study. Mortality in patients with chronic and cleared hepatitis C viral infection: a nationwide cohort study. J Hepatol. 2010 Jul; 53(1):36-42.
 
 Sterling, R. K., Lissen, E. , Clumeck, N. , Sola, R. , Correa, M. C., Montaner, J. , S. Sulkowski, M. , Torriani, F. J., Dieterich, D. T., Thomas, D. L., Messinger, D. and Nelson, M. (2006), Development of a simple noninvasive index to predict significant fibrosis in patients with HIV/HCV coinfection. Hepatology, 43: 1317-1325. doi:10.1002/hep.21178
+
+```{r}
+HCVData1$PC_2015_VISIT_COUNT <- ifelse(is.na(HCVData1$PC_2015_VISIT_COUNT), 0, HCVData1$PC_2015_VISIT_COUNT)
+HCVData1$PC_2016_VISIT_COUNT <- ifelse(is.na(HCVData1$PC_2016_VISIT_COUNT), 0, HCVData1$PC_2016_VISIT_COUNT)
+HCVData1$PC_2017_VISIT_COUNT <- ifelse(is.na(HCVData1$PC_2017_VISIT_COUNT), 0, HCVData1$PC_2017_VISIT_COUNT)
+HCVData1$PC_2018_VISIT_COUNT <- ifelse(is.na(HCVData1$PC_2018_VISIT_COUNT), 0, HCVData1$PC_2018_VISIT_COUNT)
+HCVData1$PC_2019_VISIT_COUNT <- ifelse(is.na(HCVData1$PC_2019_VISIT_COUNT), 0, HCVData1$PC_2019_VISIT_COUNT)
+HCVData1$HEP_2015_VISIT_COUNT <- ifelse(is.na(HCVData1$HEP_2015_VISIT_COUNT), 0, HCVData1$HEP_2015_VISIT_COUNT)
+HCVData1$HEP_2016_VISIT_COUNT <- ifelse(is.na(HCVData1$HEP_2016_VISIT_COUNT), 0, HCVData1$HEP_2016_VISIT_COUNT)
+HCVData1$HEP_2017_VISIT_COUNT <- ifelse(is.na(HCVData1$HEP_2017_VISIT_COUNT), 0, HCVData1$HEP_2017_VISIT_COUNT)
+HCVData1$HEP_2018_VISIT_COUNT <- ifelse(is.na(HCVData1$HEP_2018_VISIT_COUNT), 0, HCVData1$HEP_2018_VISIT_COUNT)
+HCVData1$HEP_2019_VISIT_COUNT <- ifelse(is.na(HCVData1$HEP_2019_VISIT_COUNT), 0, HCVData1$HEP_2019_VISIT_COUNT)
+HCVData1$totalPC <- HCVData1$PC_2015_VISIT_COUNT + HCVData1$PC_2016_VISIT_COUNT + HCVData1$PC_2017_VISIT_COUNT + HCVData1$PC_2018_VISIT_COUNT + HCVData1$PC_2019_VISIT_COUNT
+HCVData1$totalHep <- HCVData1$HEP_2015_VISIT_COUNT + HCVData1$HEP_2016_VISIT_COUNT + HCVData1$HEP_2017_VISIT_COUNT + HCVData1$HEP_2018_VISIT_COUNT + HCVData1$HEP_2019_VISIT_COUNT
+HCVData1$totalPC <- ifelse(HCVData1$totalPC==0, "none", ifelse(HCVData1$totalPC>0 & HCVData1$totalPC<6, "low", ifelse(HCVData1$totalPC>5 & HCVData1$totalPC<11, "mid", "high"))) 
+HCVData1$totalHep <- ifelse(HCVData1$totalHep==0, "none", ifelse(HCVData1$totalHep>0 & HCVData1$totalHep<6, "low", ifelse(HCVData1$totalHep>5 & HCVData1$totalHep<11, "mid", "high"))) 
+table(HCVData1$race.ethnicity, HCVData1$totalPC)
+table(HCVData1$race.ethnicity, HCVData1$totalHep)
+```
+
+```{r}
+library(pvaluefunctions)
+library(ggplot2)
+library(scales)
+library(zipfR)
+func <- conf_dist(
+  estimate = 1.102, n = 1628, stderr = 1.028061, type = "general_z", conf_level = .95) 
+func$plot + geom_vline(xintercept = 0, linetype="dashed", color = "red", size = 1)
+```
